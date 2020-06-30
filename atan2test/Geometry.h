@@ -5,11 +5,27 @@ struct Vector2
 	int x, y;
 	Vector2() :x(0), y(0) {}
 	Vector2(int x, int y) :x(x), y(y) {}
+	Vector2 operator +(const Vector2& lvel);
+	Vector2 operator -(const Vector2& lvel);
 };
-Vector2 operator +(const Vector2& lvel, const Vector2& levl2);
-Vector2 operator -(const Vector2& lvel, const Vector2& levl2);
+
+struct Vector2f
+{
+	float x, y;
+	Vector2f() :x(0),y(0) {}
+	Vector2f(float x, float y) :x(x), y(y) {}
+	float Magnitude()const;
+	void Normarize();
+	Vector2f Normarized()const;
+	Vector2f operator +(const Vector2f& lvel);
+	Vector2f operator -(const Vector2f& lvel);
+	Vector2f operator *(const float& num);
+};
+
+
 
 typedef Vector2 Position2;
+typedef Vector2f position2f; 
 
 /// <summary>
 /// 矩形（長方形）を表す

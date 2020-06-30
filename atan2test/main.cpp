@@ -14,21 +14,29 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	int image;
 	image = LoadGraph(L"image/test.png");
-	int speed = 0;
-	Position2 center = { 320,240 };
-	Position2 target;
+	int speed = 4;
+	Position2 catPos = { 320,240 };
+	Position2 target = {};
+	SetDrawMode(DX_DRAWMODE_BILINEAR);
 
-	while (!DxLib::ProcessMessage())
+	while (!DxLib::ProcessMessage()&&!CheckHitKey(KEY_INPUT_ESCAPE))
 	{
 		DxLib::ClearDrawScreen();
 		
 		DxLib::GetMousePoint(&target.x, &target.y);
 
-		center.x += speed * cos(atan2(target.y - center.y, target.x - center.x));
-		center.y += speed * sin(atan2(target.y - center.y, target.x - center.x));
+		//DrawCircle(catPos.x, catPos.y, 100, 0xffffff);
 
-		auto angle = atan2f(target.y - center.y, target.x - center.x);
-		DxLib::DrawRotaGraph(center.x, center.y, 1.0f, angle, image, true);
+		/*auto vCat = target - center;
+
+		center.x += static_cast<int>(speed * cos(atan2(target.y - center.y, target.x - center.x)));
+		center.y += static_cast<int>(speed * sin(atan2(target.y - center.y, target.x - center.x)));
+
+		auto tmp = target - center;
+
+		auto angle = atan2f(tmp.y, tmp.x );*/
+
+		//DxLib::DrawRotaGraph(center.x, center.y, 1.0f, angle, image, true);
 		DxLib::ScreenFlip();
 	}
 	return 0;

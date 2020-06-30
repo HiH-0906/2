@@ -45,7 +45,7 @@ bool Myself::Run(void)
 		_mouse->Update();
 		const Vector2 pos = _mouse->GetPos();
 		if (_mouse->GetClickTrg(MOUSE_INPUT_LEFT))
-		{
+		{			
 			if (pos.x < money_sizeX )
 			{
 				if (pos.y < money_sizeY * static_cast<int>(moneyType.size()))				// _moneyType‚Ì—v‘f”Áª¯¸‚àŒ“‚Ë‚Ä‚¢‚é
