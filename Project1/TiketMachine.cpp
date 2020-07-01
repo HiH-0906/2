@@ -2,6 +2,7 @@
 #include <algorithm>
 #include "TiketMachine.h"
 #include "Myself.h"
+#include "InsertMax.h"
 #include "_debug/_DebugConOut.h"
 
 
@@ -45,8 +46,6 @@ void TiketMachine::Run(void)
 					Clear();
 				}
 				break;
-			case PayType::CHARGE:
-				break;
 			case PayType::MAX:
 				break;
 			default:
@@ -61,34 +60,12 @@ void TiketMachine::Run(void)
 			{
 				(this->*_pay[_payType])();
 			}
-			// åàçœèàóùÇÃé¿ëï
-			/*switch (_payType)
-			{
-			case PayType::CASH:
-				PayCash();
-				break;
-			case PayType::CARD:
-				PayCard();
-				break;
-			case PayType::CHARGE:
-				break;
-			case PayType::MAX:
-				break;
-			default:
-				TRACE("ÉGÉâÅ[ÅFñ¢ímÇÃéxï•Ç¢ï˚ñ@");
-				_payType = PayType::MAX;
-				break;
-			}*/
 		}
 	}
 }
 
 bool TiketMachine::InsertCash(int cash)
 {
-	if (_paySuccess)
-	{
-		return false;
-	}
 	if (_payType == PayType::MAX)
 	{
 		_payType = PayType::CASH;
@@ -98,8 +75,7 @@ bool TiketMachine::InsertCash(int cash)
 	{
 		return false;
 	}
-	_cashData.try_emplace(cash, 0);
-	_cashData[cash]++;
+	
 
 
 	return true;
@@ -117,24 +93,6 @@ bool TiketMachine::InsertCard(void)
 		return false;
 	}
 	_cardData = lpCardServer.GetCardState();
-	return true;
-}
-
-bool TiketMachine::InsertCharge(int cash)
-{
-	if (_payType == PayType::MAX)
-	{
-		_payType = PayType::CHARGE;
-	}
-
-	if (_payType != PayType::CHARGE)
-	{
-		return false;
-	}
-	_cashData.try_emplace(cash, 0);
-	_cashData[cash]++;
-
-
 	return true;
 }
 
@@ -161,6 +119,11 @@ void TiketMachine::Draw(void)
 	DrawBtn();
 }
 
+void TiketMachine::payType(PayType paytype)
+{
+	_payType = paytype;
+}
+
 VecInt& TiketMachine::GetMoneyType(void)
 {
 	return _moneyType;
@@ -174,6 +137,7 @@ void TiketMachine::Clear(void)
 	_cashData.clear();
 	_cashDataChenge.clear();
 	_cardData = { 0,0 };
+	lpMyself.Insert(InsertMax());
 }
 
 void TiketMachine::DrawBtn(void)
@@ -325,7 +289,7 @@ bool TiketMachine::InitDraw(void)
 			for (auto data : _cashDataChenge)
 			{
 				DrawFormatString(draw_offsetX * 2, (draw_offsetY + GetFontSize()) + changeLine * GetFontSize(), 0xffffff, "%5dâ~", data.first);
-				DrawFormatString(draw_offsetX * 2, (draw_offsetY + GetFontSize()) + changeLine * GetFontSize(), 0xffffff, "     %9dâ~", data.second);
+				DrawFormatString(draw_offsetX * 2, (draw_offsetY + GetFontSize()) + changeLine * GetFontSize(), 0xffffff, "     %9dñá", data.second);
 				changeLine++;
 			}
 		}
@@ -424,6 +388,16 @@ bool TiketMachine::Init(sharedMouse mouse)
 	InitPay();
 
 	return true;
+}
+
+MapInt& TiketMachine::cashData()
+{
+	return _cashData;
+}
+
+void TiketMachine::cardData(const PairInt& pInt)
+{
+	_cardData = pInt;
 }
 
 TiketMachine::TiketMachine() :comment_offsetY(450), draw_offsetX(200), draw_offsetY(70), price_cash(130), price_card(124), screen_sizeX(800), screen_sizeY(600), money_sizeX(100), money_sizeY(50), font_size(18), pay_btn_sizeX(200), pay_btn_sizeY(50)

@@ -8,6 +8,16 @@
 
 #define lpMyself Myself::GetInstance()
 
+struct Wallet
+{
+	PayType payType;
+	int cash;
+};
+
+using Func_T = std::function<void(Wallet wallet)>;
+
+
+
 class MouseCtl;
 
 class Myself
@@ -34,7 +44,11 @@ public:
 
 	bool Run(void);
 	bool MergeCash(MapInt& change);			// ‚¨’Ş‚èó‚¯æ‚è
+	
+	MapInt& cash();
 
+	void Insert(const Func_T& func);
+	Func_T& Insert();
 private:
 	void Draw(void);
 
@@ -50,6 +64,8 @@ private:
 	//std::unique_ptr<MouseCtl> _mouse;
 	sharedMouse _mouse;
 
+	Func_T _insert;
+	
 	MapInt _cash;								// ‚Á‚Ä‚¢‚é‚¨‹à@(first:‹àíAsecond:–‡”)
 
 	Myself();

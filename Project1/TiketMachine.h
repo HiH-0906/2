@@ -19,7 +19,6 @@ enum class PayType
 {
 	CASH,			// Œ»‹à
 	CARD,			// IC¶°ÄŞ
-	CHARGE,			// ¶°ÄŞ‚ÉÁ¬°¼Ş
 	MAX				// –¢İ’è
 };
 
@@ -35,10 +34,12 @@ public:
 	void Run(void);
 	bool InsertCash(int cash);											// “ü‹àó•tˆ—
 	bool InsertCard(void);												// “dqÏÈ°¶°ÄŞ‚Ìˆ—
-	bool InsertCharge(int cash);
 	void Draw(void);
+	void payType(PayType paytype);
 	VecInt& GetMoneyType(void);
 	bool Init(sharedMouse mouse);
+	MapInt& cashData();
+	void cardData(const PairInt& pInt);
 private:
 	
 	void Clear(void);

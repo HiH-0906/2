@@ -2,6 +2,7 @@
 #include "MouseCtl.h"
 #include "Myself.h"
 #include "TiketMachine.h"
+#include "InsertMax.h"
 #include "_debug/_DebugConOut.h"
 
 Myself* Myself::s_Instance = nullptr;
@@ -46,30 +47,25 @@ bool Myself::Run(void)
 		const Vector2 pos = _mouse->GetPos();
 		if (_mouse->GetClickTrg(MOUSE_INPUT_LEFT))
 		{			
+			Wallet wallet = { PayType::MAX,0 };
 			if (pos.x < money_sizeX )
 			{
 				if (pos.y < money_sizeY * static_cast<int>(moneyType.size()))				// _moneyTypeの要素数ﾁｪｯｸも兼ねている
 				{
-					auto type = moneyType[pos.y / money_sizeY];
-					if (_cash[type] > 0)
-					{
-						if (lpTiketMachine.InsertCash(type))
-						{
-							TRACE("%d\n", type);
-							_cash[type] --;
-						}
-					}
+					wallet.cash = moneyType[pos.y / money_sizeY];
+					wallet.payType = PayType::CASH;
 				}
 				else
 				{
 					// 現金の範囲+1の位置がちょうど電子ﾏﾈｰ
 					if (pos.y < money_sizeY * static_cast<int>(moneyType.size() + 1))		// _moneyTypeの要素数ﾁｪｯｸも兼ねている
 					{
-						lpTiketMachine.InsertCard();
-						// 返り値を使って音つけるとかええんちゃう
+						wallet.payType = PayType::CARD;
 					}
 				}
+				_insert(wallet);
 			}
+			
 		}
 		if (_mouse->GetClickTrg(MOUSE_INPUT_MIDDLE))
 		{
@@ -104,6 +100,21 @@ bool Myself::MergeCash(MapInt& change)
 	return true;
 }
 
+MapInt& Myself::cash()
+{
+	return _cash;
+}
+
+void Myself::Insert(const Func_T& func)
+{
+	_insert = func;
+}
+
+Func_T& Myself::Insert()
+{
+	return _insert;
+}
+
 bool Myself::SysInit(void)
 {
 	DxLib::SetGraphMode(screen_sizeX, screen_sizeY, 16);
@@ -135,6 +146,8 @@ bool Myself::MyInit(void)
 	_cash.try_emplace(1000, 1);
 	_cash.try_emplace(5000, 1);
 	_cash.try_emplace(10000, 1);
+
+	_insert = InsertMax();
 
 	return true;
 }
