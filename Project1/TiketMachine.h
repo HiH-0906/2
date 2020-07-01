@@ -11,6 +11,9 @@ using MapInt = std::map<int, int>;
 using VecInt = std::vector<int>;
 using sharedMouse = std::shared_ptr<MouseCtl>;
 
+struct InsertCard;
+struct InsertMax;
+struct InsertCash;
 
 #define lpTiketMachine  TiketMachine::GetInstance()
 
@@ -38,10 +41,12 @@ public:
 	void payType(PayType paytype);
 	VecInt& GetMoneyType(void);
 	bool Init(sharedMouse mouse);
-	MapInt& cashData();
-	void cardData(const PairInt& pInt);
 private:
 	
+	friend struct InsertMax;
+	friend struct InsertCard;
+	friend struct InsertCash;
+
 	void Clear(void);
 	void DrawBtn(void);
 	bool PayCash(void);

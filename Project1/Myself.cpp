@@ -100,20 +100,12 @@ bool Myself::MergeCash(MapInt& change)
 	return true;
 }
 
-MapInt& Myself::cash()
+void Myself::insertClear(void)
 {
-	return _cash;
+	_insert = InsertMax();
 }
 
-void Myself::Insert(const Func_T& func)
-{
-	_insert = func;
-}
 
-Func_T& Myself::Insert()
-{
-	return _insert;
-}
 
 bool Myself::SysInit(void)
 {

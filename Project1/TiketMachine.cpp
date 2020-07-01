@@ -137,7 +137,7 @@ void TiketMachine::Clear(void)
 	_cashData.clear();
 	_cashDataChenge.clear();
 	_cardData = { 0,0 };
-	lpMyself.Insert(InsertMax());
+	lpMyself.insertClear();
 }
 
 void TiketMachine::DrawBtn(void)
@@ -390,15 +390,6 @@ bool TiketMachine::Init(sharedMouse mouse)
 	return true;
 }
 
-MapInt& TiketMachine::cashData()
-{
-	return _cashData;
-}
-
-void TiketMachine::cardData(const PairInt& pInt)
-{
-	_cardData = pInt;
-}
 
 TiketMachine::TiketMachine() :comment_offsetY(450), draw_offsetX(200), draw_offsetY(70), price_cash(130), price_card(124), screen_sizeX(800), screen_sizeY(600), money_sizeX(100), money_sizeY(50), font_size(18), pay_btn_sizeX(200), pay_btn_sizeY(50)
 {

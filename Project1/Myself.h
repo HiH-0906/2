@@ -17,12 +17,17 @@ struct Wallet
 using Func_T = std::function<void(Wallet wallet)>;
 
 
+struct InsertCard;
+struct InsertMax;
+struct InsertCash;
 
 class MouseCtl;
 
 class Myself
 {
 public:
+	
+
 	static Myself& GetInstance()
 	{
 		static std::once_flag once;
@@ -45,11 +50,13 @@ public:
 	bool Run(void);
 	bool MergeCash(MapInt& change);			// ‚¨’Þ‚èŽó‚¯Žæ‚è
 	
-	MapInt& cash();
+	void insertClear(void);
 
-	void Insert(const Func_T& func);
-	Func_T& Insert();
 private:
+	friend struct InsertMax;
+	friend struct InsertCard;
+	friend struct InsertCash;
+
 	void Draw(void);
 
 	bool SysInit(void);

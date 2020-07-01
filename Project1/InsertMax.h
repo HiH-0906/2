@@ -11,17 +11,17 @@ struct InsertMax
 		if (wallet.payType == PayType::CASH)
 		{
 			lpTiketMachine.payType(PayType::CASH);
-			lpMyself.Insert(InsertCash());
+			lpMyself._insert = InsertCash();
 		}
 		else if (wallet.payType == PayType::CARD)
 		{
 			lpTiketMachine.payType(PayType::CARD);
-			lpMyself.Insert(InsertCard());
+			lpMyself._insert = InsertCard();
 		}
 		else
 		{
 			// Max‚©•Ï‚È’l‚ª—ˆ‚Ä‚à‰½‚à‚µ‚È‚¢
 		}
-		lpMyself.Insert()(wallet);
+		lpMyself._insert(wallet);
 	}
 };

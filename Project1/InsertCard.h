@@ -6,7 +6,11 @@ struct InsertCard
 {
 	void operator()(Wallet wallet)
 	{
-		lpTiketMachine.cardData(lpCardServer.GetCardState());
-		lpMyself.Insert(InsertCard2nd());
+		if (lpTiketMachine._paySuccess)
+		{
+			return;
+		}
+		lpTiketMachine._cardData = lpCardServer.GetCardState();
+		lpMyself._insert = InsertCard2nd();
 	}
 };
