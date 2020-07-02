@@ -131,7 +131,7 @@ void TiketMachine::DrawBtn(void)
 
 	DrawGraph(_btnPos.x, _btnPos.y, _images[_btnKey], true);
 
-	DrawString(_btnPos.x + (font_size / 2), _btnPos.y + (font_size / 2), btnName.c_str(), 0x000000);
+	DrawString(_btnPos.x + (font_size / 2), _btnPos.y + (font_size / 2), btnName.c_str(), 0x2222ff);
 
 	if (_payType == PayType::MAX || _paySuccess)
 	{
@@ -142,7 +142,7 @@ void TiketMachine::DrawBtn(void)
 
 	DrawGraph(_cBtnPos.x, _cBtnPos.y, _images[_cBtnKey], true);
 
-	DrawString(_cBtnPos.x + (font_size / 2), _cBtnPos.y + (font_size / 2), btnName.c_str(), 0xff0000);
+	DrawString(_cBtnPos.x + (font_size / 2), _cBtnPos.y + (font_size / 2), btnName.c_str(), 0xff2222);
 
 }
 

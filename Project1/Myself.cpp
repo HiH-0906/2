@@ -69,8 +69,8 @@ bool Myself::Run(void)
 							wallet.payType = PayType::CARD;
 						}
 					}
+					_insert(wallet, lpTiketMachine.GetMonyeData(wallet));
 				}
-				_insert(wallet, lpTiketMachine.GetMonyeData(wallet));
 			}
 		}
 		if (_mouse->GetClickTrg(MOUSE_INPUT_MIDDLE))
