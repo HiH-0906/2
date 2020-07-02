@@ -45,27 +45,33 @@ bool Myself::Run(void)
 	{
 		_mouse->Update();
 		const Vector2 pos = _mouse->GetPos();
+		Wallet wallet = { PayType::MAX,0 };
 		if (_mouse->GetClickTrg(MOUSE_INPUT_LEFT))
 		{			
-			Wallet wallet = { PayType::MAX,0 };
-			if (pos.x < money_sizeX )
+			if (!lpTiketMachine.paySuccess())
 			{
-				if (pos.y < money_sizeY * static_cast<int>(moneyType.size()))				// _moneyTypeの要素数ﾁｪｯｸも兼ねている
+				if (pos.x < money_sizeX)
 				{
-					wallet.cash = moneyType[pos.y / money_sizeY];
-					wallet.payType = PayType::CASH;
-				}
-				else
-				{
-					// 現金の範囲+1の位置がちょうど電子ﾏﾈｰ
-					if (pos.y < money_sizeY * static_cast<int>(moneyType.size() + 1))		// _moneyTypeの要素数ﾁｪｯｸも兼ねている
+					if (pos.y < money_sizeY * static_cast<int>(moneyType.size()))				// _moneyTypeの要素数ﾁｪｯｸも兼ねている
 					{
-						wallet.payType = PayType::CARD;
+						wallet.cash = moneyType[pos.y / money_sizeY];
+						if (lpMyself._cash[wallet.cash] > 0)
+						{
+							_cash[wallet.cash]--;
+							wallet.payType = PayType::CASH;
+						}
+					}
+					else
+					{
+						// 現金の範囲+1の位置がちょうど電子ﾏﾈｰ
+						if (pos.y < money_sizeY * static_cast<int>(moneyType.size() + 1))		// _moneyTypeの要素数ﾁｪｯｸも兼ねている
+						{
+							wallet.payType = PayType::CARD;
+						}
 					}
 				}
-				_insert(wallet);
+				_insert(wallet, lpTiketMachine.GetMonyeData(wallet));
 			}
-			
 		}
 		if (_mouse->GetClickTrg(MOUSE_INPUT_MIDDLE))
 		{
@@ -100,7 +106,12 @@ bool Myself::MergeCash(MapInt& change)
 	return true;
 }
 
-void Myself::insertClear(void)
+void Myself::SetInsert(Func_T func)
+{
+	_insert = func;
+}
+
+void Myself::ClearInsert(void)
 {
 	_insert = InsertMax();
 }

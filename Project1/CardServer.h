@@ -1,10 +1,11 @@
 #pragma once
 #include <utility>
 #include <memory>
+#include "TiketMachine.h"
 
 #define lpCardServer CardServer::GetInstance()
 
-using PairInt = std::pair<int, int>;
+
 
 class CardServer
 {
@@ -13,9 +14,9 @@ public:
 	{
 		return *S_Instance;
 	}
-	PairInt GetCardState(void);					// ¶°ÄŞ‚Ìó‘Ôæ“¾
+	MapInt GetCardState(void);					// ¶°ÄŞ‚Ìó‘Ôæ“¾
 	bool PayMent(int price);
-	bool MergeCard(PairInt card);
+	bool MergeCard(MapInt card);
 private:
 	struct CardServerDeleter
 	{
@@ -26,7 +27,7 @@ private:
 	};
 	CardServer();
 	~CardServer();
-	PairInt _cardData;
+	MapInt _cardData;
 	static std::unique_ptr<CardServer, CardServerDeleter> S_Instance;
 };
 

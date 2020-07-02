@@ -6,20 +6,20 @@
 #include "_debug/_DebugConOut.h"
 
 
-void TiketMachine::Run(void)
+void TiketMachine::Run()
 {
 	Vector2 pos = _mouse->GetPos();
 	/// <summary>
 	/// ﾎﾞﾀﾝの判定
 	/// </summary>
 	/// <param name="">true:範囲内  falsee:範囲外</param>
-	auto checkBtn = [&]() {
-		return ((pos.x >= _btnPos.x) && (pos.x < _btnPos.x + pay_btn_sizeX)) &&
-				((pos.y >= _btnPos.y) && (pos.y < _btnPos.y + pay_btn_sizeY));
+	auto checkBtn = [&](Vector2 btnPos) {
+		return ((pos.x >= btnPos.x) && (pos.x < btnPos.x + pay_btn_sizeX)) &&
+				((pos.y >= btnPos.y) && (pos.y < btnPos.y + pay_btn_sizeY));
 	};
 
 
-	if (_mouse->GetClicking(MOUSE_INPUT_LEFT) && checkBtn())
+	if (_mouse->GetClicking(MOUSE_INPUT_LEFT) && checkBtn(_btnPos))
 	{
 		_btnKey = "btn_push";
 	}
@@ -27,8 +27,16 @@ void TiketMachine::Run(void)
 	{
 		_btnKey = "btn";
 	}
+	if (_mouse->GetClicking(MOUSE_INPUT_LEFT) && checkBtn(_cBtnPos) && _payType != PayType::MAX)
+	{
+		_cBtnKey = "btn_push";
+	}
+	else
+	{
+		_cBtnKey = "btn";
+	}
 
-	if (_mouse->GetClickTrg(MOUSE_INPUT_LEFT) && checkBtn())
+	if (_mouse->GetClickTrg(MOUSE_INPUT_LEFT) && checkBtn(_btnPos))
 	{
 		if (_paySuccess)
 		{
@@ -64,37 +72,6 @@ void TiketMachine::Run(void)
 	}
 }
 
-bool TiketMachine::InsertCash(int cash)
-{
-	if (_payType == PayType::MAX)
-	{
-		_payType = PayType::CASH;
-	}
-
-	if (_payType != PayType::CASH)
-	{
-		return false;
-	}
-	
-
-
-	return true;
-}
-
-bool TiketMachine::InsertCard(void)
-{
-	if (_payType == PayType::MAX)
-	{
-		_payType = PayType::CARD;
-	}
-	else
-	{
-		// ｶｰﾄﾞ及び現金が未投入の場合のみ受け付けるのでそれ以外は処理しない
-		return false;
-	}
-	_cardData = lpCardServer.GetCardState();
-	return true;
-}
 
 void TiketMachine::Draw(void)
 {
@@ -129,6 +106,11 @@ VecInt& TiketMachine::GetMoneyType(void)
 	return _moneyType;
 }
 
+void TiketMachine::CancelButton(void)
+{
+	
+}
+
 void TiketMachine::Clear(void)
 {
 	_btnKey = "btn";
@@ -136,8 +118,7 @@ void TiketMachine::Clear(void)
 	_payType = PayType::MAX;
 	_cashData.clear();
 	_cashDataChenge.clear();
-	_cardData = { 0,0 };
-	lpMyself.insertClear();
+	lpMyself.ClearInsert();
 }
 
 void TiketMachine::DrawBtn(void)
@@ -149,6 +130,18 @@ void TiketMachine::DrawBtn(void)
 	DrawGraph(_btnPos.x, _btnPos.y, _images[_btnKey], true);
 
 	DrawString(_btnPos.x + (font_size / 2), _btnPos.y + (font_size / 2), btnName.c_str(), 0x000000);
+
+	if (_payType == PayType::MAX)
+	{
+		return;
+	}
+
+	btnName = "キャンセル" ;
+
+	DrawGraph(_cBtnPos.x, _cBtnPos.y, _images[_cBtnKey], true);
+
+	DrawString(_cBtnPos.x + (font_size / 2), _cBtnPos.y + (font_size / 2), btnName.c_str(), 0xff0000);
+
 }
 
 bool TiketMachine::PayCash(void)
@@ -325,15 +318,15 @@ bool TiketMachine::InitDraw(void)
 			DrawString(0, comment_offsetY + GetFontSize() / 2, "決済完了\nICカードを出す際は受け取りボタンを押してください。", 0xffffff);
 
 			DrawString(draw_offsetX, draw_offsetY, "電子マネー", 0xffffff);
-			DrawFormatString(draw_offsetX + GetFontSize(), draw_offsetY + GetFontSize(), 0xffffff, "残高　%d円", _cardData.first);
-			DrawFormatString(draw_offsetX + GetFontSize(), draw_offsetY + GetFontSize() * 2, 0xffffff, "引去額　%d円", _cardData.second);
+			DrawFormatString(draw_offsetX + GetFontSize(), draw_offsetY + GetFontSize(), 0xffffff, "残高　%d円", _cardData[static_cast<int>(CardType::BALANCE)]);
+			DrawFormatString(draw_offsetX + GetFontSize(), draw_offsetY + GetFontSize() * 2, 0xffffff, "引去額　%d円", _cardData[static_cast<int>(CardType::CHANGE)]);
 		}
 		else
 		{
 			DrawString(0, comment_offsetY + GetFontSize() / 2, "左の枠内のICカードを選択しクリックして入金してください。\n入金が完了したら決済ボタンを押してください。", 0xffffff);
 			DrawString(draw_offsetX, draw_offsetY, "電子マネー", 0xffffff);
-			DrawFormatString(draw_offsetX + GetFontSize(), draw_offsetY + GetFontSize(), 0xffffff, "残高　%d円", _cardData.first);
-			if (_cardData.first < price_card)
+			DrawFormatString(draw_offsetX + GetFontSize(), draw_offsetY + GetFontSize(), 0xffffff, "残高　%d円", _cardData[static_cast<int>(CardType::BALANCE)]);
+			if (_cardData[static_cast<int>(CardType::BALANCE)] < price_card)
 			{
 				DrawString(draw_offsetX, draw_offsetY + GetFontSize() * 3, "残高が足りません\n", 0xffffff, true);
 			}
@@ -382,12 +375,23 @@ bool TiketMachine::Init(sharedMouse mouse)
 		_moneyType.emplace_back(10000);
 	}
 
-	_btnPos = Vector2((screen_sizeX - money_sizeX * 2) - pay_btn_sizeX, static_cast<int>(money_sizeY * (_moneyType.size())));
+	_btnPos = Vector2((screen_sizeX - money_sizeX * 2) - pay_btn_sizeX, static_cast<int>(money_sizeY * (_moneyType.size()) - pay_btn_sizeY - 10)); ((screen_sizeX - money_sizeX * 2) - pay_btn_sizeX, static_cast<int>(money_sizeY * (_moneyType.size())));
+	_cBtnPos = Vector2((screen_sizeX - money_sizeX * 2) - pay_btn_sizeX, static_cast<int>(money_sizeY * (_moneyType.size())));
 
 	InitDraw();
 	InitPay();
 
 	return true;
+}
+
+bool TiketMachine::paySuccess(void)
+{
+	return _paySuccess;
+}
+
+MapInt& TiketMachine::GetMonyeData(Wallet wallet)
+{
+	return wallet.payType == PayType::CASH ? _cashData : _cardData;
 }
 
 

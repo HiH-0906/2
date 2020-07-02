@@ -6,6 +6,8 @@
 #include "Vector2.h"
 #include "TiketMachine.h"
 
+using Func_T = std::function<void(Wallet wallet, MapInt& data)>;
+
 #define lpMyself Myself::GetInstance()
 
 struct Wallet
@@ -14,12 +16,6 @@ struct Wallet
 	int cash;
 };
 
-using Func_T = std::function<void(Wallet wallet)>;
-
-
-struct InsertCard;
-struct InsertMax;
-struct InsertCash;
 
 class MouseCtl;
 
@@ -49,13 +45,10 @@ public:
 
 	bool Run(void);
 	bool MergeCash(MapInt& change);			// ‚¨’Ş‚èó‚¯æ‚è
-	
-	void insertClear(void);
+	void SetInsert(Func_T func);
+	void ClearInsert(void);
 
 private:
-	friend struct InsertMax;
-	friend struct InsertCard;
-	friend struct InsertCash;
 
 	void Draw(void);
 
@@ -70,7 +63,6 @@ private:
 
 	//std::unique_ptr<MouseCtl> _mouse;
 	sharedMouse _mouse;
-
 	Func_T _insert;
 	
 	MapInt _cash;								// ‚Á‚Ä‚¢‚é‚¨‹à@(first:‹àíAsecond:–‡”)

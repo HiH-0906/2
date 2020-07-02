@@ -1,16 +1,13 @@
 #pragma once
 #include "TiketMachine.h"
 #include "InsertCard2nd.h"
+#include "CardServer.h"
 
 struct InsertCard
 {
-	void operator()(Wallet wallet)
+	void operator()(Wallet wallet, MapInt& data)
 	{
-		if (lpTiketMachine._paySuccess)
-		{
-			return;
-		}
-		lpTiketMachine._cardData = lpCardServer.GetCardState();
-		lpMyself._insert = InsertCard2nd();
+		data = lpCardServer.GetCardState();
+		lpMyself.SetInsert(InsertCard2nd());
 	}
 };

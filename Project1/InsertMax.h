@@ -6,22 +6,26 @@
 
 struct InsertMax
 {
-	void operator()(Wallet wallet)
+	void operator()(Wallet wallet, MapInt& data)
 	{
 		if (wallet.payType == PayType::CASH)
 		{
+			InsertCash insert;
 			lpTiketMachine.payType(PayType::CASH);
-			lpMyself._insert = InsertCash();
+			lpMyself.SetInsert(InsertCash());
+			insert(wallet, data);
 		}
 		else if (wallet.payType == PayType::CARD)
 		{
+			InsertCard insert;
 			lpTiketMachine.payType(PayType::CARD);
-			lpMyself._insert = InsertCard();
+			lpMyself.SetInsert(InsertCard());
+			insert(wallet, data);
 		}
 		else
 		{
-			// Max‚©•Ï‚È’l‚ª—ˆ‚Ä‚à‰½‚à‚µ‚È‚¢
+			// Max‚©•Ï‚È’l‚ª—ˆ‚Ä‚à‰½‚à‚¹‚¸return
+			return;
 		}
-		lpMyself._insert(wallet);
 	}
 };
