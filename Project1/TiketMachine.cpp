@@ -27,9 +27,10 @@ void TiketMachine::Run()
 	{
 		_btnKey = "btn";
 	}
-	if (_mouse->GetClicking(MOUSE_INPUT_LEFT) && checkBtn(_cBtnPos) && _payType != PayType::MAX)
+	if (_mouse->GetClicking(MOUSE_INPUT_LEFT) && checkBtn(_cBtnPos) && _payType != PayType::MAX && !_paySuccess)
 	{
 		_cBtnKey = "btn_push";
+		CancelButton();
 	}
 	else
 	{
@@ -108,7 +109,8 @@ VecInt& TiketMachine::GetMoneyType(void)
 
 void TiketMachine::CancelButton(void)
 {
-	
+	lpMyself.MergeCash(_cashData);
+	Clear();
 }
 
 void TiketMachine::Clear(void)
@@ -131,7 +133,7 @@ void TiketMachine::DrawBtn(void)
 
 	DrawString(_btnPos.x + (font_size / 2), _btnPos.y + (font_size / 2), btnName.c_str(), 0x000000);
 
-	if (_payType == PayType::MAX)
+	if (_payType == PayType::MAX || _paySuccess)
 	{
 		return;
 	}
