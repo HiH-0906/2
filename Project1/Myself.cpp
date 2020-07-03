@@ -57,7 +57,6 @@ bool Myself::Run(void)
 						wallet.cash = moneyType[pos.y / money_sizeY];
 						if (lpMyself._cash[wallet.cash] > 0)
 						{
-							_cash[wallet.cash]--;
 							wallet.payType = PayType::CASH;
 						}
 					}
@@ -69,7 +68,10 @@ bool Myself::Run(void)
 							wallet.payType = PayType::CARD;
 						}
 					}
-					_insert(wallet, lpTiketMachine.GetMonyeData(wallet));
+					if (_insert(wallet, lpTiketMachine.GetMonyeData(wallet)))
+					{
+						_cash[wallet.cash]--;
+					}
 				}
 			}
 		}

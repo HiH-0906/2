@@ -3,8 +3,9 @@
 
 struct InsertCard2nd
 {
-	void operator()(Wallet wallet, MapInt& data)
+	bool operator()(Wallet wallet, MapInt& data)
 	{
 		TRACE("InsertCard2nd‚Å‚·\n");
+		return false;
 	}
 };

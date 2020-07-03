@@ -3,10 +3,11 @@
 
 struct InsertCash
 {
-	void operator()(Wallet wallet, MapInt& data)
+	bool operator()(Wallet wallet, MapInt& data)
 	{
 		
 		data.try_emplace(wallet.cash, 0);
 		data[wallet.cash]++;
+		return true;
 	}
 };

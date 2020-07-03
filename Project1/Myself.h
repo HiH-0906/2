@@ -6,7 +6,7 @@
 #include "Vector2.h"
 #include "TiketMachine.h"
 
-using Func_T = std::function<void(Wallet wallet, MapInt& data)>;
+using Func_T = std::function<bool(Wallet wallet, MapInt& data)>;
 
 #define lpMyself Myself::GetInstance()
 

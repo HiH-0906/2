@@ -5,9 +5,10 @@
 
 struct InsertCard
 {
-	void operator()(Wallet wallet, MapInt& data)
+	bool operator()(Wallet wallet, MapInt& data)
 	{
 		data = lpCardServer.GetCardState();
 		lpMyself.SetInsert(InsertCard2nd());
+		return false;
 	}
 };

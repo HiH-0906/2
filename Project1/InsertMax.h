@@ -6,7 +6,7 @@
 
 struct InsertMax
 {
-	void operator()(Wallet wallet, MapInt& data)
+	bool operator()(Wallet wallet, MapInt& data)
 	{
 		if (wallet.payType == PayType::CASH)
 		{
@@ -14,6 +14,7 @@ struct InsertMax
 			lpTiketMachine.payType(PayType::CASH);
 			lpMyself.SetInsert(InsertCash());
 			insert(wallet, data);
+			return true;
 		}
 		else if (wallet.payType == PayType::CARD)
 		{
@@ -21,11 +22,13 @@ struct InsertMax
 			lpTiketMachine.payType(PayType::CARD);
 			lpMyself.SetInsert(InsertCard());
 			insert(wallet, data);
+			return false;
 		}
 		else
 		{
 			// Max‚©•Ï‚È’l‚ª—ˆ‚Ä‚à‰½‚à‚¹‚¸return
-			return;
+			return false;
 		}
+		return false;
 	}
 };
