@@ -116,7 +116,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		lpBulMng.UpDate();
 		if (lpBulMng.HitCheck(playerpos, playerRadius))
 		{
-			_shakeCount = 10;
+			_shakeCount = 20;
 		}
 		lpBulMng.Draw();
 		//íeÇÃçXêVÇ®ÇÊÇ—ï\é¶
