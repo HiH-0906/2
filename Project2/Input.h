@@ -17,9 +17,8 @@ public:
 	~Input();
 	void Update(void);
 	bool GetKeyTrg(INPUT_ID key);
-	void Init(void);
 private:
 	InputData _input;
-	
+	void Init(void);
 };
 

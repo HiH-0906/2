@@ -10,8 +10,12 @@ public:
 	~PleyErea();
 	void UpDate(void);
 	void Init(void);
+	const int GetScreenID(void)const;
 private:
-	const Vector2 _ereaSize;				// ‘€ì‰æ–Ê»²½Ş
+	void Draw(void);
+	int _screenID;
 	std::unique_ptr<Input> _input;
+	const Vector2 _ereaSize;
+
 };
 

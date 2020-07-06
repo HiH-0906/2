@@ -2,6 +2,7 @@
 
 Input::Input()
 {
+	Init();
 }
 
 Input::~Input()
