@@ -1,4 +1,3 @@
-#include "Vector2.h"
 
 template <class T>
 Vector2Temple<T>::Vector2Temple()

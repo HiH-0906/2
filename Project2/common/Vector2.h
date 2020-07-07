@@ -58,3 +58,5 @@ Vector2Temple<T> operator % (const Vector2Temple<T>& veca, const Vector2Temple<T
 using Vector2 = Vector2Temple<int>;
 using Vector2Dbl = Vector2Temple<double>;
 using Vector2Flt = Vector2Temple<float>;
+
+#include "details/Vector2.h"
