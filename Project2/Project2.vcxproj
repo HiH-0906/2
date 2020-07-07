@@ -154,19 +154,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="common\Vector2.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="PleyErea.cpp" />
+    <ClCompile Include="PlayErea.cpp" />
     <ClCompile Include="SceneMng.cpp" />
-    <ClCompile Include="Vector2.cpp" />
     <ClCompile Include="_debug\_DebugConOut.cpp" />
     <ClCompile Include="_debug\_DebugDispOut.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="common\Vector2.h" />
     <ClInclude Include="Input.h" />
-    <ClInclude Include="PleyErea.h" />
+    <ClInclude Include="PlayErea.h" />
     <ClInclude Include="SceneMng.h" />
-    <ClInclude Include="Vector2.h" />
     <ClInclude Include="_debug\_DebugConOut.h" />
     <ClInclude Include="_debug\_DebugDispOut.h" />
   </ItemGroup>

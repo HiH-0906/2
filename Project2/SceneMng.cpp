@@ -1,10 +1,13 @@
 #include <DxLib.h>
 #include "SceneMng.h"
+#include "_debug/_DebugConOut.h"
+#include "_debug/_DebugDispOut.h"
 
 std::unique_ptr<SceneMng, SceneMng::SceneMngDeleter> SceneMng::S_instance(new SceneMng());
 
 void SceneMng::Run()
 {
+	//_dbgStartDraw();
 	_playErea[0]->UpDate();
 	Draw();
 }
@@ -28,12 +31,14 @@ bool SceneMng::SysInit(void)
 	{
 		return false;
 	}
-	_playErea.emplace_back(std::make_unique<PleyErea>());
+	//_dbgSetup(screenX, screenY, 128);
+	_playErea.emplace_back(std::make_unique<PlayErea>(Vector2{0,0}, Vector2{ 288,576 }));
 	return true;
 }
 
 SceneMng::SceneMng():screenX(800),screenY(600)
 {
+	SysInit();
 }
 
 SceneMng::~SceneMng()
