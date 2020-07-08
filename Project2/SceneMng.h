@@ -1,7 +1,7 @@
 #pragma once
 #include <memory>
 #include <vector>
-#include "PlayErea.h"
+#include "PleyErea.h"
 
 #define lpSceneMng SceneMng::GetInstance()
 
@@ -30,6 +30,6 @@ private:
 	SceneMng();
 	~SceneMng();
 	static std::unique_ptr<SceneMng,SceneMngDeleter> S_instance;
-	std::vector<std::unique_ptr<PlayErea>> _playErea;
+	std::vector<std::unique_ptr<PleyErea>> _playErea;
 };
 

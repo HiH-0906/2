@@ -32,7 +32,7 @@ bool SceneMng::SysInit(void)
 		return false;
 	}
 	//_dbgSetup(screenX, screenY, 128);
-	_playErea.emplace_back(std::make_unique<PlayErea>(Vector2{0,0}, Vector2{ 288,576 }));
+	_playErea.emplace_back(std::make_unique<PleyErea>(Vector2{0,0}, Vector2{ 288,576 }));
 	return true;
 }
 
