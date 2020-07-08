@@ -2,6 +2,7 @@
 #include <memory>
 #include "common/Vector2.h"
 #include "Input.h"
+#include "Puyo.h"
 
 class PleyErea
 {
@@ -15,9 +16,10 @@ public:
 private:
 	void Draw(void);
 	int _screenID;
-	std::unique_ptr<Input> _input;
-	PLAYER_ID _id;
+	std::shared_ptr<Input> _input;
+	PLAYER_ID _playerID;
 	Vector2 _size;
 	Vector2 _offset;
+	std::shared_ptr<Puyo> _puyo;
 };
 

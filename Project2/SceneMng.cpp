@@ -40,8 +40,8 @@ bool SceneMng::SysInit(void)
 	{
 		return false;
 	}
-	_playErea.emplace_back(std::make_unique<PleyErea>(std::move(Vector2{ 288,576 }), std::move(Vector2{ 96,96 }),std::move(PLAYER_ID::ONE)));
-	_playErea.emplace_back(std::make_unique<PleyErea>(std::move(Vector2{ 288,576 }), std::move(Vector2{ screenX - (288+96),96 }), std::move(PLAYER_ID::SECOND)));
+	_playErea.emplace_back(std::make_unique<PleyErea>(std::move(Vector2{ 288,576 }), std::move(Vector2{ 96,96 }), std::move(PLAYER_ID::ONE)));
+	_playErea.emplace_back(std::make_unique<PleyErea>(std::move(Vector2{ 288,576 }), std::move(Vector2{ screenX - (288 + 96),96 }), std::move(PLAYER_ID::SECOND)));
 	return true;
 }
 
