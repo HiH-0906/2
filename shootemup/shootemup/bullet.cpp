@@ -41,9 +41,14 @@ void bullet::SetActiv(bool flag)
 	_bullet.isActive = flag;
 }
 
-void bullet::Draw(void)
+void bullet::Draw(bool debug)
 {
 	DrawRotaGraph(_bullet.pos.x, _bullet.pos.y, 1.0f, _angle, image, true);
+	if (debug)
+	{
+		//’e‚Ì–{‘Ì(“–‚½‚è”»’è)
+		DrawCircle(_bullet.pos.x, _bullet.pos.y, _bullet.rad, 0x0000ff, false, 3);
+	}
 }
 
 Bullet bullet::Getbullet(void) const

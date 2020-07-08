@@ -135,6 +135,7 @@
     <ClInclude Include="Geometry.h" />
     <ClInclude Include="NormalBullet.h" />
     <ClInclude Include="Scattered.h" />
+    <ClInclude Include="Spiral.h" />
     <ClInclude Include="ThreeWay.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

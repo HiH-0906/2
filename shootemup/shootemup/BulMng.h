@@ -12,6 +12,7 @@ enum class BULLET_MOVE
 	ThreeWay, 					// 3Way
 	Diffusion,					// ŠgŽU
 	Scattered,					// ‚Î‚ç‚Ü‚«
+	Spiral,						// ‰Q
 	MAX
 };
 
@@ -30,6 +31,7 @@ enum class BUL_QUE
 using shardBul = std::shared_ptr<bullet>;
 using Func_B = std::function<void(Position2&, Position2&, std::vector<shardBul>&)>;
 using BUL_QUE_T = std::tuple<BULLET_MOVE, Position2&, Position2&>;
+using Pair_B = std::pair<Func_B, int>;
 
 #define lpBulMng BulMng::GetInstance()
 
@@ -43,7 +45,8 @@ public:
 	void AddBulQue(BULLET_MOVE type, Position2& enemy, Position2& player);
 	void RunBulQue(void);
 	void UpDate(void);
-	void Draw(void);
+	void Draw(bool debug);
+	int GetBulCnt(BULLET_MOVE type);
 	bool HitCheck(Position2& player,float rad);
 private:
 	struct BulMngDeleter
@@ -58,6 +61,6 @@ private:
 	static std::unique_ptr<BulMng,BulMngDeleter> _instance;
 	std::vector<BUL_QUE_T> _queList;
 	std::vector<shardBul> _bulletList;
-	std::map<BULLET_MOVE, Func_B> _init;
+	std::map<BULLET_MOVE, Pair_B> _init;
 };
 

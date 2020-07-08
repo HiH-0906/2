@@ -23,11 +23,10 @@ public:
 	void UpDate(void);
 	bool isDead(void);
 	void SetActiv(bool flag);
-	void Draw(void);
+	void Draw(bool debug);
 	Bullet Getbullet(void)const;
 private:
 	Bullet _bullet;
-	//’e‚Ì”¼Œa
 	float _angle;
 	int image;
 };

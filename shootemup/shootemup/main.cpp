@@ -19,7 +19,7 @@ bool IsHit(const Position2& posA, float radiusA, const Position2& posB,  float r
 
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	ChangeWindowMode(true);
-	SetMainWindowText("’e–‹‚¾‚æ`");
+	SetMainWindowText("1916035_‹´–{‘å‹P");
 	if (DxLib_Init() != 0) {
 		return -1;
 	}
@@ -101,56 +101,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		}
 
 		//’e”­Ë
-		if (frame % 60 == 0) {
+		if (frame % lpBulMng.GetBulCnt(_moveType) == 0) {
 			lpBulMng.AddBulQue(_moveType, enemypos, playerpos);
-			/*for (auto& b : bullets) {
-				if (!b.isActive) {
-					b.pos = enemypos;
-					b.vel = (playerpos - b.pos).Normalized() * 5;
-					b.isActive = true;
-					break;
-				}
-			}*/
 		}
-		lpBulMng.RunBulQue();
 		lpBulMng.UpDate();
 		if (lpBulMng.HitCheck(playerpos, playerRadius))
 		{
 			_shakeCount = 20;
 		}
-		lpBulMng.Draw();
-		//’e‚ÌXV‚¨‚æ‚Ñ•\¦
-		//for (auto& b : bullets) {
-		//	if (!b.isActive) {
-		//		continue;
-		//	}
-
-		//	//’e‚ÌŒ»İÀ•W‚É’e‚ÌŒ»İ‘¬“x‚ğ‰ÁZ‚µ‚Ä‚­‚¾‚³‚¢
-		//	b.pos += b.vel;
-
-		//	float angle = atan2(b.vel.y, b.vel.x);
-		//	//’e‚ÌŠp“x‚ğatan2‚ÅŒvZ‚µ‚Ä‚­‚¾‚³‚¢Bangle‚É’l‚ğ“ü‚ê‚é‚ñ‚¾‚æƒIƒD
-
-		//	DrawRotaGraph(b.pos.x, b.pos.y,1.0f,angle, bulletH, true);
-		//	
-		//	if (isDebugMode) {
-		//		//’e‚Ì–{‘Ì(“–‚½‚è”»’è)
-		//		DrawCircle(b.pos.x, b.pos.y, bulletRadius, 0x0000ff, false, 3);
-		//	}
-		//	//’e‚ğE‚·
-		//	if (b.pos.x + 16 < 0 || b.pos.x - 16 > 640 ||
-		//		b.pos.y + 24 < 0 || b.pos.y - 24 > 480) {
-		//		b.isActive = false;
-		//	}
-
-		//	//‚ ‚½‚èI
-		//	//«‚ÌIsHit‚ÍÀ‘•‚ğ‘‚¢‚Ä‚Ü‚¹‚ñB©•ª‚Å‘‚¢‚Ä‚­‚¾‚³‚¢B
-		//	if (IsHit(b.pos, bulletRadius, playerpos, playerRadius)) {
-		//		//“–‚½‚Á‚½”½‰‚ğ‘‚¢‚Ä‚­‚¾‚³‚¢B
-		//		b.isActive = false;
-		//	}
-		//}
-
+		lpBulMng.Draw(isDebugMode);
 		//“G‚Ì•\¦
 		enemypos.x = abs((int)((frame+320) % 1280) - 640);
 		int eidx = (frame / 4 % 2);
@@ -161,10 +120,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			DrawCircle(enemypos.x, enemypos.y, 5, 0xffffff, false, 3);
 		}
 
-		if (frame % 640 == 639)
+		if (frame % 300 == 299)
 		{
 			++_moveType;
-			if (_moveType==BULLET_MOVE::MAX)
+			if (_moveType >= BULLET_MOVE::MAX)
 			{
 				_moveType = BULLET_MOVE::Normal;
 			}
