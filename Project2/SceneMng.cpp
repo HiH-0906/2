@@ -7,17 +7,26 @@ std::unique_ptr<SceneMng, SceneMng::SceneMngDeleter> SceneMng::S_instance(new Sc
 
 void SceneMng::Run()
 {
-	//_dbgStartDraw();
-	_playErea[0]->UpDate();
-	Draw();
+	while (!ProcessMessage() && !CheckHitKey(KEY_INPUT_ESCAPE))
+	{
+		//_dbgStartDraw();
+		for (int i = 0; i < _playErea.size(); i++)
+		{
+			_playErea[i]->UpDate();
+		}
+		Draw();
+	}
+	DxLib::DxLib_End();
 }
 
 void SceneMng::Draw()
 {
 	SetDrawScreen(DX_SCREEN_BACK);
 	ClsDrawScreen();
-
-	DrawGraph(0, 0, _playErea[0]->GetScreenID(), true);
+	for (int i = 0; i < _playErea.size(); i++)
+	{
+		DrawGraph(_playErea[i]->offset().x, _playErea[i]->offset().y, _playErea[i]->GetScreenID(), true);
+	}
 
 	ScreenFlip();
 }
@@ -31,8 +40,12 @@ bool SceneMng::SysInit(void)
 	{
 		return false;
 	}
-	//_dbgSetup(screenX, screenY, 128);
-	_playErea.emplace_back(std::make_unique<PlayErea>(Vector2{0,0}, Vector2{ 288,576 }));
+	Vector2 size = Vector2{ 288,576 };
+	Vector2 offset = Vector2{ 0,0 };
+	_playErea.emplace_back(std::make_unique<PleyErea>(std::move(size), std::move(offset)));
+	size = Vector2{ 288,576 };
+	offset = Vector2{ screenX - 288,0 };
+	_playErea.emplace_back(std::make_unique<PleyErea>(std::move(size), std::move(offset)));
 	return true;
 }
 
