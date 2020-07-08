@@ -157,7 +157,6 @@
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="PlayErea.cpp" />
-    <ClCompile Include="PleyErea.cpp" />
     <ClCompile Include="SceneMng.cpp" />
     <ClCompile Include="_debug\_DebugConOut.cpp" />
     <ClCompile Include="_debug\_DebugDispOut.cpp" />
@@ -167,7 +166,6 @@
     <ClInclude Include="common\Vector2.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="PlayErea.h" />
-    <ClInclude Include="PleyErea.h" />
     <ClInclude Include="SceneMng.h" />
     <ClInclude Include="_debug\_DebugConOut.h" />
     <ClInclude Include="_debug\_DebugDispOut.h" />
