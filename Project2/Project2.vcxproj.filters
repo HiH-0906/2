@@ -33,10 +33,10 @@
     <ClCompile Include="PleyErea.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Puyo.cpp">
+    <ClCompile Include="State\INPUT_ID.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="INPUT_ID.cpp">
+    <ClCompile Include="State\PLAYER_ID.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -62,10 +62,10 @@
     <ClInclude Include="PleyErea.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Puyo.h">
+    <ClInclude Include="State\INPUT_ID.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="INPUT_ID.h">
+    <ClInclude Include="State\PLAYER_ID.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,8 +1,8 @@
 #include "PleyErea.h"
 
-PleyErea::PleyErea(Vector2&& size, Vector2&& offset)
+PleyErea::PleyErea(Vector2&& size, Vector2&& offset,PLAYER_ID&& id)
 {
-	Init(std::move(size), std::move(offset));
+	Init(std::move(size), std::move(offset),std::move(id));
 }
 
 PleyErea::~PleyErea()
@@ -11,8 +11,7 @@ PleyErea::~PleyErea()
 
 void PleyErea::UpDate()
 {
-	_input->Update();
-	_puyo->Update();
+	_input->Update(_id);
 	Draw();
 }
 
@@ -21,16 +20,15 @@ void PleyErea::Draw(void)
 	SetDrawScreen(_screenID);
 	ClsDrawScreen();
 	DrawBox(0, 0, _size.x, _size.y, 0xff8888, true);
-	_puyo->Draw();
 }
 
-void PleyErea::Init(Vector2&& size, Vector2&& offset)
+void PleyErea::Init(Vector2&& size, Vector2&& offset,PLAYER_ID&& id)
 {
 	_size = std::move(size);
 	_offset = std::move(offset);
+	_id = std::move(id);
 	_input = std::make_unique<Input>();
 	_screenID = MakeScreen(_size.x, _size.y, true);
-	_puyo = new Puyo({ 0.0f,0.0f });
 }
 
 const Vector2 PleyErea::offset(void)

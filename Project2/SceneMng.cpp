@@ -40,16 +40,12 @@ bool SceneMng::SysInit(void)
 	{
 		return false;
 	}
-	Vector2 size = Vector2{ 288,576 };
-	Vector2 offset = Vector2{ 0,0 };
-	_playErea.emplace_back(std::make_unique<PleyErea>(std::move(size), std::move(offset)));
-	size = Vector2{ 288,576 };
-	offset = Vector2{ screenX - 288,0 };
-	_playErea.emplace_back(std::make_unique<PleyErea>(std::move(size), std::move(offset)));
+	_playErea.emplace_back(std::make_unique<PleyErea>(std::move(Vector2{ 288,576 }), std::move(Vector2{ 96,96 }),std::move(PLAYER_ID::ONE)));
+	_playErea.emplace_back(std::make_unique<PleyErea>(std::move(Vector2{ 288,576 }), std::move(Vector2{ screenX - (288+96),96 }), std::move(PLAYER_ID::SECOND)));
 	return true;
 }
 
-SceneMng::SceneMng():screenX(800),screenY(600)
+SceneMng::SceneMng():screenX(1024),screenY(768)
 {
 	SysInit();
 }
