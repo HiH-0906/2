@@ -3,5 +3,6 @@ enum class PLAYER_ID
 {
 	ONE,
 	SECOND,
+	MAX
 };
 

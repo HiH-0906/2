@@ -3,6 +3,11 @@
 #include "_debug/_DebugConOut.h"
 #include "_debug/_DebugDispOut.h"
 
+#define PUYO_RAD 16
+#define PUYO_SIZE (PUYO_RAD*2)
+#define STAGE_X 6
+#define STAGE_Y 13
+
 std::unique_ptr<SceneMng, SceneMng::SceneMngDeleter> SceneMng::S_instance(new SceneMng());
 
 void SceneMng::Run()
@@ -10,13 +15,18 @@ void SceneMng::Run()
 	while (!ProcessMessage() && !CheckHitKey(KEY_INPUT_ESCAPE))
 	{
 		//_dbgStartDraw();
-		for (int i = 0; i < _playErea.size(); i++)
+		for (auto&& erea:_playErea)
 		{
-			_playErea[i]->UpDate();
+			erea->UpDate();
 		}
 		Draw();
 	}
 	DxLib::DxLib_End();
+}
+
+const Vector2 SceneMng::screenSize(void) const
+{
+	return Vector2{ screenX,screenY };
 }
 
 void SceneMng::Draw()
@@ -40,8 +50,8 @@ bool SceneMng::SysInit(void)
 	{
 		return false;
 	}
-	_playErea.emplace_back(std::make_unique<PleyErea>(std::move(Vector2{ 288,576 }), std::move(Vector2{ 96,96 }), std::move(PLAYER_ID::ONE)));
-	_playErea.emplace_back(std::make_unique<PleyErea>(std::move(Vector2{ 288,576 }), std::move(Vector2{ screenX - (288 + 96),96 }), std::move(PLAYER_ID::SECOND)));
+	_playErea.emplace_back(std::make_unique<PleyErea>(Vector2{ 512,512 }));
+	_playErea.emplace_back(std::make_unique<PleyErea>(Vector2{ 512,512 }));
 	return true;
 }
 

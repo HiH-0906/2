@@ -155,8 +155,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Input.cpp" />
+    <ClCompile Include="keyState.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Obj.cpp" />
+    <ClCompile Include="PadState.cpp" />
     <ClCompile Include="PleyErea.cpp" />
     <ClCompile Include="Puyo.cpp" />
     <ClCompile Include="SceneMng.cpp" />
@@ -169,7 +171,9 @@
     <ClInclude Include="common\details\Vector2.h" />
     <ClInclude Include="common\Vector2.h" />
     <ClInclude Include="Input.h" />
+    <ClInclude Include="keyState.h" />
     <ClInclude Include="Obj.h" />
+    <ClInclude Include="PadState.h" />
     <ClInclude Include="PleyErea.h" />
     <ClInclude Include="Puyo.h" />
     <ClInclude Include="SceneMng.h" />

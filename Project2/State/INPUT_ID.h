@@ -5,6 +5,7 @@ enum class INPUT_ID
 	RIGHT,
 	UP,
 	DOWN,
+	ROAT,
 	MAX
 };
 

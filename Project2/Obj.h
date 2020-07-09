@@ -10,8 +10,9 @@ public:
 private:
 	void Init(void);
 protected: 
-	Vector2Flt _pos;
-	float _rad;
-	float _speed;
+	bool _alive;							// ¶‚«‚Ä‚é‚©
+	Vector2Flt _pos;						// À•W
+	float _rad;								// ”¼Œa
+	float _speed;							// —‰º½Ëß°ÄŞ
 };
 

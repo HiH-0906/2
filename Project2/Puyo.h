@@ -10,6 +10,5 @@ public:
     void Draw(void);
     void Move(const Vector2Flt& vec);
 private:
-    void Init(Vector2Flt&& pos, float&& rad);
 };
 

@@ -13,7 +13,7 @@ public:
 		return *S_instance;
 	}
 	void Run();
-	
+	const Vector2 screenSize(void)const;
 	bool SysInit(void);
 private:
 	struct SceneMngDeleter

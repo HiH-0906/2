@@ -8,6 +8,7 @@
 
 
 using InputData = std::map<INPUT_ID, std::pair<bool, bool>>;
+
 using keyPair = std::pair<INPUT_ID, int>;
 using keyData = std::vector<keyPair>;
 
@@ -16,11 +17,12 @@ class Input
 public:
 	Input();
 	~Input();
-	void Update(const PLAYER_ID& p_id);
+	virtual void Update(const PLAYER_ID& p_id) = 0;
 	bool GetKeyTrg(PLAYER_ID& id,INPUT_ID& key);
 private:
-	InputData _input;
 	void Init(void);
-	static std::map<PLAYER_ID, keyData> _keyCon;
+protected:
+	InputData _input;
+	
 };
 
