@@ -1,5 +1,5 @@
 #include "PadState.h"
-#include "_debug/_DebugConOut.h"
+#include "../_debug/_DebugConOut.h"
 
 keyData PadState::_keyCon =
 {

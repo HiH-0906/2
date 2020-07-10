@@ -1,7 +1,7 @@
 #pragma once
 #include <memory>
 #include "common/Vector2.h"
-#include "Input.h"
+#include "Input/Input.h"
 #include "Puyo.h"
 
 class PleyErea

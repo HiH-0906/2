@@ -1,7 +1,7 @@
 #include "PleyErea.h"
 #include "SceneMng.h"
-#include "keyState.h"
-#include "PadState.h"
+#include "Input/keyState.h"
+#include "Input/PadState.h"
 
 int PleyErea::_allStage = 0;
 
@@ -44,7 +44,7 @@ void PleyErea::Draw(void)
 {
 	SetDrawScreen(_screenID);
 	ClsDrawScreen();
-	auto color = static_cast<int>(_playerID) ? 0xff8888 : 0x88ff88;
+	auto color = 0x000066 << (16 * static_cast<int>(_playerID));
 	DrawBox(0, 0, _size.x, _size.y, color, true);
 	_puyo->Draw();
 }

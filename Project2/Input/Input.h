@@ -3,8 +3,8 @@
 #include<vector>
 #include<map>
 #include<DxLib.h>
-#include"State/INPUT_ID.h"
-#include"State/PLAYER_ID.h"
+#include"../State/INPUT_ID.h"
+#include"../State/PLAYER_ID.h"
 
 
 using InputData = std::map<INPUT_ID, std::pair<bool, bool>>;
