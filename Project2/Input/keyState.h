@@ -7,8 +7,9 @@ class keyState :
 	public Input
 {
 public:
-	void Update(const PLAYER_ID& p_id)override;
+	CON_ID GetID(void)override final;
+	void Update(const int& p_id)override final;
 private:
-	static std::map<PLAYER_ID, keyData> _keyCon;
+	static std::map<int, keyData> _keyCon;
 };
 

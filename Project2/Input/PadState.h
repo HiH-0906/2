@@ -4,7 +4,8 @@ class PadState :
 	public Input
 {
 public:
-	void Update(const PLAYER_ID& p_id)override;
+	CON_ID GetID(void)override final;
+	void Update(const int& p_id)override final;
 private:
 	static keyData _keyCon;
 };

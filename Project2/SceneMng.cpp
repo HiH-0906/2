@@ -2,6 +2,7 @@
 #include "SceneMng.h"
 #include "_debug/_DebugConOut.h"
 #include "_debug/_DebugDispOut.h"
+#include "State/CON_ID.h"
 
 #define PUYO_RAD 16
 #define PUYO_SIZE (PUYO_RAD*2)
@@ -50,8 +51,8 @@ bool SceneMng::SysInit(void)
 	{
 		return false;
 	}
-	_playErea.emplace_back(std::make_unique<PleyErea>(Vector2{ 512,512 }));
-	_playErea.emplace_back(std::make_unique<PleyErea>(Vector2{ 512,512 }));
+	_playErea.emplace_back(std::make_unique<PleyErea>(Vector2{ 512,512 },CON_ID::MOUSE));
+	_playErea.emplace_back(std::make_unique<PleyErea>(Vector2{ 512,512 },CON_ID::KEY));
 	return true;
 }
 

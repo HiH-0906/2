@@ -7,14 +7,20 @@ keyData PadState::_keyCon =
 	keyPair{ INPUT_ID::RIGHT,PAD_INPUT_RIGHT },
 	keyPair{ INPUT_ID::UP,PAD_INPUT_UP },
 	keyPair{ INPUT_ID::DOWN,PAD_INPUT_DOWN },
-	keyPair{ INPUT_ID::ROAT,PAD_INPUT_1}
+	keyPair{ INPUT_ID::LROTA,PAD_INPUT_1},
+	keyPair{ INPUT_ID::LROTA,PAD_INPUT_2}
 };
 
-void PadState::Update(const PLAYER_ID& p_id)
+CON_ID PadState::GetID(void)
+{
+	return CON_ID::PAD;
+}
+
+void PadState::Update(const int& p_id)
 {
 	for (auto id : _keyCon)
 	{
 		_input[id.first].second = _input[id.first].first;
-		_input[id.first].first = (GetJoypadInputState(static_cast<int>(p_id)+1)& id.second);
+		_input[id.first].first = (GetJoypadInputState(/*static_cast<int>(p_id)+*/1)& id.second);
 	}
 }

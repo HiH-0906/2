@@ -157,6 +157,7 @@
     <ClCompile Include="Input\Input.cpp" />
     <ClCompile Include="Input\keyState.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Input\MouseState.cpp" />
     <ClCompile Include="Obj.cpp" />
     <ClCompile Include="Input\PadState.cpp" />
     <ClCompile Include="PleyErea.cpp" />
@@ -172,11 +173,13 @@
     <ClInclude Include="common\Vector2.h" />
     <ClInclude Include="Input\Input.h" />
     <ClInclude Include="Input\keyState.h" />
+    <ClInclude Include="Input\MouseState.h" />
     <ClInclude Include="Obj.h" />
     <ClInclude Include="Input\PadState.h" />
     <ClInclude Include="PleyErea.h" />
     <ClInclude Include="Puyo.h" />
     <ClInclude Include="SceneMng.h" />
+    <ClInclude Include="State\CON_ID.h" />
     <ClInclude Include="State\INPUT_ID.h" />
     <ClInclude Include="State\PLAYER_ID.h" />
     <ClInclude Include="_debug\_DebugConOut.h" />

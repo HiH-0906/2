@@ -7,14 +7,17 @@ Input::Input()
 	Init();
 }
 
-Input::~Input()
+
+void Input::Setting(void)
 {
 }
 
-
-
-bool Input::GetKeyTrg(PLAYER_ID& id,INPUT_ID& key)
+bool Input::GetKeyTrg(INPUT_ID& key)
 {
+	if (key == INPUT_ID::MAX)
+	{
+		return false;
+	}
 	return _input[key].first && !_input[key].second;
 }
 

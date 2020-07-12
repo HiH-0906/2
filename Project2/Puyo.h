@@ -1,5 +1,7 @@
 #pragma once
 #include "Obj.h"
+#include "State/INPUT_ID.h"
+
 class Puyo :
     public Obj
 {
