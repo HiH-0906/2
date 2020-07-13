@@ -14,11 +14,11 @@ Puyo::~Puyo()
 
 void Puyo::Update(void)
 {
-	_pos.y += _speed;
+	/*_pos.y += _speed;
 	if (_pos.y + _rad >= 512)
 	{
 		_pos.y = 0;
-	}
+	}*/
 }
 
 void Puyo::Draw(void)

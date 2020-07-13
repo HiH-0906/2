@@ -13,7 +13,7 @@ PleyErea::PleyErea(Vector2&& size,CON_ID id):_size(size)
 	_allStage++;
 	_color = 0x000066 << (16 * static_cast<int>(_playerID));
 	_screenID = MakeScreen(_size.x, _size.y, true);
-	_puyo = std::make_shared<Puyo>(Vector2Flt{ 24.0f,24.0f }, 24.0f);
+	_puyo = std::make_shared<Puyo>(Vector2Flt{ PUYO_RAD,PUYO_RAD }, PUYO_RAD);
 	switch (id)
 	{
 	case CON_ID::KEY:
@@ -56,6 +56,8 @@ void PleyErea::UpDate()
 	};
 	move(_input, INPUT_ID::LEFT, _puyo, Vector2Flt{ -_puyo->rad() * 2.0f ,0.0f });
 	move(_input, INPUT_ID::RIGHT, _puyo, Vector2Flt{ _puyo->rad() * 2.0f ,0.0f });
+	move(_input, INPUT_ID::UP, _puyo, Vector2Flt{ 0.0f ,-_puyo->rad() * 2.0f });
+	move(_input, INPUT_ID::DOWN, _puyo, Vector2Flt{ 0.0f,_puyo->rad() * 2.0f });
 
 	_puyo->Update();
 	Draw();

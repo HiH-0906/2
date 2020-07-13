@@ -4,10 +4,6 @@
 #include "_debug/_DebugDispOut.h"
 #include "State/CON_ID.h"
 
-#define PUYO_RAD 16
-#define PUYO_SIZE (PUYO_RAD*2)
-#define STAGE_X 6
-#define STAGE_Y 13
 
 std::unique_ptr<SceneMng, SceneMng::SceneMngDeleter> SceneMng::S_instance(new SceneMng());
 
@@ -51,8 +47,8 @@ bool SceneMng::SysInit(void)
 	{
 		return false;
 	}
-	_playErea.emplace_back(std::make_unique<PleyErea>(Vector2{ 512,512 },CON_ID::MOUSE));
 	_playErea.emplace_back(std::make_unique<PleyErea>(Vector2{ 512,512 },CON_ID::KEY));
+	_playErea.emplace_back(std::make_unique<PleyErea>(Vector2{ 512,512 },CON_ID::MOUSE));
 	return true;
 }
 

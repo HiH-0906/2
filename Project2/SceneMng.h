@@ -3,6 +3,11 @@
 #include <vector>
 #include "PleyErea.h"
 
+#define PUYO_RAD 16
+#define PUYO_SIZE (PUYO_RAD*2)
+#define STAGE_X 6
+#define STAGE_Y 13
+
 #define lpSceneMng SceneMng::GetInstance()
 
 class SceneMng

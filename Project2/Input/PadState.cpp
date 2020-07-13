@@ -24,3 +24,9 @@ void PadState::Update(const int& p_id)
 		_input[id.first].first = (GetJoypadInputState(/*static_cast<int>(p_id)+*/1)& id.second);
 	}
 }
+
+void PadState::Setting(void)
+{
+	SetUseJoypadVibrationFlag(false);
+	SetJoypadDeadZone(DX_INPUT_PAD1, 0.8);
+}

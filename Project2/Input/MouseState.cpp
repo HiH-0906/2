@@ -33,12 +33,12 @@ void MouseState::Update(const int& p_id)
 		_input[INPUT_ID::LEFT].first = false;
 		_input[INPUT_ID::RIGHT].first = false;
 	}
-	if (_buff.y <= -tmp)
+	if (_buff.y >= tmp)
 	{
 		_input[INPUT_ID::UP].first = true;
 		_input[INPUT_ID::DOWN].first = false;
 	}
-	else if (_buff.x >= -tmp)
+	else if (_buff.y <= -tmp)
 	{
 		_input[INPUT_ID::UP].first = false;
 		_input[INPUT_ID::DOWN].first = true;
