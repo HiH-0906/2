@@ -48,7 +48,7 @@ bool SceneMng::SysInit(void)
 		return false;
 	}
 	_playErea.emplace_back(std::make_unique<PleyErea>(Vector2{ 512,512 },CON_ID::KEY));
-	_playErea.emplace_back(std::make_unique<PleyErea>(Vector2{ 512,512 },CON_ID::MOUSE));
+	_playErea.emplace_back(std::make_unique<PleyErea>(Vector2{ 512,512 },CON_ID::KEY));
 	return true;
 }
 
