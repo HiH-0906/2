@@ -8,7 +8,7 @@ Puyo::Puyo(Vector2Flt&& pos, float&& rad)
 {
 	_pos = pos;
 	_rad = rad;
-	_move = true;
+	_moveflag.flag = 0;
 	_vec = {
 			{INPUT_ID::LEFT,Vector2Flt{-_rad * 2.0f,0.0f}} ,
 			{INPUT_ID::RIGHT,Vector2Flt{_rad * 2.0f,0.0f}},
@@ -23,10 +23,6 @@ Puyo::~Puyo()
 
 void Puyo::Update(void)
 {
-	if (!_move)
-	{
-		return;
-	}
 	/*if (_pos.y + _speed >= PUYO_SIZE * STAGE_Y)
 	{
 		return;
@@ -47,11 +43,6 @@ const Vector2Flt Puyo::GetMovePos(INPUT_ID id)
 
 void Puyo::Move(const INPUT_ID& id)
 {
-	if (!_move)
-	{
-		return;
-	}
-
 	auto tmpPos = _pos;
 	tmpPos += _vec[id];
 	_pos = tmpPos;

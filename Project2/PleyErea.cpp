@@ -13,14 +13,11 @@ PleyErea::PleyErea(Vector2&& size,CON_ID id):_size(size)
 	_allStage++;
 	_color = 0x000066 << (16 * static_cast<int>(_playerID));
 	_screenID = MakeScreen(_size.x, _size.y, true);
-	std::vector<PuyoSt> tmp;
-	for (int y = 0; y < STAGE_Y; y++)
+
+	_playEreaBase.resize(STAGE_X * STAGE_Y);
+	for (int no = 0; no < STAGE_X; no++)
 	{
-		tmp.push_back(PuyoSt{ PUYO_ID::NON, PUYO_STATE::NON });
-	}
-	for (int x = 0; x < STAGE_X; x++)
-	{
-		_playErea.push_back(tmp);
+		_playErea.emplace_back(&_playEreaBase[no * STAGE_Y]);
 	}
 	_puyo = std::make_shared<Puyo>(Vector2Flt{ PUYO_RAD,PUYO_RAD }, PUYO_RAD);
 	switch (id)
@@ -99,7 +96,7 @@ bool PleyErea::CheckMovePuyo(INPUT_ID& id)
 	{
 		return false;
 	}
-	if (_playErea[tmpPos.x][tmpPos.y].first == PUYO_ID::NON)
+	if (_playErea[static_cast<int>(tmpPos.x)][static_cast<int>(tmpPos.y)].first == PUYO_ID::NON)
 	{
 		return true;
 	}
@@ -111,10 +108,10 @@ void PleyErea::CheckPuyo(void)
 	auto tmpPos = _puyo->GetMovePos(INPUT_ID::DOWN);
 	tmpPos = tmpPos - static_cast<float>(PUYO_RAD);
 	tmpPos /= PUYO_SIZE;
-	if (tmpPos.y >= STAGE_Y || _playErea[tmpPos.x][tmpPos.y].first != PUYO_ID::NON)
+	if (tmpPos.y >= STAGE_Y || _playErea[static_cast<int>(tmpPos.x)][static_cast<int>(tmpPos.y)].first != PUYO_ID::NON)
 	{
 		_puyoList.push_back(std::move(_puyo));
-		_playErea[tmpPos.x][tmpPos.y - 1] = { PUYO_ID::RED,PUYO_STATE::STAY };
+		_playErea[static_cast<int>(tmpPos.x)][static_cast<int>(tmpPos.y - 1)] = { PUYO_ID::RED,PUYO_STATE::STAY };
 		_puyo = std::make_shared<Puyo>(Vector2Flt{ PUYO_RAD,PUYO_RAD }, PUYO_RAD);
 	}
 }

@@ -16,7 +16,6 @@ enum class PUYO_STATE
 };
 
 using PuyoSt = std::pair < PUYO_ID, PUYO_STATE >;
-using PlayEreaST = std::vector<std::vector<PuyoSt>>;
 
 class PleyErea
 {
@@ -36,7 +35,8 @@ private:
 	std::shared_ptr<Input*> _input;
 	std::shared_ptr<Puyo> _puyo;
 	std::list<std::shared_ptr<Puyo>> _puyoList;
-	PlayEreaST _playErea;
+	std::vector<PuyoSt*> _playErea;
+	std::vector<PuyoSt> _playEreaBase;
 	int _color;
 	static int _allStage;
 };
