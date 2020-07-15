@@ -50,6 +50,10 @@ void PleyErea::UpDate()
 {
 	(*_input)->Update(_playerID);
 
+	DirPermit dirpermit;
+	dirpermit.perbit = { 1,1,1,1 };
+	_puyo->dirpermit(dirpermit);
+
 	auto move = [&](std::weak_ptr<Input*> input,INPUT_ID IN_id, std::weak_ptr<Puyo> puyo)
 	{
 		if (!input.expired())
@@ -78,6 +82,7 @@ void PleyErea::Draw(void)
 	SetDrawScreen(_screenID);
 	ClsDrawScreen();
 	DrawBox(0, 0, _size.x, _size.y, _color, true);
+	DrawBox(0, 0, STAGE_X * PUYO_SIZE, STAGE_Y * PUYO_SIZE, 0xffffff, false);
 	_puyo->Draw();
 	for (auto list:_puyoList)
 	{
@@ -87,31 +92,45 @@ void PleyErea::Draw(void)
 
 bool PleyErea::CheckMovePuyo(INPUT_ID& id)
 {
-	auto tmpPos = _puyo->GetMovePos(id);
-
+	auto tmpPos = _puyo->pos();
+	DirPermit dirpermit;
+	dirpermit.perbit = { 1,1,1,1 };
 	tmpPos = tmpPos - static_cast<float>(PUYO_RAD);
 
 	tmpPos /= PUYO_SIZE;
-	if (tmpPos.x >= STAGE_X || tmpPos.y >= STAGE_Y || tmpPos.x < 0 || tmpPos.y < 0)
+
+	if (tmpPos.x+1 >= STAGE_X)
 	{
-		return false;
+		dirpermit.perbit.right = 0;
 	}
-	if (_playErea[static_cast<int>(tmpPos.x)][static_cast<int>(tmpPos.y)].first == PUYO_ID::NON)
+	if (tmpPos.x-1 < 0)
 	{
-		return true;
+		dirpermit.perbit.left = 0;
 	}
-	return false;
+	if (tmpPos.y-1 < 0)
+	{
+		dirpermit.perbit.up = 0;
+	}
+	if (tmpPos.y+1 >= STAGE_Y)
+	{
+		dirpermit.perbit.down = 0;
+	}
+	_puyo->dirpermit(dirpermit);
+	return true;
 }
 
 void PleyErea::CheckPuyo(void)
 {
-	auto tmpPos = _puyo->GetMovePos(INPUT_ID::DOWN);
+	auto tmpPos = _puyo->pos();
 	tmpPos = tmpPos - static_cast<float>(PUYO_RAD);
 	tmpPos /= PUYO_SIZE;
-	if (tmpPos.y >= STAGE_Y || _playErea[static_cast<int>(tmpPos.x)][static_cast<int>(tmpPos.y)].first != PUYO_ID::NON)
+	if (tmpPos.y + 1 >= STAGE_Y || _playErea[static_cast<int>(tmpPos.x)][static_cast<int>(tmpPos.y) + 1] == 1)
 	{
+		DirPermit dirpermit;
+		dirpermit.per = 0;
+		_puyo->dirpermit(dirpermit);
 		_puyoList.push_back(std::move(_puyo));
-		_playErea[static_cast<int>(tmpPos.x)][static_cast<int>(tmpPos.y - 1)] = { PUYO_ID::RED,PUYO_STATE::STAY };
+		_playErea[static_cast<int>(tmpPos.x)][static_cast<int>(tmpPos.y)] = 1;
 		_puyo = std::make_shared<Puyo>(Vector2Flt{ PUYO_RAD,PUYO_RAD }, PUYO_RAD);
 	}
 }

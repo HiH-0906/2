@@ -8,7 +8,7 @@ Puyo::Puyo(Vector2Flt&& pos, float&& rad)
 {
 	_pos = pos;
 	_rad = rad;
-	_moveflag.flag = 0;
+	_dirpermit.perbit = { 0,0,0,0 };
 	_vec = {
 			{INPUT_ID::LEFT,Vector2Flt{-_rad * 2.0f,0.0f}} ,
 			{INPUT_ID::RIGHT,Vector2Flt{_rad * 2.0f,0.0f}},
@@ -23,11 +23,6 @@ Puyo::~Puyo()
 
 void Puyo::Update(void)
 {
-	/*if (_pos.y + _speed >= PUYO_SIZE * STAGE_Y)
-	{
-		return;
-	}
-	_pos.y += _speed;*/
 }
 
 void Puyo::Draw(void)
@@ -35,15 +30,54 @@ void Puyo::Draw(void)
 	DrawCircle(static_cast<int>(_pos.x), static_cast<int>(_pos.y), static_cast<int>(_rad), 0x8888ff, true);
 }
 
-const Vector2Flt Puyo::GetMovePos(INPUT_ID id)
+const Vector2Flt Puyo::pos(void)
 {
-	auto tmpPos = _pos + _vec[id];
-	return tmpPos;
+	return _pos;
 }
 
 void Puyo::Move(const INPUT_ID& id)
 {
 	auto tmpPos = _pos;
-	tmpPos += _vec[id];
+	switch (id)
+	{
+	case INPUT_ID::LEFT:
+		if (_dirpermit.perbit.left)
+		{
+			tmpPos += _vec[id];
+		}
+		break;
+	case INPUT_ID::RIGHT:
+		if (_dirpermit.perbit.right)
+		{
+			tmpPos += _vec[id];
+		}
+		break;
+	case INPUT_ID::UP:
+		if (_dirpermit.perbit.up)
+		{
+			tmpPos += _vec[id];
+		}
+		break;
+	case INPUT_ID::DOWN:
+		if (_dirpermit.perbit.down)
+		{
+			tmpPos += _vec[id];
+		}
+		break;
+	case INPUT_ID::LROTA:
+		break;
+	case INPUT_ID::RROTA:
+		break;
+	case INPUT_ID::MAX:
+		break;
+	default:
+		break;
+	}
 	_pos = tmpPos;
+}
+
+bool Puyo::dirpermit(DirPermit dirpermit)
+{
+	_dirpermit = dirpermit;
+	return true;
 }

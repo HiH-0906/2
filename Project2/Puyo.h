@@ -3,20 +3,18 @@
 #include "Obj.h"
 #include "State/INPUT_ID.h"
 
-struct bit
+struct DirBit
 {
-    char left : 1;
-    char right : 1;
-    char up : 1;
-    char down : 1;
-    char rrota : 1;
-    char lrota : 1;
+    unsigned int up : 1;
+    unsigned int down : 1;
+    unsigned int left : 1;
+    unsigned int right : 1;
 };
 
-union moveflag 
+union DirPermit 
 {
-    char flag;
-    bit bit;
+    unsigned int per;
+    DirBit perbit;
 };
 
 class Puyo :
@@ -27,10 +25,11 @@ public:
     ~Puyo();
     void Update(void);
     void Draw(void);
-    const Vector2Flt GetMovePos(INPUT_ID id);
+    const Vector2Flt pos(void);
     void Move(const INPUT_ID& id);
+    bool dirpermit(DirPermit dirpermit);
 private:
-    moveflag _moveflag;
+    DirPermit _dirpermit;
     std::map<INPUT_ID, Vector2Flt> _vec;
 };
 

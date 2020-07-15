@@ -35,8 +35,8 @@ private:
 	std::shared_ptr<Input*> _input;
 	std::shared_ptr<Puyo> _puyo;
 	std::list<std::shared_ptr<Puyo>> _puyoList;
-	std::vector<PuyoSt*> _playErea;
-	std::vector<PuyoSt> _playEreaBase;
+	std::vector<int*> _playErea;
+	std::vector<int> _playEreaBase;
 	int _color;
 	static int _allStage;
 };
