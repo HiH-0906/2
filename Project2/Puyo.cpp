@@ -4,16 +4,17 @@
 #include"_debug/_DebugConOut.h"
 #include "Puyo.h"
 
-Puyo::Puyo(Vector2Flt&& pos, float&& rad)
+Puyo::Puyo(Vector2&& pos, int&& rad)
 {
-	_pos = pos;
+	pos_ = pos;
 	_rad = rad;
-	_dirpermit.perbit = { 0,0,0,0 };
-	_vec = {
-			{INPUT_ID::LEFT,Vector2Flt{-_rad * 2.0f,0.0f}} ,
-			{INPUT_ID::RIGHT,Vector2Flt{_rad * 2.0f,0.0f}},
-			{INPUT_ID::UP,Vector2Flt{0.0f,-_rad * 2.0f}},
-			{INPUT_ID::DOWN,Vector2Flt{0.0f,_rad * 2.0f}}
+	id_ = PUYO_ID::RED;
+	dirpermit_.perbit = { 0,0,0,0 };
+	vec_ = {
+			{INPUT_ID::LEFT,Vector2{-_rad * 2,0}},
+			{INPUT_ID::RIGHT,Vector2{_rad * 2,0}},
+			{INPUT_ID::UP,Vector2{0,-_rad * 2}},
+			{INPUT_ID::DOWN,Vector2{0,_rad * 2}}
 	};
 }
 
@@ -27,41 +28,52 @@ void Puyo::Update(void)
 
 void Puyo::Draw(void)
 {
-	DrawCircle(static_cast<int>(_pos.x), static_cast<int>(_pos.y), static_cast<int>(_rad), 0x8888ff, true);
+	DrawCircle(static_cast<int>(pos_.x + _rad), static_cast<int>(pos_.y + _rad), static_cast<int>(_rad), 0x8888ff, true);
 }
 
-const Vector2Flt Puyo::pos(void)
+const Vector2& Puyo::pos(void)
 {
-	return _pos;
+	return pos_;
+}
+
+const Vector2 Puyo::GetGrid(int size)
+{
+	Vector2 grid = pos_ / size;
+	return grid;
+}
+
+PUYO_ID& Puyo::id(void)
+{
+	return id_;
 }
 
 void Puyo::Move(const INPUT_ID& id)
 {
-	auto tmpPos = _pos;
+	auto tmpPos = pos_;
 	switch (id)
 	{
 	case INPUT_ID::LEFT:
-		if (_dirpermit.perbit.left)
+		if (dirpermit_.perbit.left)
 		{
-			tmpPos += _vec[id];
+			tmpPos += vec_[id];
 		}
 		break;
 	case INPUT_ID::RIGHT:
-		if (_dirpermit.perbit.right)
+		if (dirpermit_.perbit.right)
 		{
-			tmpPos += _vec[id];
+			tmpPos += vec_[id];
 		}
 		break;
 	case INPUT_ID::UP:
-		if (_dirpermit.perbit.up)
+		if (dirpermit_.perbit.up)
 		{
-			tmpPos += _vec[id];
+			tmpPos += vec_[id];
 		}
 		break;
 	case INPUT_ID::DOWN:
-		if (_dirpermit.perbit.down)
+		if (dirpermit_.perbit.down)
 		{
-			tmpPos += _vec[id];
+			tmpPos += vec_[id];
 		}
 		break;
 	case INPUT_ID::LROTA:
@@ -73,11 +85,11 @@ void Puyo::Move(const INPUT_ID& id)
 	default:
 		break;
 	}
-	_pos = tmpPos;
+	pos_ = tmpPos;
 }
 
 bool Puyo::dirpermit(DirPermit dirpermit)
 {
-	_dirpermit = dirpermit;
+	dirpermit_ = dirpermit;
 	return true;
 }

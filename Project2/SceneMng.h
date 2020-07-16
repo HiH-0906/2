@@ -5,8 +5,8 @@
 
 #define PUYO_RAD 16
 #define PUYO_SIZE (PUYO_RAD*2)
-#define STAGE_X 6
-#define STAGE_Y 13
+#define STAGE_X 8
+#define STAGE_Y 15
 
 #define lpSceneMng SceneMng::GetInstance()
 

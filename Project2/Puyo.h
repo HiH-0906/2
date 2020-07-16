@@ -1,8 +1,10 @@
 #pragma once
 #include<map>
 #include "Obj.h"
+#include "State/PUYO_ID.h"
 #include "State/INPUT_ID.h"
 
+// è„â∫ç∂âEÀﬁØƒÃ®∞Ÿƒﬁ
 struct DirBit
 {
     unsigned int up : 1;
@@ -21,15 +23,18 @@ class Puyo :
     public Obj
 {
 public:
-    Puyo(Vector2Flt&& pos,float&& rad);
+    Puyo(Vector2&& pos,int&& rad);
     ~Puyo();
     void Update(void);
     void Draw(void);
-    const Vector2Flt pos(void);
     void Move(const INPUT_ID& id);
     bool dirpermit(DirPermit dirpermit);
+    const Vector2& pos(void);
+    const Vector2 GetGrid(int size);
+    PUYO_ID& id(void);
 private:
-    DirPermit _dirpermit;
-    std::map<INPUT_ID, Vector2Flt> _vec;
+    DirPermit dirpermit_;
+    std::map<INPUT_ID, Vector2> vec_;
+    PUYO_ID id_;
 };
 
