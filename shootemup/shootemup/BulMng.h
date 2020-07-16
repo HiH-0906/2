@@ -13,6 +13,7 @@ enum class BULLET_MOVE
 	Diffusion,					// ŠgŽU
 	Scattered,					// ‚Î‚ç‚Ü‚«
 	Spiral,						// ‰Q
+	randBullet,					// ‘S‘Ì‚Î‚ç‚Ü‚«
 	MAX
 };
 
@@ -45,7 +46,7 @@ public:
 	void AddBulQue(BULLET_MOVE type, Position2& enemy, Position2& player);
 	void RunBulQue(void);
 	void UpDate(void);
-	void Draw(bool debug);
+	void Draw(bool debug,int& image);
 	int GetBulCnt(BULLET_MOVE type);
 	bool HitCheck(Position2& player,float rad);
 private:

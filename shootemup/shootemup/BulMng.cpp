@@ -1,9 +1,11 @@
+#include <algorithm>
 #include "BulMng.h"
 #include "NormalBullet.h"
 #include "ThreeWay.h"
 #include "Diffusion.h"
 #include "Scattered.h"
 #include "Spiral.h"
+#include "randBullet.h"
 
 std::unique_ptr<BulMng, BulMng::BulMngDeleter> BulMng::_instance(new BulMng());
 
@@ -14,15 +16,15 @@ void BulMng::AddBulQue(BULLET_MOVE type, Position2& enemy, Position2& player)
 
 void BulMng::RunBulQue(void)
 {
-	BULLET_MOVE type;
-	Position2 enemy;
-	Position2 player;
-	for (auto que : _queList)
+	static BULLET_MOVE type;
+	if (_queList.size() == 0)
 	{
-		std::tie(type, enemy, player) = que;
-		player;
-		_init[type].first(enemy, player,_bulletList);
+		return;
 	}
+	type = std::get<0>(*_queList.begin());
+	static Position2& enemy = std::get<1>(*_queList.begin());
+	static Position2& player = std::get<2>(*_queList.begin());
+	_init[type].first(enemy, player,_bulletList);
 	_queList.clear();
 }
 
@@ -41,11 +43,11 @@ void BulMng::UpDate(void)
 		_bulletList.end());
 }
 
-void BulMng::Draw(bool debug)
+void BulMng::Draw(bool debug,int& image)
 {
 	for (auto bul : _bulletList)
 	{
-		(*bul).Draw(debug);
+		(*bul).Draw(debug, image);
 	}
 }
 
@@ -77,6 +79,7 @@ BulMng::BulMng()
 	_init.try_emplace(BULLET_MOVE::Diffusion, Diffusion(),45);
 	_init.try_emplace(BULLET_MOVE::Scattered, Scattered(),5);
 	_init.try_emplace(BULLET_MOVE::Spiral, Spiral(), 5);
+	_init.try_emplace(BULLET_MOVE::randBullet, randBullet(), 1);
 }
 
 BulMng::~BulMng()

@@ -21,6 +21,21 @@ bool Input::GetKeyTrg(INPUT_ID& key)
 	return _input[key].first && !_input[key].second;
 }
 
+bool Input::GetKeySty(INPUT_ID& key)
+{
+	if (key == INPUT_ID::MAX)
+	{
+		return false;
+	}
+	return _input[key].first && _input[key].second;
+}
+
+void Input::SetDownTrg(void)
+{
+	_input[INPUT_ID::DOWN].first = true;
+	_input[INPUT_ID::DOWN].second = false;
+}
+
 
 void Input::Init()
 {

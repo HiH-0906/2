@@ -6,9 +6,9 @@
 
 struct NormalBullet
 {
-	void operator()(Position2 enemy, Position2 player,std::vector<shardBul>& list)
+	void operator()(Position2& enemy, Position2& player,std::vector<shardBul>& list)
 	{
-		list.emplace_back(new bullet(enemy, (player - enemy).Normalized() * 5));
+		list.emplace_back(new bullet(std::move(enemy), (player - enemy).Normalized() * 5));
 	}
 };
 

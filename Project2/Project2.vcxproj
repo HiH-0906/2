@@ -158,7 +158,6 @@
     <ClCompile Include="Input\keyState.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Input\MouseState.cpp" />
-    <ClCompile Include="Obj.cpp" />
     <ClCompile Include="Input\PadState.cpp" />
     <ClCompile Include="PleyErea.cpp" />
     <ClCompile Include="Puyo.cpp" />
@@ -174,7 +173,6 @@
     <ClInclude Include="Input\Input.h" />
     <ClInclude Include="Input\keyState.h" />
     <ClInclude Include="Input\MouseState.h" />
-    <ClInclude Include="Obj.h" />
     <ClInclude Include="Input\PadState.h" />
     <ClInclude Include="PleyErea.h" />
     <ClInclude Include="Puyo.h" />

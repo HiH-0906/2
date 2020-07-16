@@ -18,6 +18,7 @@ bool IsHit(const Position2& posA, float radiusA, const Position2& posB,  float r
 }
 
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
+	SetOutApplicationLogValidFlag(false);
 	ChangeWindowMode(true);
 	SetMainWindowText("1916035_‹´–{‘å‹P");
 	if (DxLib_Init() != 0) {
@@ -31,12 +32,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	int skyH = LoadGraph("img/sky.png");
 	int sky2H = LoadGraph("img/sky2.png");
+	int Bimage = LoadGraph("img/bullet.png");
 
 	int playerH[10];
 	LoadDivGraph("img/player.png", 10, 5, 2, 16, 24,playerH );
 
 	int enemyH[2];
-	LoadDivGraph("img/enemy.png", 2, 2, 1, 32, 32, enemyH);
+	LoadDivGraph("img/enemy.png", 2, 2, 1, 64, 64, enemyH);
 
 	//Ž©‹@‚Ì”¼Œa
 	float playerRadius = 10.0f;
@@ -93,7 +95,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			playerpos.y = min(480,playerpos.y+4);
 		}
 
-		int pidx = (frame/4 % 2)*5+3;
+		int pidx = (frame / 4 % 2) * 5 + 3;
 		DrawRotaGraph(playerpos.x, playerpos.y, 2.0f, 0.0f, playerH[pidx], true);
 		if (isDebugMode) {
 			//Ž©‹@‚Ì–{‘Ì(“–‚½‚è”»’è)
@@ -109,11 +111,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		{
 			_shakeCount = 20;
 		}
-		lpBulMng.Draw(isDebugMode);
+		lpBulMng.Draw(isDebugMode, Bimage);
 		//“G‚Ì•\Ž¦
 		enemypos.x = abs((int)((frame+320) % 1280) - 640);
 		int eidx = (frame / 4 % 2);
-		DrawRotaGraph(enemypos.x, enemypos.y, 2.0f, 0.0f, enemyH[eidx],true);
+		DrawRotaGraph(enemypos.x, enemypos.y, 1.0f, 0.0f, enemyH[eidx],true);
 
 		if (isDebugMode) {
 			//“G‚Ì–{‘Ì(“–‚½‚è”»’è)

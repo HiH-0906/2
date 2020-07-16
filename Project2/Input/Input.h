@@ -21,6 +21,8 @@ public:
 	virtual CON_ID GetID(void) = 0;
 	virtual void Setting(void);
 	bool GetKeyTrg(INPUT_ID& key);
+	bool GetKeySty(INPUT_ID& key);
+	void SetDownTrg(void);
 private:
 	void Init(void);
 protected:

@@ -19,8 +19,7 @@ union DirPermit
     DirBit perbit;
 };
 
-class Puyo :
-    public Obj
+class Puyo 
 {
 public:
     Puyo(Vector2&& pos,int&& rad);
@@ -36,5 +35,7 @@ private:
     DirPermit dirpermit_;
     std::map<INPUT_ID, Vector2> vec_;
     PUYO_ID id_;
+    Vector2 pos_;
+    int rad_;
 };
 

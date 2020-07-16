@@ -18,16 +18,16 @@ struct Bullet {
 class bullet
 {
 public:
-	bullet(Position2 pos,Vector2 vel);
+	bullet(Position2&& pos,Vector2&& vel);
 	~bullet();
 	void UpDate(void);
 	bool isDead(void);
 	void SetActiv(bool flag);
-	void Draw(bool debug);
+	void Draw(bool debug,int& image);
 	Bullet Getbullet(void)const;
 private:
 	Bullet _bullet;
 	float _angle;
-	int image;
+	static int image;
 };
 

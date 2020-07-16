@@ -7,14 +7,14 @@
 Puyo::Puyo(Vector2&& pos, int&& rad)
 {
 	pos_ = pos;
-	_rad = rad;
+	rad_ = rad;
 	id_ = PUYO_ID::RED;
 	dirpermit_.perbit = { 0,0,0,0 };
 	vec_ = {
-			{INPUT_ID::LEFT,Vector2{-_rad * 2,0}},
-			{INPUT_ID::RIGHT,Vector2{_rad * 2,0}},
-			{INPUT_ID::UP,Vector2{0,-_rad * 2}},
-			{INPUT_ID::DOWN,Vector2{0,_rad * 2}}
+			{INPUT_ID::LEFT,Vector2{-rad_ * 2,0}},
+			{INPUT_ID::RIGHT,Vector2{rad_ * 2,0}},
+			{INPUT_ID::UP,Vector2{0,-rad_ * 2}},
+			{INPUT_ID::DOWN,Vector2{0,rad_ / 2}}
 	};
 }
 
@@ -28,7 +28,7 @@ void Puyo::Update(void)
 
 void Puyo::Draw(void)
 {
-	DrawCircle(static_cast<int>(pos_.x + _rad), static_cast<int>(pos_.y + _rad), static_cast<int>(_rad), 0x8888ff, true);
+	DrawCircle(static_cast<int>(pos_.x + rad_), static_cast<int>(pos_.y + rad_), static_cast<int>(rad_), 0x8888ff, true);
 }
 
 const Vector2& Puyo::pos(void)

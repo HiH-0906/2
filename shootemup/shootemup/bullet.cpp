@@ -3,14 +3,15 @@
 #include "bullet.h"
 #include "NormalBullet.h"
 
-bullet::bullet(Position2 pos, Vector2 vel)
+
+bullet::bullet(Position2&& pos, Vector2&& vel)
 {
 	_bullet.pos = pos;
 	_bullet.isActive = true;
 	_bullet.vel = vel;
 	_bullet.rad = 5.0f;
 	_angle = atan2(_bullet.vel.y, _bullet.vel.x);
-	image = LoadGraph("img/bullet.png");
+	
 }
 
 bullet::~bullet()
@@ -41,7 +42,7 @@ void bullet::SetActiv(bool flag)
 	_bullet.isActive = flag;
 }
 
-void bullet::Draw(bool debug)
+void bullet::Draw(bool debug,int& image)
 {
 	DrawRotaGraph(_bullet.pos.x, _bullet.pos.y, 1.0f, _angle, image, true);
 	if (debug)
