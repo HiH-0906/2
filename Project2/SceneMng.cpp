@@ -30,7 +30,7 @@ void SceneMng::Draw()
 {
 	SetDrawScreen(DX_SCREEN_BACK);
 	ClsDrawScreen();
-	for (int i = 0; i < _playErea.size(); i++)
+	for (size_t i = 0; i < _playErea.size(); i++)
 	{
 		DrawGraph(_playErea[i]->offset().x, _playErea[i]->offset().y, _playErea[i]->GetScreenID(), true);
 	}
@@ -47,8 +47,11 @@ bool SceneMng::SysInit(void)
 	{
 		return false;
 	}
-	_playErea.emplace_back(std::make_unique<PleyErea>(Vector2{ 512,512 },CON_ID::KEY));
-	_playErea.emplace_back(std::make_unique<PleyErea>(Vector2{ 512,512 },CON_ID::KEY));
+	Vector2 size = { 512,512 };
+	Vector2 offset = { 100,100 };
+	_playErea.emplace_back(std::make_unique<PleyErea>(std::move(size),std::move(offset),CON_ID::KEY));
+	offset = { 612,100 };
+	_playErea.emplace_back(std::make_unique<PleyErea>(std::move(size), std::move(offset),CON_ID::KEY));
 	return true;
 }
 

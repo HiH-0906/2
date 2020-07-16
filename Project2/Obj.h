@@ -6,13 +6,13 @@ class Obj
 public:
 	Obj();
 	virtual ~Obj();
-	const virtual float rad()const;
+	const virtual int rad()const;
 private:
 	void Init(void);
 protected: 
-	bool _alive;							// ¶‚«‚Ä‚é‚©
-	Vector2Flt _pos;						// À•W
-	float _rad;								// ”¼Œa
+	bool alive_;							// ¶‚«‚Ä‚é‚©
+	Vector2 pos_;							// À•W
+	int _rad;								// ”¼Œa
 	float _speed;							// —‰º½Ëß°ÄŞ
 };
 

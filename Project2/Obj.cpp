@@ -9,15 +9,15 @@ Obj::~Obj()
 {
 }
 
-const float Obj::rad()const
+const int Obj::rad()const
 {
 	return _rad;
 }
 
 void Obj::Init(void)
 {
-	_pos = { 0.0f,0.0f };
-	_rad = 48.0f;
+	pos_ = { 0,0 };
+	_rad = 48;
 	_speed = (_rad * 2.0f) / 60.0f;
-	_alive = true;
+	alive_ = true;
 }
