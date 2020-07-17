@@ -31,17 +31,6 @@ void PleyErea::UpDate()
 	{
 		puyoList_.front()->SetSoftDrop();
 	}
-	/*auto move = [](std::weak_ptr<Input*> input,INPUT_ID IN_id, std::weak_ptr<Puyo> puyo)
-	{
-		if (!input.expired())
-		{
-			if ((*input.lock())->GetKeyTrg(IN_id))
-			{
-				puyo.lock()->Move(IN_id);
-			}
-		}
-	};
-	move(input_, id, puyoList_.front());*/
 	if (puyoList_.front()->Update())
 	{
 		NextPuyo();
@@ -116,7 +105,7 @@ bool PleyErea::Init(CON_ID id)
 	}
 	for (int no = 0; no < stgSize_.x; no++)
 	{
-		eraseErea_.emplace_back(&playEreaBase_[no * stgSize_.y]);
+		eraseErea_.emplace_back(&eraseEreaBase_[no * stgSize_.y]);
 	}
 
 	for (int x = 0; x < stgSize_.x; x++)
@@ -164,7 +153,8 @@ void PleyErea::NextPuyo(void)
 	DirPermit dirpermit;
 	dirpermit.per = 0;
 	puyoList_.front()->dirpermit(dirpermit);
-	// Á‚·ˆ—‚Æ‚©‰º‚É—‚¿‚éˆ—‚Æ‚©‚»‚ñ‚ÈŠ´‚¶
+	playErea_[static_cast<int>(tmpPos.x)][static_cast<int>(tmpPos.y)] = puyoList_.front()->id();					// id“ü‚ê‚Ä`
+	// Á‚·ˆ—
 	SetErasePuyo();
 	for (auto&& puyo : puyoList_)
 	{
@@ -177,8 +167,9 @@ void PleyErea::NextPuyo(void)
 	}
 	auto itr = std::remove_if(puyoList_.begin(), puyoList_.end(), [](auto&& puyo) {return !(puyo->activ()); });
 	puyoList_.erase(itr, puyoList_.end());
+	// ‰º‚É—‚Æ‚·ˆ—
+	
 
-	playErea_[static_cast<int>(tmpPos.x)][static_cast<int>(tmpPos.y)] = puyoList_.front()->id();					// id“ü‚ê‚Ä`
 	puyoList_.emplace(
 		puyoList_.begin(), std::make_unique<Puyo>(Vector2{ stgSize_.x / 2 * blockSize_,blockSize_ }, PUYO_RAD)
 		);	// ²İ½Àİ½‚·‚é`
@@ -191,12 +182,12 @@ void PleyErea::SetErasePuyo(void)
 	auto id = puyoList_.front()->id();
 	int count = 0;
 	std::function<void(PUYO_ID, Vector2)> chPuyo = [&](PUYO_ID id, Vector2 vec) {
-		if (eraseErea_[vec.x][vec.y] != PUYO_ID::NON)
+		if (eraseErea_[vec.x][vec.y] == PUYO_ID::NON)
 		{
 			if (playErea_[vec.x][vec.y] == id)
-			{
-				eraseErea_[vec.x][vec.y] = id;
+			{				
 				count++;
+				eraseErea_[vec.x][vec.y] = id;
 				chPuyo(id, { vec.x + 1,vec.y });
 				chPuyo(id, { vec.x - 1,vec.y });
 				chPuyo(id, { vec.x,vec.y + 1 });
