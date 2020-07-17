@@ -12,7 +12,7 @@ void Input::Setting(void)
 {
 }
 
-bool Input::GetKeyTrg(INPUT_ID& key)
+bool Input::GetKeyTrg(INPUT_ID key)
 {
 	if (key == INPUT_ID::MAX)
 	{
@@ -21,7 +21,7 @@ bool Input::GetKeyTrg(INPUT_ID& key)
 	return _input[key].first && !_input[key].second;
 }
 
-bool Input::GetKeySty(INPUT_ID& key)
+bool Input::GetKeySty(INPUT_ID key)
 {
 	if (key == INPUT_ID::MAX)
 	{

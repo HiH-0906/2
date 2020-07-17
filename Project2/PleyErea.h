@@ -28,8 +28,10 @@ public:
 private:
 	void Draw(void);								// 描画
 	void NextPuyo(void);							// 今のぷよを動けなくするのと次のぷよｲﾝｽﾀﾝｽ
+	void SetErasePuyo(void);						// 消せるか判断
 	bool CheckMovePuyo(void);						// 動いていいぷよか判断
 	bool Init(CON_ID id);							// 初期化用関数
+	bool CheckDelete(int& num,INPUT_ID id);			// ぷよ消せるか判断関数
 	int screenID_;									// 個別描画用ｽｸﾘｰﾝ
 	int puyoScreenID_;								// ぷよ操作場所描画用ｽｸﾘｰﾝ
 	int playerID_;									// 自分が何番目か
@@ -37,13 +39,13 @@ private:
 	const Vector2 size_;							// playEreaの大きさ
 	Vector2 offset_;								// 描画時ｵﾌｾｯﾄ
 	std::shared_ptr<Input*> input_;					// 入力ｸﾗｽ管理用
-	std::list<std::shared_ptr<Puyo>> puyoList_;		// ぷよ管理用ﾘｽﾄ
+	std::vector<std::unique_ptr<Puyo>> puyoList_;	// ぷよ管理用ﾘｽﾄ
 	std::vector<PUYO_ID*> playErea_;				// 下の奴を二次元配列みたいにｱｸｾｽするとき用
 	std::vector<PUYO_ID> playEreaBase_;				// playErea全体のﾃﾞｰﾀ管理用配列
+	std::vector<PUYO_ID*> eraseErea_;				// 下の奴を二次元配列みたいにｱｸｾｽするとき用
+	std::vector<PUYO_ID> eraseEreaBase_;			// playErea全体の消すとこﾃﾞｰﾀ管理用配列
 	int color_;										// ｴﾘｱの色
 	int blockSize_;									// 1ﾏｽの大きさ
-	int aliveCnt_;									// 接地後生きてる時間管理用
-	int downCnt_;
 	static int allStage_;							// 全体でplayEreaがいくつあるかのｶｳﾝﾄ
 };
 

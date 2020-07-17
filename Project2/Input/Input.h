@@ -20,8 +20,8 @@ public:
 	virtual void Update(const int& p_id) = 0;
 	virtual CON_ID GetID(void) = 0;
 	virtual void Setting(void);
-	bool GetKeyTrg(INPUT_ID& key);
-	bool GetKeySty(INPUT_ID& key);
+	bool GetKeyTrg(INPUT_ID key);
+	bool GetKeySty(INPUT_ID key);
 	void SetDownTrg(void);
 private:
 	void Init(void);
