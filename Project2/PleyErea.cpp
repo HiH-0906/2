@@ -28,7 +28,6 @@ void PleyErea::UpDate()
 	bool nextFlag = true;
 
 	std::for_each(puyoList_.rbegin(), puyoList_.rend(), [&](PuyoUnit& puyo) {
-		bool nextFlag = true;
 		nextFlag &= CheckMovePuyo(puyo);
 	});
 
@@ -44,9 +43,9 @@ void PleyErea::UpDate()
 
 	playUnit_->Update();
 	
-	bool tmp;
+	bool rensaFlag = true;
 	std::for_each(puyoList_.rbegin(), puyoList_.rend(), [&](PuyoUnit& puyo) {
-		puyo->Update();
+		rensaFlag |= puyo->Update();
 	});
 
 	Draw();
