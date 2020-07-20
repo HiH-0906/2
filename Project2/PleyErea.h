@@ -7,6 +7,7 @@
 #include "State/CON_ID.h"
 #include "Puyo.h"
 #include "State/PUYO_ID.h"
+#include "playUnit.h"
 
 enum class PUYO_STATE
 {
@@ -15,7 +16,14 @@ enum class PUYO_STATE
 	DEATH,
 };
 
+enum class STAGE_MODE
+{
+	DROP,
+	RENSA,
+};
+
 using PuyoSt = std::pair < PUYO_ID, PUYO_STATE >;
+using PuyoUnit = std::unique_ptr<Puyo>;
 
 class PleyErea
 {
@@ -29,9 +37,8 @@ private:
 	void Draw(void);								// •`‰æ
 	void NextPuyo(void);							// ¡‚Ì‚Õ‚æ‚ğ“®‚¯‚È‚­‚·‚é‚Ì‚ÆŸ‚Ì‚Õ‚æ²İ½Àİ½
 	void SetErasePuyo(void);						// Á‚¹‚é‚©”»’f
-	bool CheckMovePuyo(void);						// “®‚¢‚Ä‚¢‚¢‚Õ‚æ‚©”»’f
+	bool CheckMovePuyo(PuyoUnit& puyo);						// “®‚¢‚Ä‚¢‚¢‚Õ‚æ‚©”»’f
 	bool Init(CON_ID id);							// ‰Šú‰»—pŠÖ”
-	bool CheckDelete(int& num,INPUT_ID id);			// ‚Õ‚æÁ‚¹‚é‚©”»’fŠÖ”
 	int screenID_;									// ŒÂ•Ê•`‰æ—p½¸Ø°İ
 	int puyoScreenID_;								// ‚Õ‚æ‘€ìêŠ•`‰æ—p½¸Ø°İ
 	int playerID_;									// ©•ª‚ª‰½”Ô–Ú‚©
@@ -47,5 +54,9 @@ private:
 	int color_;										// ´Ø±‚ÌF
 	int blockSize_;									// 1Ï½‚Ì‘å‚«‚³
 	static int allStage_;							// ‘S‘Ì‚ÅplayErea‚ª‚¢‚­‚Â‚ ‚é‚©‚Ì¶³İÄ
+	STAGE_MODE mode_;								// Œ»İ‚ÌÓ°ÄŞ
+	std::unique_ptr<playUnit> playUnit_;			// ‘€ìŒn‚Ü‚Æ‚ß
+
+	friend class playUnit;
 };
 

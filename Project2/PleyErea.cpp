@@ -25,24 +25,30 @@ void PleyErea::UpDate()
 {
 	(*input_)->Update(playerID_);
 
-	CheckMovePuyo();
+	bool nextFlag = true;
 
-	if ((*input_)->GetKeySty(INPUT_ID::DOWN))
+	std::for_each(puyoList_.rbegin(), puyoList_.rend(), [&](PuyoUnit& puyo) {
+		bool nextFlag = true;
+		nextFlag &= CheckMovePuyo(puyo);
+	});
+
+	if (nextFlag)
 	{
-		puyoList_.front()->SetSoftDrop();
-	}
-	if (puyoList_.front()->Update())
-	{
-		NextPuyo();
-	}
-	for (auto id : INPUT_ID())
-	{
-		if ((*input_)->GetKeyTrg(id))
+		if (mode_ == STAGE_MODE::RENSA)
 		{
-			puyoList_.front()->Move(id);
+			puyoList_.emplace(puyoList_.begin(), std::make_unique<Puyo>(Vector2{ stgSize_.x / 2 * blockSize_,blockSize_ }, PUYO_RAD));
+			CheckMovePuyo(puyoList_[0]);
+			mode_ = STAGE_MODE::DROP;
 		}
 	}
+
+	playUnit_->Update();
 	
+	bool tmp;
+	std::for_each(puyoList_.rbegin(), puyoList_.rend(), [&](PuyoUnit& puyo) {
+		puyo->Update();
+	});
+
 	Draw();
 }
 
@@ -62,9 +68,9 @@ void PleyErea::Draw(void)
 	DrawGraph(offset_.x, offset_.y, puyoScreenID_, true);
 }
 
-bool PleyErea::CheckMovePuyo()
+bool PleyErea::CheckMovePuyo(PuyoUnit& puyo)
 {
-	auto tmpPos = puyoList_.front()->GetGrid(blockSize_);
+	auto tmpPos = puyo->GetGrid(blockSize_);
 	DirPermit dirpermit;
 	dirpermit.perbit = { 1,1,1,1 };
 
@@ -84,21 +90,22 @@ bool PleyErea::CheckMovePuyo()
 	{
 		dirpermit.perbit.down = 0;
 	}
-	puyoList_.front()->dirpermit(dirpermit);
+	puyo->dirpermit(dirpermit);
 	return true;
 }
 
 bool PleyErea::Init(CON_ID id)
 {
+	mode_ = STAGE_MODE::DROP;
 	playerID_ = allStage_;
 	allStage_++;
 	color_ = 0x000066 << (16 * static_cast<int>(playerID_));
 	screenID_ = MakeScreen(size_.x, size_.y, true);
 	puyoScreenID_ = MakeScreen(stgSize_.x * PUYO_SIZE, stgSize_.y * PUYO_SIZE, true);
+	playUnit_ = std::make_unique<playUnit>(*this);
 	blockSize_ = 32;
 	playEreaBase_.resize(stgSize_.x * stgSize_.y);
 	eraseEreaBase_.resize(stgSize_.x * stgSize_.y);
-	puyoList_.emplace(puyoList_.begin(),std::make_unique<Puyo>(Vector2{ stgSize_.x / 2 * blockSize_,blockSize_ }, PUYO_RAD));
 	for (int no = 0; no < stgSize_.x; no++)
 	{
 		playErea_.emplace_back(&playEreaBase_[no * stgSize_.y]);
@@ -142,11 +149,6 @@ bool PleyErea::Init(CON_ID id)
 	return true;
 }
 
-bool PleyErea::CheckDelete(int& num, INPUT_ID id)
-{
-	return false;
-}
-
 void PleyErea::NextPuyo(void)
 {
 	auto tmpPos = puyoList_.front()->GetGrid(blockSize_);
@@ -185,7 +187,7 @@ void PleyErea::SetErasePuyo(void)
 		if (eraseErea_[vec.x][vec.y] == PUYO_ID::NON)
 		{
 			if (playErea_[vec.x][vec.y] == id)
-			{				
+			{
 				count++;
 				eraseErea_[vec.x][vec.y] = id;
 				chPuyo(id, { vec.x + 1,vec.y });
