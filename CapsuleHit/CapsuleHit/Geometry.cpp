@@ -5,12 +5,12 @@
 
 void
 Rect::Draw() {
-	DxLib::DrawBox(Left()*2, Top()*2, Right()*2, Bottom()*2, 0xffffffff, false);
+	DxLib::DrawBox(Left() * 2, Top() * 2, Right() * 2, Bottom() * 2, 0xffffffff, false);
 }
 
 void
 Rect::Draw(Vector2& offset) {
-	DxLib::DrawBox((Left()+offset.x)*2, (Top()+offset.y)*2, (Right()+offset.x)*2, (Bottom()+offset.y)*2, 0xffffffff, false);
+	DxLib::DrawBox((Left() + offset.x) * 2, (Top() + offset.y) * 2, (Right() + offset.x) * 2, (Bottom() + offset.y) * 2, 0xffffffff, false);
 }
 
 void
@@ -21,18 +21,18 @@ Vector2::operator*=(float scale) {
 
 Vector2
 Vector2::operator*(float scale) {
-	return Vector2(x*scale,y*scale);
+	return Vector2(x*scale, y*scale);
 }
 
 Vector2 operator+(const Vector2& va, const Vector2 vb) {
 	Vector2 ret;
-	ret.x = va.x+vb.x;
+	ret.x = va.x + vb.x;
 	ret.y = va.y + vb.y;
 	return ret;
 }
 
-Vector2 operator-(const Vector2& va, const Vector2 vb){
-	return Vector2(va.x-vb.x,va.y-vb.y);
+Vector2 operator-(const Vector2& va, const Vector2 vb) {
+	return Vector2(va.x - vb.x, va.y - vb.y);
 }
 
 float
@@ -41,7 +41,7 @@ Vector2::Magnitude()const {
 }
 
 
-void 
+void
 Vector2::Normalize() {
 	float mag = Magnitude();
 	x /= mag;
@@ -52,41 +52,41 @@ Vector2::Normalize() {
 Vector2
 Vector2::Normalized() {
 	float mag = Magnitude();
-	return Vector2(x / mag,	y /mag);
+	return Vector2(x / mag, y / mag);
 }
 
 
 ///内積を返す
 float
 Dot(const Vector2& va, const Vector2& vb) {
-	return va.x*vb.x + va.y*vb.y;
+	return 0;
 }
 
 ///外積を返す
 float
 Cross(const Vector2& va, const Vector2& vb) {
-	return va.x*vb.y - vb.x*va.y;
+	return 0;
 }
 
 ///内積演算子
-float 
+float
 operator*(const Vector2& va, const Vector2& vb) {
 	return Dot(va, vb);
 }
 
 ///外積演算子
-float 
+float
 operator%(const Vector2& va, const Vector2& vb) {
 	return Cross(va, vb);
 }
 
 
-void 
+void
 Vector2::operator+=(const Vector2& v) {
 	x += v.x;
 	y += v.y;
 }
-void 
+void
 Vector2::operator-=(const Vector2& v) {
 	x -= v.x;
 	y -= v.y;
@@ -97,30 +97,18 @@ Vector2::operator-=(const Vector2& v) {
 ///@param lmat 左辺値(行列)
 ///@param rmat 右辺値(行列)
 ///@attention 乗算の順序に注意してください
-Matrix 
+Matrix
 MultipleMat(const Matrix& lmat, const Matrix& rmat) {
 	Matrix ret = {};
-	for (size_t j = 0; j < 3; j++)
-	{
-		for (size_t x = 0; x < 3; x++)
-		{
-			for (size_t y = 0; y < 3; y++)
-			{
-				ret.m[x][y] += lmat.m[x][j] * rmat.m[j][y];
+
+	for (int k = 0; k <= 2; ++k) {
+		for (int j = 0; j <= 2; ++j) {
+			for (int i = 0; i <= 2; ++i) {
+				ret.m[k][j] += lmat.m[k][i] * rmat.m[i][j];
 			}
 		}
 	}
-	/*ret.m[0][0] = lmat.m[0][0] * rmat.m[0][0] + lmat.m[0][1] * rmat.m[1][0] + lmat.m[0][2] * rmat.m[2][0];
-	ret.m[0][1] = lmat.m[0][0] * rmat.m[0][1] + lmat.m[0][1] * rmat.m[1][1] + lmat.m[0][2] * rmat.m[2][1];
-	ret.m[0][2] = lmat.m[0][0] * rmat.m[0][2] + lmat.m[0][1] * rmat.m[1][2] + lmat.m[0][2] * rmat.m[2][2];
 
-	ret.m[1][0] = lmat.m[1][0] * rmat.m[0][0] + lmat.m[1][1] * rmat.m[1][0] + lmat.m[1][2] * rmat.m[2][0];
-	ret.m[1][1] = lmat.m[1][0] * rmat.m[0][1] + lmat.m[1][1] * rmat.m[1][1] + lmat.m[1][2] * rmat.m[2][1];
-	ret.m[1][2] = lmat.m[1][0] * rmat.m[0][2] + lmat.m[1][1] * rmat.m[1][2] + lmat.m[1][2] * rmat.m[2][2];
-
-	ret.m[2][0] = lmat.m[2][0] * rmat.m[0][0] + lmat.m[2][1] * rmat.m[1][0] + lmat.m[2][2] * rmat.m[2][0];
-	ret.m[2][1] = lmat.m[2][0] * rmat.m[0][1] + lmat.m[2][1] * rmat.m[1][1] + lmat.m[2][2] * rmat.m[2][1];
-	ret.m[2][2] = lmat.m[2][0] * rmat.m[0][2] + lmat.m[2][1] * rmat.m[1][2] + lmat.m[2][2] * rmat.m[2][2];*/
 	return ret;
 
 }
@@ -128,7 +116,7 @@ MultipleMat(const Matrix& lmat, const Matrix& rmat) {
 ///ベクトルに対して行列乗算を適用し、結果のベクトルを返す
 ///@param mat 行列
 ///@param vec ベクトル
-Vector2 
+Vector2
 MultipleVec(const Matrix& mat, const Vector2& vec) {
 	Vector2 ret = {};
 	ret.x = mat.m[0][0] * vec.x + mat.m[0][1] * vec.y + mat.m[0][2];
@@ -139,11 +127,8 @@ MultipleVec(const Matrix& mat, const Vector2& vec) {
 
 ///単位行列を返す
 Matrix IdentityMat() {
-	Matrix ret = {
-	1,0,0,
-	0,1,0,
-	0,0,1
-	};
+	Matrix ret = {};
+	ret.m[0][0] = ret.m[1][1] = ret.m[2][2] = 1;
 	return ret;
 }
 
@@ -151,7 +136,8 @@ Matrix IdentityMat() {
 ///@param x X方向平行移動量
 ///@param y Y方向平行移動量
 Matrix TranslateMat(float x, float y) {
-	Matrix ret = IdentityMat();
+	Matrix ret = {};
+	ret = IdentityMat();
 	ret.m[0][2] = x;
 	ret.m[1][2] = y;
 	return ret;
@@ -160,11 +146,11 @@ Matrix TranslateMat(float x, float y) {
 ///回転行列を返す
 ///@param angle 回転角度
 Matrix RotateMat(float angle) {
-	Matrix ret = IdentityMat();
-	ret.m[0][0] = cosf(angle);
-	ret.m[0][1] = -sinf(angle);
-	ret.m[1][0] = sinf(angle);
-	ret.m[1][1] = cosf(angle);
-
+	Matrix ret = {};
+	ret = IdentityMat();
+	ret.m[0][0] = cos(angle);
+	ret.m[0][1] = -sin(angle);
+	ret.m[1][0] = sin(angle);
+	ret.m[1][1] = cos(angle);
 	return ret;
 }
