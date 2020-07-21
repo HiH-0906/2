@@ -8,6 +8,8 @@ class MouseState
 	:public Input
 {
 public:
+	MouseState();
+	~MouseState();
 	CON_ID GetID(void)override final;
 	void Update(const int& p_id)override final;
 	void Setting(void)override final;

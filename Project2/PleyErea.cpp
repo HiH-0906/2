@@ -25,28 +25,46 @@ void PleyErea::UpDate()
 {
 	(*input_)->Update(playerID_);
 
-	bool nextFlag = true;
 
 	std::for_each(puyoList_.rbegin(), puyoList_.rend(), [&](PuyoUnit& puyo) {
-		nextFlag &= CheckMovePuyo(puyo);
-	});
-
-	if (nextFlag)
-	{
-		if (mode_ == STAGE_MODE::RENSA)
+		auto vec = puyo->GetGrid(blockSize_);
+		playErea_[vec.x][vec.y] = puyo->id();					// idì¸ÇÍÇƒÅ`
+		if (!CheckMovePuyo(puyo))
 		{
-			puyoList_.emplace(puyoList_.begin(), std::make_unique<Puyo>(Vector2{ stgSize_.x / 2 * blockSize_,blockSize_ }, PUYO_RAD));
-			CheckMovePuyo(puyoList_[0]);
-			mode_ = STAGE_MODE::DROP;
+			playErea_[vec.x][vec.y] = PUYO_ID::NON;
 		}
-	}
+	});
 
 	playUnit_->Update();
 	
 	bool rensaFlag = true;
 	std::for_each(puyoList_.rbegin(), puyoList_.rend(), [&](PuyoUnit& puyo) {
-		rensaFlag |= puyo->Update();
+		if (!puyo->Update())
+		{
+			rensaFlag = false;
+		}
 	});
+
+	if (rensaFlag)
+	{
+		mode_ = STAGE_MODE::RENSA;
+		bool delFlag = false;
+		std::for_each(puyoList_.rbegin(), puyoList_.rend(), [&](PuyoUnit& puyo) {
+			delFlag |= SetErasePuyo(puyo->GetGrid(blockSize_), puyo->id());
+		});
+		if (delFlag)
+		{
+			DeletePuyo();
+		}
+		else
+		{
+			puyoList_.emplace(
+				puyoList_.begin(), std::make_unique<Puyo>(Vector2{ stgSize_.x / 2 * blockSize_,blockSize_ }, PUYO_RAD)
+				);	// ≤›Ω¿›ΩÇ∑ÇÈÅ`
+			CheckMovePuyo(puyoList_[0]);
+			mode_ = STAGE_MODE::DROP;
+		}
+	}
 
 	Draw();
 }
@@ -70,6 +88,7 @@ void PleyErea::Draw(void)
 bool PleyErea::CheckMovePuyo(PuyoUnit& puyo)
 {
 	auto tmpPos = puyo->GetGrid(blockSize_);
+	bool reFlag = false;
 	DirPermit dirpermit;
 	dirpermit.perbit = { 1,1,1,1 };
 
@@ -88,9 +107,10 @@ bool PleyErea::CheckMovePuyo(PuyoUnit& puyo)
 	if (playErea_[tmpPos.x][tmpPos.y + 1] != PUYO_ID::NON)
 	{
 		dirpermit.perbit.down = 0;
+		reFlag = true;
 	}
 	puyo->dirpermit(dirpermit);
-	return true;
+	return reFlag;
 }
 
 bool PleyErea::Init(CON_ID id)
@@ -105,6 +125,7 @@ bool PleyErea::Init(CON_ID id)
 	blockSize_ = 32;
 	playEreaBase_.resize(stgSize_.x * stgSize_.y);
 	eraseEreaBase_.resize(stgSize_.x * stgSize_.y);
+	puyoList_.emplace(puyoList_.begin(), std::make_unique<Puyo>(Vector2{ stgSize_.x / 2 * blockSize_,blockSize_ }, PUYO_RAD));
 	for (int no = 0; no < stgSize_.x; no++)
 	{
 		playErea_.emplace_back(&playEreaBase_[no * stgSize_.y]);
@@ -148,39 +169,18 @@ bool PleyErea::Init(CON_ID id)
 	return true;
 }
 
-void PleyErea::NextPuyo(void)
+void PleyErea::DeletePuyo(void)
 {
-	auto tmpPos = puyoList_.front()->GetGrid(blockSize_);
-	DirPermit dirpermit;
-	dirpermit.per = 0;
-	puyoList_.front()->dirpermit(dirpermit);
-	playErea_[static_cast<int>(tmpPos.x)][static_cast<int>(tmpPos.y)] = puyoList_.front()->id();					// idì¸ÇÍÇƒÅ`
-	// è¡Ç∑èàóù
-	SetErasePuyo();
-	for (auto&& puyo : puyoList_)
-	{
-		auto vec = puyo->GetGrid(blockSize_);
-		if (eraseErea_[vec.x][vec.y] != PUYO_ID::NON)
-		{
-			puyo->activ(false);
-			playErea_[vec.x][vec.y] = PUYO_ID::NON;
-		}
-	}
 	auto itr = std::remove_if(puyoList_.begin(), puyoList_.end(), [](auto&& puyo) {return !(puyo->activ()); });
-	puyoList_.erase(itr, puyoList_.end());
-	// â∫Ç…óéÇ∆Ç∑èàóù
-	
-
-	puyoList_.emplace(
-		puyoList_.begin(), std::make_unique<Puyo>(Vector2{ stgSize_.x / 2 * blockSize_,blockSize_ }, PUYO_RAD)
-		);	// ≤›Ω¿›ΩÇ∑ÇÈÅ`
+	if (itr != puyoList_.end())
+	{
+		puyoList_.erase(itr, puyoList_.end());
+	}
 }
 
-void PleyErea::SetErasePuyo(void)
+bool PleyErea::SetErasePuyo(Vector2 vec, PUYO_ID id)
 {
 	memset(eraseEreaBase_.data(), 0, eraseEreaBase_.size() * sizeof(PUYO_ID));
-	auto vec = puyoList_.front()->GetGrid(blockSize_);
-	auto id = puyoList_.front()->id();
 	int count = 0;
 	std::function<void(PUYO_ID, Vector2)> chPuyo = [&](PUYO_ID id, Vector2 vec) {
 		if (eraseErea_[vec.x][vec.y] == PUYO_ID::NON)
@@ -200,6 +200,20 @@ void PleyErea::SetErasePuyo(void)
 	if (count < 4)
 	{
 		memset(eraseEreaBase_.data(), 0, eraseEreaBase_.size() * sizeof(PUYO_ID));
+		return false;
+	}
+	else
+	{
+		for (auto&& puyo : puyoList_)
+		{
+			auto vec = puyo->GetGrid(blockSize_);
+			if (eraseErea_[vec.x][vec.y] != PUYO_ID::NON)
+			{
+				puyo->activ(false);
+				playErea_[vec.x][vec.y] = PUYO_ID::NON;
+			}
+		}
+		return true;
 	}
 }
 

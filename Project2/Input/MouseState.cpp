@@ -1,6 +1,16 @@
 #include <DxLib.h>
 #include "MouseState.h"
 
+MouseState::MouseState()
+{
+	_mouseData = 0;
+	_mouseDataOld = 0;
+}
+
+MouseState::~MouseState()
+{
+}
+
 CON_ID MouseState::GetID(void)
 {
 	return CON_ID::MOUSE;
@@ -59,8 +69,6 @@ void MouseState::Update(const int& p_id)
 void MouseState::Setting(void)
 {
 	_buff = { 0, 0 };
-	_mouseData = 0;
-	_mouseDataOld = 0;
 	_stanPos = { 512,384 };
 }
 bool MouseState::GetMouseTrg(int id)

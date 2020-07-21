@@ -35,9 +35,9 @@ public:
 	const int GetScreenID(void)const;				// ∙`┴Ф≈p╫╦ь╟щ┌лget
 private:
 	void Draw(void);								// ∙`┴Ф
-	void NextPuyo(void);							// █║┌л┌у┌Ф┌П⌠╝┌╞┌х┌╜┌╥┌И┌л┌ф▌÷┌л┌у┌Ф╡щ╫ющ╫
-	void SetErasePuyo(void);						// ▐а┌╧┌И┌╘■╩▓f
-	bool CheckMovePuyo(PuyoUnit& puyo);						// ⌠╝┌╒┌д┌╒┌╒┌у┌Ф┌╘■╩▓f
+	void DeletePuyo(void);							// █║┌л┌у┌Ф┌П⌠╝┌╞┌х┌╜┌╥┌И┌л┌ф▌÷┌л┌у┌Ф╡щ╫ющ╫
+	bool SetErasePuyo(Vector2 vec,PUYO_ID id);	// ▐а┌╧┌И┌╘■╩▓f
+	bool CheckMovePuyo(PuyoUnit& puyo);				// ⌠╝┌╒┌д┌╒┌╒┌у┌Ф┌╘■╩▓f
 	bool Init(CON_ID id);							// ▐┴┼З┴╩≈p┼ж░■
 	int screenID_;									// ▄б∙й∙`┴Ф≈p╫╦ь╟щ
 	int puyoScreenID_;								// ┌у┌Ф▒─█Л▐Й▐┼∙`┴Ф≈p╫╦ь╟щ
