@@ -32,7 +32,7 @@ void SceneMng::Draw()
 	ClsDrawScreen();
 	for (size_t i = 0; i < _playErea.size(); i++)
 	{
-		DrawGraph(i * 512, 0, _playErea[i]->GetScreenID(), true);
+		DrawGraph(static_cast<int>(i) * 512, 0, _playErea[i]->GetScreenID(), true);
 	}
 
 	ScreenFlip();

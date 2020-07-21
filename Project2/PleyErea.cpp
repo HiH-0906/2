@@ -92,19 +92,19 @@ bool PleyErea::CheckMovePuyo(PuyoUnit& puyo)
 	DirPermit dirpermit;
 	dirpermit.perbit = { 1,1,1,1 };
 
-	if (playErea_[tmpPos.x + 1][tmpPos.y] != PUYO_ID::NON)
+	if (playErea_[static_cast<size_t>(tmpPos.x + 1)][static_cast<size_t>(tmpPos.y)] != PUYO_ID::NON)
 	{
 		dirpermit.perbit.right = 0;
 	}
-	if (playErea_[tmpPos.x - 1][tmpPos.y] != PUYO_ID::NON)
+	if (playErea_[static_cast<size_t>(tmpPos.x - 1)][static_cast<size_t>(tmpPos.y)] != PUYO_ID::NON)
 	{
 		dirpermit.perbit.left = 0;
 	}
-	if (playErea_[tmpPos.x][tmpPos.y - 1] != PUYO_ID::NON)
+	if (playErea_[static_cast<size_t>(tmpPos.x)][static_cast<size_t>(tmpPos.y - 1)] != PUYO_ID::NON)
 	{
 		dirpermit.perbit.up = 0;
 	}
-	if (playErea_[tmpPos.x][tmpPos.y + 1] != PUYO_ID::NON)
+	if (playErea_[static_cast<size_t>(tmpPos.x)][static_cast<size_t>(tmpPos.y + 1)] != PUYO_ID::NON)
 	{
 		dirpermit.perbit.down = 0;
 		reFlag = true;
