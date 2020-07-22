@@ -24,7 +24,7 @@ using puyoColor = std::map<PUYO_ID, int>;
 class Puyo 
 {
 public:
-    Puyo(Vector2&& pos,int&& rad);
+    Puyo(Vector2&& pos,PUYO_ID id);
     ~Puyo();
     bool Update(void);
     void Draw(void);
@@ -34,10 +34,13 @@ public:
     const Vector2 GetGrid(int size);
     PUYO_ID& id(void);
     void SetSoftDrop(void);
+    void SetPuyonCnt(void);
     bool activ(void);
     void activ(bool flag);
 private:
     static puyoColor colorList_;
+    int puyonCnt_;
+    int puyonMax_;
     int downCnt_;
     int downNum_;
     DirPermit dirpermit_;

@@ -12,12 +12,14 @@ puyoColor Puyo::colorList_ = {
 	{PUYO_ID::YELLOW,0xffff88},
 };
 
-Puyo::Puyo(Vector2&& pos, int&& rad)
+Puyo::Puyo(Vector2&& pos, PUYO_ID id)
 {
 	pos_ = pos;
-	rad_ = rad;
+	rad_ = PUYO_RAD;
 	activ_ = true;
-	id_ = static_cast<PUYO_ID>((rand()%5)+1);
+	id_ = id;
+	puyonCnt_ = 0;
+	puyonMax_ = 12;
 	downCnt_ = 0;
 	downNum_ = 15;
 	dirpermit_.perbit = { 0,0,0,0 };
@@ -50,12 +52,17 @@ bool Puyo::Update(void)
 	{
 		return true;
 	}
+	if (puyonCnt_)
+	{
+		puyonCnt_--;
+	}
 	return false;
 }
 
 void Puyo::Draw(void)
 {
-	DrawCircle(static_cast<int>(pos_.x + rad_), static_cast<int>(pos_.y + rad_), static_cast<int>(rad_), colorList_[id_], true);
+	//DrawCircle(static_cast<int>(pos_.x + rad_), static_cast<int>(pos_.y + rad_), static_cast<int>(rad_), colorList_[id_], true);
+	DrawOval(static_cast<int>(pos_.x + rad_), static_cast<int>(pos_.y + rad_), static_cast<int>(rad_), static_cast<int>(rad_), colorList_[id_], true);
 }
 
 const Vector2& Puyo::pos(void)
@@ -79,6 +86,11 @@ void Puyo::SetSoftDrop(void)
 	downCnt_ = downNum_;
 }
 
+void Puyo::SetPuyonCnt(void)
+{
+	puyonCnt_ = puyonMax_;
+}
+
 bool Puyo::activ(void)
 {
 	return activ_;
@@ -88,6 +100,7 @@ void Puyo::activ(bool flag)
 {
 	activ_ = flag;
 }
+
 
 void Puyo::Move(const INPUT_ID& id)
 {
