@@ -23,6 +23,7 @@ Puyo::Puyo(Vector2&& pos, PUYO_ID id)
 	downCnt_ = 0;
 	downNum_ = 15;
 	dirpermit_.perbit = { 0,0,0,0 };
+	munyonPer.per = 0;
 	vec_ = {
 			{INPUT_ID::LEFT,Vector2{-rad_ * 2,0}},
 			{INPUT_ID::RIGHT,Vector2{rad_ * 2,0}},
@@ -91,6 +92,11 @@ void Puyo::SetPuyonCnt(void)
 	puyonCnt_ = puyonMax_;
 }
 
+void Puyo::ChengeSpeed(void)
+{
+	/*vec_[INPUT_ID::DOWN] = Vector2{ 0,rad_ * 2 };*/
+}
+
 bool Puyo::activ(void)
 {
 	return activ_;
@@ -141,6 +147,11 @@ void Puyo::Move(const INPUT_ID& id)
 		break;
 	}
 	pos_ = tmpPos;
+}
+
+void Puyo::SetMunyonBit(DirPermit dirpermit)
+{
+	munyonPer = dirpermit;
 }
 
 bool Puyo::dirpermit(DirPermit dirpermit)

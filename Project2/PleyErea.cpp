@@ -6,6 +6,11 @@
 #include "Input/keyState.h"
 #include "Input/PadState.h"
 #include "Input/MouseState.h"
+#include "PuyoCtl/DropMode.h"
+#include "PuyoCtl/EraseMode.h"
+#include "PuyoCtl/FallMode.h"
+#include "PuyoCtl/MunyonMode.h"
+#include "PuyoCtl/PuyonMode.h"
 
 int PleyErea::allStage_ = 0;
 
@@ -24,49 +29,53 @@ PleyErea::~PleyErea()
 void PleyErea::UpDate()
 {
 	(*input_)->Update(playerID_);
+	func_[mode_](*this);
 
+	//std::for_each(puyoList_.rbegin(), puyoList_.rend(), [&](PuyoUnit& puyo) {
+	//	auto vec = puyo->GetGrid(blockSize_);
+	//	playErea_[vec.x][vec.y] = puyo;					// idì¸ÇÍÇƒÅ`
+	//	if (!CheckMovePuyo(puyo))
+	//	{
+	//		playErea_[vec.x][vec.y].reset();
+	//	}
+	//});
 
-	std::for_each(puyoList_.rbegin(), puyoList_.rend(), [&](PuyoUnit& puyo) {
-		auto vec = puyo->GetGrid(blockSize_);
-		playErea_[vec.x][vec.y] = puyo;					// idì¸ÇÍÇƒÅ`
-		if (!CheckMovePuyo(puyo))
-		{
-			playErea_[vec.x][vec.y].reset();
-		}
-	});
+	//playUnit_->Update();
+	//
+	//bool rensaFlag = true;
+	//std::for_each(puyoList_.rbegin(), puyoList_.rend(), [&](PuyoUnit& puyo) {
+	//	if (!puyo->Update())
+	//	{
+	//		rensaFlag = false;
+	//	}
+	//});
 
-	playUnit_->Update();
-	
-	bool rensaFlag = true;
-	std::for_each(puyoList_.rbegin(), puyoList_.rend(), [&](PuyoUnit& puyo) {
-		if (!puyo->Update())
-		{
-			rensaFlag = false;
-		}
-	});
-
-	if (rensaFlag)
-	{
-		mode_ = STAGE_MODE::RENSA;
-		bool delFlag = false;
-		std::for_each(puyoList_.rbegin(), puyoList_.rend(), [&](PuyoUnit& puyo) {
-			delFlag |= SetErasePuyo(puyo->GetGrid(blockSize_), puyo->id());
-		});
-		if (delFlag)
-		{
-			DeletePuyo();
-		}
-		else
-		{
-			puyoList_.emplace(
-				puyoList_.begin(), std::make_unique<Puyo>(Vector2{ stgSize_.x / 2 * blockSize_,blockSize_ }, static_cast<PUYO_ID>((rand() % 5) + 1))
-				);	// ≤›Ω¿›ΩÇ∑ÇÈÅ`
-			CheckMovePuyo(puyoList_[0]);
-			mode_ = STAGE_MODE::DROP;
-		}
-	}
+	//if (rensaFlag)
+	//{
+	//	bool delFlag = false;
+	//	std::for_each(puyoList_.rbegin(), puyoList_.rend(), [&](PuyoUnit& puyo) {
+	//		delFlag |= SetErasePuyo(puyo->GetGrid(blockSize_), puyo->id());
+	//	});
+	//	if (delFlag)
+	//	{
+	//		DeletePuyo();
+	//	}
+	//	else
+	//	{
+	//		InstancePuyo();	// ≤›Ω¿›ΩÇ∑ÇÈÅ`
+	//		CheckMovePuyo(puyoList_[0]);
+	//		mode_ = STAGE_MODE::DROP;
+	//	}
+	//}
 
 	Draw();
+}
+
+void PleyErea::InstancePuyo(void)
+{
+	puyoList_.emplace(
+		puyoList_.begin(), std::make_unique<Puyo>(Vector2{ stgSize_.x / 2 * blockSize_,blockSize_ }, static_cast<PUYO_ID>((rand() % 5) + 1))
+		);
 }
 
 void PleyErea::Draw(void)
@@ -116,6 +125,11 @@ bool PleyErea::CheckMovePuyo(PuyoUnit& puyo)
 
 bool PleyErea::Init(CON_ID id)
 {
+	func_.try_emplace(STAGE_MODE::DROP,DropMode());
+	func_.try_emplace(STAGE_MODE::ERASE, EraseMode());
+	func_.try_emplace(STAGE_MODE::MUNYON, MunyonMode());
+	func_.try_emplace(STAGE_MODE::PUYON, PuyonMode());
+	func_.try_emplace(STAGE_MODE::FALL, FallMode());
 	mode_ = STAGE_MODE::DROP;
 	playerID_ = allStage_;
 	allStage_++;
@@ -207,10 +221,10 @@ bool PleyErea::SetErasePuyo(Vector2 vec, PUYO_ID id)
 	if (count < 4)
 	{
 		for (auto&& puyo : puyoList_)
-	{
-		auto vec = puyo->GetGrid(blockSize_);
-		eraseErea_[vec.x][vec.y].reset();
-	}
+		{
+			auto vec = puyo->GetGrid(blockSize_);
+			eraseErea_[vec.x][vec.y].reset();
+		}
 		return false;
 	}
 	else

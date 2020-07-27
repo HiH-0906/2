@@ -29,12 +29,14 @@ public:
     bool Update(void);
     void Draw(void);
     void Move(const INPUT_ID& id);
+    void SetMunyonBit(DirPermit dirpermit);
     bool dirpermit(DirPermit dirpermit);
     const Vector2& pos(void);
     const Vector2 GetGrid(int size);
     PUYO_ID& id(void);
     void SetSoftDrop(void);
     void SetPuyonCnt(void);
+    void ChengeSpeed(void);
     bool activ(void);
     void activ(bool flag);
 private:
@@ -44,6 +46,7 @@ private:
     int downCnt_;
     int downNum_;
     DirPermit dirpermit_;
+    DirPermit munyonPer;
     std::map<INPUT_ID, Vector2> vec_;
     PUYO_ID id_;
     Vector2 pos_;

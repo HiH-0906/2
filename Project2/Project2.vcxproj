@@ -178,6 +178,11 @@
     <ClInclude Include="playUnit.h" />
     <ClInclude Include="PleyErea.h" />
     <ClInclude Include="Puyo.h" />
+    <ClInclude Include="PuyoCtl\DropMode.h" />
+    <ClInclude Include="PuyoCtl\EraseMode.h" />
+    <ClInclude Include="PuyoCtl\MunyonMode.h" />
+    <ClInclude Include="PuyoCtl\PuyonMode.h" />
+    <ClInclude Include="PuyoCtl\FallMode.h" />
     <ClInclude Include="SceneMng.h" />
     <ClInclude Include="State\CON_ID.h" />
     <ClInclude Include="State\INPUT_ID.h" />

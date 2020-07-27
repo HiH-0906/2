@@ -2,6 +2,7 @@
 #include <memory>
 #include <vector>
 #include <list>
+#include <functional>
 #include "common/Vector2.h"
 #include "Input/Input.h"
 #include "State/CON_ID.h"
@@ -20,7 +21,9 @@ enum class STAGE_MODE
 {
 	DROP,
 	PUYON,
-	RENSA,
+	FALL,
+	MUNYON,
+	ERASE,
 };
 
 using PuyoSt = std::pair < PUYO_ID, PUYO_STATE >;
@@ -35,6 +38,7 @@ public:
 	const Vector2 offset(void);						// ｵﾌｾｯﾄのget	いるっけ…？
 	const int GetScreenID(void)const;				// 描画用ｽｸﾘｰﾝのget
 private:
+	void InstancePuyo(void);
 	void Draw(void);								// 描画
 	void DeletePuyo(void);							// 今のぷよを動けなくするのと次のぷよｲﾝｽﾀﾝｽ
 	bool SetErasePuyo(Vector2 vec, PUYO_ID id);	// 消せるか判断
@@ -45,11 +49,12 @@ private:
 	int playerID_;									// 自分が何番目か
 	const Vector2 stgSize_;							// ぷよぷよﾏｽ目
 	const Vector2 size_;							// playEreaの大きさ
+	std::map<STAGE_MODE, std::function<void(PleyErea&)>> func_;			// Updateまとめ
 	Vector2 offset_;								// 描画時ｵﾌｾｯﾄ
 	std::shared_ptr<Input*> input_;					// 入力ｸﾗｽ管理用
-	std::vector<PuyoUnit> puyoList_;	// ぷよ管理用ﾘｽﾄ
+	std::vector<PuyoUnit> puyoList_;				// ぷよ管理用ﾘｽﾄ
 	std::vector<PuyoUnit*> playErea_;				// 下の奴を二次元配列みたいにｱｸｾｽするとき用
-	std::vector<PuyoUnit> playEreaBase_;				// playErea全体のﾃﾞｰﾀ管理用配列
+	std::vector<PuyoUnit> playEreaBase_;			// playErea全体のﾃﾞｰﾀ管理用配列
 	std::vector<PuyoUnit*> eraseErea_;				// 下の奴を二次元配列みたいにｱｸｾｽするとき用
 	std::vector<PuyoUnit> eraseEreaBase_;			// playErea全体の消すとこﾃﾞｰﾀ管理用配列
 	int color_;										// ｴﾘｱの色
@@ -59,5 +64,10 @@ private:
 	std::unique_ptr<playUnit> playUnit_;			// 操作系まとめ
 
 	friend class playUnit;
+	friend struct FallMode;
+	friend struct DropMode;
+	friend struct EraseMode;
+	friend struct PuyonMode;
+	friend struct MunyonMode;
 };
 
