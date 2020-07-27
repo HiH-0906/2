@@ -44,6 +44,9 @@ Matrix RotatePosition(const Position2& center, float angle) {
 ///前回のRotateMatrixの実装は済んでいるため、すぐにできると思います。
 Capsule RotateCapsule(Position2 center, float angle, const Capsule &cap) {
 	Capsule ret = cap;
+	auto rota = RotatePosition(center, angle);
+	ret.posA = MultipleVec(rota, cap.posA);
+	ret.posB = MultipleVec(rota, cap.posB);
 	return ret;
 }
 
@@ -66,15 +69,19 @@ float Clamp(float value, float minVal = 0.0f, float maxVal = 1.0f) {
 bool IsHit(const Capsule& cap, const Circle& cc) {
 	//手順
 	//①まず、カプセル形状の端点cap.posAからccの中心点までのベクトルvpを作ります。
+	auto vp = cc.pos - cap.posA;
 	//②次にカプセル形状そのもののベクトルposA→posBへのベクトルvを作ります。
+	auto v = cap.posB - cap.posA;
 	//③①と②の内積を求めます。
 	//④③の結果を②の大きさの2乗で割ります
 	//⑤④の結果をクランプします
 	//⑥⑤の結果を②の結果にかけます
+	auto vv = v * (Clamp(Dot(v, vp) / Dot(v, v)));
 	//⑦①のベクトルから②のベクトルを引きます
 	//⑧⑦のベクトルの大きさを測ります
+	auto d = (vp - vv).Magnitude();
 	//⑨⑧の値と、cap.radius+cc.radiusの値を比較します。
-	return false;
+	return d <= cap.radius + cc.radius;
 	
 }
 

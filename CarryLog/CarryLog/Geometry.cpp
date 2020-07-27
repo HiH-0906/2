@@ -59,13 +59,13 @@ Vector2::Normalized() {
 ///“àÏ‚ğ•Ô‚·
 float
 Dot(const Vector2& va, const Vector2& vb) {
-	return va.x * vb.x + va.y + vb.y;
+	return va.x*vb.x + va.y*vb.y;
 }
 
 ///ŠOÏ‚ğ•Ô‚·
 float
 Cross(const Vector2& va, const Vector2& vb) {
-	return 0;
+	return va.x*vb.y - vb.x*va.y;
 }
 
 ///“àÏ‰‰Zq

@@ -1,21 +1,21 @@
 ﻿  main.cpp
-D:\Users\1916035\Desktop\CapsuleHit\CapsuleHit\main.cpp(10,40): warning C4244: '引数': 'const float' から 'int' への変換です。データが失われる可能性があります。
-D:\Users\1916035\Desktop\CapsuleHit\CapsuleHit\main.cpp(10,33): warning C4244: '引数': 'const float' から 'int' への変換です。データが失われる可能性があります。
-D:\Users\1916035\Desktop\CapsuleHit\CapsuleHit\main.cpp(10,21): warning C4244: '引数': 'const float' から 'int' への変換です。データが失われる可能性があります。
-D:\Users\1916035\Desktop\CapsuleHit\CapsuleHit\main.cpp(11,40): warning C4244: '引数': 'const float' から 'int' への変換です。データが失われる可能性があります。
-D:\Users\1916035\Desktop\CapsuleHit\CapsuleHit\main.cpp(11,33): warning C4244: '引数': 'const float' から 'int' への変換です。データが失われる可能性があります。
-D:\Users\1916035\Desktop\CapsuleHit\CapsuleHit\main.cpp(11,21): warning C4244: '引数': 'const float' から 'int' への変換です。データが失われる可能性があります。
-D:\Users\1916035\Desktop\CapsuleHit\CapsuleHit\main.cpp(23,30): warning C4244: '引数': 'float' から 'int' への変換です。データが失われる可能性があります。
-D:\Users\1916035\Desktop\CapsuleHit\CapsuleHit\main.cpp(23,14): warning C4244: '引数': 'float' から 'int' への変換です。データが失われる可能性があります。
-D:\Users\1916035\Desktop\CapsuleHit\CapsuleHit\main.cpp(22,30): warning C4244: '引数': 'float' から 'int' への変換です。データが失われる可能性があります。
-D:\Users\1916035\Desktop\CapsuleHit\CapsuleHit\main.cpp(22,14): warning C4244: '引数': 'float' から 'int' への変換です。データが失われる可能性があります。
-D:\Users\1916035\Desktop\CapsuleHit\CapsuleHit\main.cpp(21,30): warning C4244: '引数': 'float' から 'int' への変換です。データが失われる可能性があります。
-D:\Users\1916035\Desktop\CapsuleHit\CapsuleHit\main.cpp(21,14): warning C4244: '引数': 'float' から 'int' への変換です。データが失われる可能性があります。
-D:\Users\1916035\Desktop\CapsuleHit\CapsuleHit\main.cpp(20,30): warning C4244: '引数': 'float' から 'int' への変換です。データが失われる可能性があります。
-D:\Users\1916035\Desktop\CapsuleHit\CapsuleHit\main.cpp(20,14): warning C4244: '引数': 'float' から 'int' への変換です。データが失われる可能性があります。
-D:\Users\1916035\Desktop\CapsuleHit\CapsuleHit\main.cpp(129,35): warning C4244: '引数': 'int' から 'float' への変換です。データが失われる可能性があります。
-D:\Users\1916035\Desktop\CapsuleHit\CapsuleHit\main.cpp(129,31): warning C4244: '引数': 'int' から 'float' への変換です。データが失われる可能性があります。
-D:\Users\1916035\Desktop\CapsuleHit\CapsuleHit\main.cpp(136,33): warning C4244: '引数': 'float' から 'int' への変換です。データが失われる可能性があります。
-D:\Users\1916035\Desktop\CapsuleHit\CapsuleHit\main.cpp(136,28): warning C4244: '引数': 'float' から 'int' への変換です。データが失われる可能性があります。
-D:\Users\1916035\Desktop\CapsuleHit\CapsuleHit\main.cpp(136,19): warning C4244: '引数': 'float' から 'int' への変換です。データが失われる可能性があります。
-  CapsuleHit.vcxproj -> D:\Users\1916035\Desktop\CapsuleHit\x64\Debug\CapsuleHit.exe
+D:\Users\1916035\Desktop\2\CapsuleHit\CapsuleHit\main.cpp(10,40): warning C4244: '引数': 'const float' から 'int' への変換です。データが失われる可能性があります。
+D:\Users\1916035\Desktop\2\CapsuleHit\CapsuleHit\main.cpp(10,33): warning C4244: '引数': 'const float' から 'int' への変換です。データが失われる可能性があります。
+D:\Users\1916035\Desktop\2\CapsuleHit\CapsuleHit\main.cpp(10,21): warning C4244: '引数': 'const float' から 'int' への変換です。データが失われる可能性があります。
+D:\Users\1916035\Desktop\2\CapsuleHit\CapsuleHit\main.cpp(11,40): warning C4244: '引数': 'const float' から 'int' への変換です。データが失われる可能性があります。
+D:\Users\1916035\Desktop\2\CapsuleHit\CapsuleHit\main.cpp(11,33): warning C4244: '引数': 'const float' から 'int' への変換です。データが失われる可能性があります。
+D:\Users\1916035\Desktop\2\CapsuleHit\CapsuleHit\main.cpp(11,21): warning C4244: '引数': 'const float' から 'int' への変換です。データが失われる可能性があります。
+D:\Users\1916035\Desktop\2\CapsuleHit\CapsuleHit\main.cpp(23,30): warning C4244: '引数': 'float' から 'int' への変換です。データが失われる可能性があります。
+D:\Users\1916035\Desktop\2\CapsuleHit\CapsuleHit\main.cpp(23,14): warning C4244: '引数': 'float' から 'int' への変換です。データが失われる可能性があります。
+D:\Users\1916035\Desktop\2\CapsuleHit\CapsuleHit\main.cpp(22,30): warning C4244: '引数': 'float' から 'int' への変換です。データが失われる可能性があります。
+D:\Users\1916035\Desktop\2\CapsuleHit\CapsuleHit\main.cpp(22,14): warning C4244: '引数': 'float' から 'int' への変換です。データが失われる可能性があります。
+D:\Users\1916035\Desktop\2\CapsuleHit\CapsuleHit\main.cpp(21,30): warning C4244: '引数': 'float' から 'int' への変換です。データが失われる可能性があります。
+D:\Users\1916035\Desktop\2\CapsuleHit\CapsuleHit\main.cpp(21,14): warning C4244: '引数': 'float' から 'int' への変換です。データが失われる可能性があります。
+D:\Users\1916035\Desktop\2\CapsuleHit\CapsuleHit\main.cpp(20,30): warning C4244: '引数': 'float' から 'int' への変換です。データが失われる可能性があります。
+D:\Users\1916035\Desktop\2\CapsuleHit\CapsuleHit\main.cpp(20,14): warning C4244: '引数': 'float' から 'int' への変換です。データが失われる可能性があります。
+D:\Users\1916035\Desktop\2\CapsuleHit\CapsuleHit\main.cpp(136,35): warning C4244: '引数': 'int' から 'float' への変換です。データが失われる可能性があります。
+D:\Users\1916035\Desktop\2\CapsuleHit\CapsuleHit\main.cpp(136,31): warning C4244: '引数': 'int' から 'float' への変換です。データが失われる可能性があります。
+D:\Users\1916035\Desktop\2\CapsuleHit\CapsuleHit\main.cpp(143,33): warning C4244: '引数': 'float' から 'int' への変換です。データが失われる可能性があります。
+D:\Users\1916035\Desktop\2\CapsuleHit\CapsuleHit\main.cpp(143,28): warning C4244: '引数': 'float' から 'int' への変換です。データが失われる可能性があります。
+D:\Users\1916035\Desktop\2\CapsuleHit\CapsuleHit\main.cpp(143,19): warning C4244: '引数': 'float' から 'int' への変換です。データが失われる可能性があります。
+  CapsuleHit.vcxproj -> D:\Users\1916035\Desktop\2\CapsuleHit\x64\Debug\CapsuleHit.exe
