@@ -16,12 +16,27 @@ struct EraseMode
 		}
 		else
 		{
-			auto SetBit = [&](PuyoUnit puyo, Vector2 vec)
+			auto SetBit = [&](PUYO_ID id, Vector2 vec)
 			{
+				if (!stage.playErea_[vec.x][vec.y])
+				{
+					return false;
+				}
+				return stage.playErea_[vec.x][vec.y]->id() == id;
 			};
-			stage.InstancePuyo();
-			stage.CheckMovePuyo(stage.puyoList_[0]);
-			stage.mode_ = STAGE_MODE::DROP;
+			for (auto&& puyo : stage.puyoList_)
+			{
+				DirPermit bit;
+				auto vec = puyo->GetGrid(stage.blockSize_);
+				auto id = puyo->id();
+				bit.perbit.up = SetBit(id, { vec.x,vec.y - 1 });
+				bit.perbit.down = SetBit(id, { vec.x,vec.y + 1 });
+				bit.perbit.left = SetBit(id, { vec.x - 1,vec.y });
+				bit.perbit.right = SetBit(id, { vec.x + 1,vec.y });
+				puyo->SetMunyonBit(bit);
+				puyo->SetMuyonCnt();
+			}
+			stage.mode_ = STAGE_MODE::MUNYON;
 		}
 	}
 };

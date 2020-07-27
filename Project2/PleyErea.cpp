@@ -85,6 +85,16 @@ bool PleyErea::CheckMovePuyo(PuyoUnit& puyo)
 	return reFlag;
 }
 
+bool PleyErea::CheckMuyonPuyo(void)
+{
+	bool flag = false;
+	for (auto&& puyo : puyoList_)
+	{
+		flag |= puyo->CheckMuyonCnt();
+	}
+	return !flag;
+}
+
 bool PleyErea::Init(CON_ID id)
 {
 	func_.try_emplace(STAGE_MODE::DROP,DropMode());
@@ -213,3 +223,4 @@ const int PleyErea::GetScreenID(void)const
 {
 	return screenID_;
 }
+

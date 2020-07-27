@@ -20,10 +20,12 @@ Puyo::Puyo(Vector2&& pos, PUYO_ID id)
 	id_ = id;
 	puyonCnt_ = 0;
 	puyonMax_ = 12;
+	muyonCnt_ = 0;
+	muyonMax_ = 12;
 	downCnt_ = 0;
 	downNum_ = 15;
 	dirpermit_.perbit = { 0,0,0,0 };
-	munyonPer.per = 0;
+	munyonmit_.per = 0;
 	vec_ = {
 			{INPUT_ID::LEFT,Vector2{-rad_ * 2,0}},
 			{INPUT_ID::RIGHT,Vector2{rad_ * 2,0}},
@@ -57,6 +59,10 @@ bool Puyo::Update(void)
 	{
 		puyonCnt_--;
 	}
+	if (muyonCnt_)
+	{
+		muyonCnt_--;
+	}
 	return false;
 }
 
@@ -64,6 +70,22 @@ void Puyo::Draw(void)
 {
 	//DrawCircle(static_cast<int>(pos_.x + rad_), static_cast<int>(pos_.y + rad_), static_cast<int>(rad_), colorList_[id_], true);
 	DrawOval(static_cast<int>(pos_.x + rad_), static_cast<int>(pos_.y + rad_), static_cast<int>(rad_), static_cast<int>(rad_), colorList_[id_], true);
+	if (munyonmit_.perbit.up)
+	{
+		DrawBox(pos_.x, pos_.y, 1+pos_.x + rad_ * 2, pos_.y + rad_, colorList_[id_], true);
+	}
+	if (munyonmit_.perbit.down)
+	{
+		DrawBox(pos_.x, pos_.y + rad_, 1+pos_.x + rad_ * 2, pos_.y + rad_ * 2, colorList_[id_], true);
+	}
+	if (munyonmit_.perbit.left)
+	{
+		DrawBox(pos_.x, pos_.y, pos_.x + rad_, pos_.y + rad_ * 2, colorList_[id_], true);
+	}
+	if (munyonmit_.perbit.right)
+	{
+		DrawBox(pos_.x + rad_, pos_.y, pos_.x + rad_ * 2, pos_.y + rad_ * 2, colorList_[id_], true);
+	}
 }
 
 const Vector2& Puyo::pos(void)
@@ -90,6 +112,16 @@ void Puyo::SetSoftDrop(void)
 void Puyo::SetPuyonCnt(void)
 {
 	puyonCnt_ = puyonMax_;
+}
+
+void Puyo::SetMuyonCnt(void)
+{
+	muyonCnt_ = muyonMax_;
+}
+
+bool Puyo::CheckMuyonCnt(void)
+{
+	return muyonCnt_;
 }
 
 void Puyo::ChengeSpeed(void)
@@ -151,7 +183,7 @@ void Puyo::Move(const INPUT_ID& id)
 
 void Puyo::SetMunyonBit(DirPermit dirpermit)
 {
-	munyonPer = dirpermit;
+	munyonmit_ = dirpermit;
 }
 
 bool Puyo::dirpermit(DirPermit dirpermit)

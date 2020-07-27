@@ -36,6 +36,8 @@ public:
     PUYO_ID& id(void);
     void SetSoftDrop(void);
     void SetPuyonCnt(void);
+    void SetMuyonCnt(void);
+    bool CheckMuyonCnt(void);
     void ChengeSpeed(void);
     bool activ(void);
     void activ(bool flag);
@@ -43,10 +45,12 @@ private:
     static puyoColor colorList_;
     int puyonCnt_;
     int puyonMax_;
+    int muyonCnt_;
+    int muyonMax_;
     int downCnt_;
     int downNum_;
     DirPermit dirpermit_;
-    DirPermit munyonPer;
+    DirPermit munyonmit_;
     std::map<INPUT_ID, Vector2> vec_;
     PUYO_ID id_;
     Vector2 pos_;

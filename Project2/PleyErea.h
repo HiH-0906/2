@@ -41,8 +41,9 @@ private:
 	void InstancePuyo(void);
 	void Draw(void);								// •`‰æ
 	void DeletePuyo(void);							// ¡‚Ì‚Õ‚æ‚ğ“®‚¯‚È‚­‚·‚é‚Ì‚ÆŸ‚Ì‚Õ‚æ²İ½Àİ½
-	bool SetErasePuyo(Vector2 vec, PUYO_ID id);	// Á‚¹‚é‚©”»’f
+	bool SetErasePuyo(Vector2 vec, PUYO_ID id);		// Á‚¹‚é‚©”»’f
 	bool CheckMovePuyo(PuyoUnit& puyo);				// “®‚¢‚Ä‚¢‚¢‚Õ‚æ‚©”»’f
+	bool CheckMuyonPuyo(void);						// ‚Ş‚æ[‚ñ‚Á‚Ä‚µ‚Ä‚éÌßÖ‚ª‚¢‚é‚©‚Ç‚¤‚©
 	bool Init(CON_ID id);							// ‰Šú‰»—pŠÖ”
 	int screenID_;									// ŒÂ•Ê•`‰æ—p½¸Ø°İ
 	int puyoScreenID_;								// ‚Õ‚æ‘€ìêŠ•`‰æ—p½¸Ø°İ
