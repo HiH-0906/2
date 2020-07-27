@@ -3,7 +3,7 @@
 
 struct PuyonMode
 {
-	void operator ()(PleyErea&)
+	void operator ()(PleyErea& stage)
 	{
 
 	}

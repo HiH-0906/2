@@ -30,44 +30,6 @@ void PleyErea::UpDate()
 {
 	(*input_)->Update(playerID_);
 	func_[mode_](*this);
-
-	//std::for_each(puyoList_.rbegin(), puyoList_.rend(), [&](PuyoUnit& puyo) {
-	//	auto vec = puyo->GetGrid(blockSize_);
-	//	playErea_[vec.x][vec.y] = puyo;					// idì¸ÇÍÇƒÅ`
-	//	if (!CheckMovePuyo(puyo))
-	//	{
-	//		playErea_[vec.x][vec.y].reset();
-	//	}
-	//});
-
-	//playUnit_->Update();
-	//
-	//bool rensaFlag = true;
-	//std::for_each(puyoList_.rbegin(), puyoList_.rend(), [&](PuyoUnit& puyo) {
-	//	if (!puyo->Update())
-	//	{
-	//		rensaFlag = false;
-	//	}
-	//});
-
-	//if (rensaFlag)
-	//{
-	//	bool delFlag = false;
-	//	std::for_each(puyoList_.rbegin(), puyoList_.rend(), [&](PuyoUnit& puyo) {
-	//		delFlag |= SetErasePuyo(puyo->GetGrid(blockSize_), puyo->id());
-	//	});
-	//	if (delFlag)
-	//	{
-	//		DeletePuyo();
-	//	}
-	//	else
-	//	{
-	//		InstancePuyo();	// ≤›Ω¿›ΩÇ∑ÇÈÅ`
-	//		CheckMovePuyo(puyoList_[0]);
-	//		mode_ = STAGE_MODE::DROP;
-	//	}
-	//}
-
 	Draw();
 }
 

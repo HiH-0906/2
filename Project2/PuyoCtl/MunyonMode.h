@@ -3,7 +3,7 @@
 
 struct MunyonMode
 {
-	void operator ()(PleyErea&)
+	void operator ()(PleyErea& stage)
 	{
 
 	}
