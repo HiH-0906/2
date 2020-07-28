@@ -8,7 +8,7 @@ public:
 	~playUnit();
 	bool Update(void);
 private:
-	const PleyErea& playErea_;
+	PleyErea& playErea_;
 	int targetID;
 };
 

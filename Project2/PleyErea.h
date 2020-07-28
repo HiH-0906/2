@@ -27,7 +27,7 @@ enum class STAGE_MODE
 };
 
 using PuyoSt = std::pair < PUYO_ID, PUYO_STATE >;
-using PuyoUnit = std::shared_ptr<Puyo>;
+
 
 class PleyErea
 {

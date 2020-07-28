@@ -51,7 +51,7 @@ void PleyErea::Draw(void)
 	DrawBox(PUYO_SIZE, PUYO_SIZE, (STAGE_X - 1) * PUYO_SIZE, (STAGE_Y - 1) * PUYO_SIZE, 0xffffff, false);
 	for (auto&& list : puyoList_)
 	{
-		list->Draw();
+		list->Draw(playErea_);
 	}
 	SetDrawScreen(screenID_);
 	ClsDrawScreen();
@@ -64,22 +64,23 @@ bool PleyErea::CheckMovePuyo(PuyoUnit& puyo)
 	auto tmpPos = puyo->GetGrid(blockSize_);
 	bool reFlag = false;
 	DirPermit dirpermit;
-	dirpermit.perbit = { 1,1,1,1 };
+	dirpermit.perbit = { 0,1,1,1 };
 	int offsetY = (puyo->pos().y % blockSize_ != 0);
+	auto pair = puyo->pairMit();
 
-	if (playErea_[static_cast<size_t>(tmpPos.x + 1)][static_cast<size_t>(tmpPos.y+ offsetY)])
+	if (playErea_[static_cast<size_t>(tmpPos.x + 1 + pair.perbit.right)][static_cast<size_t>(tmpPos.y + offsetY)])
 	{
 		dirpermit.perbit.right = 0;
 	}
-	if (playErea_[static_cast<size_t>(tmpPos.x - 1)][static_cast<size_t>(tmpPos.y+ offsetY)])
+	if (playErea_[static_cast<size_t>(tmpPos.x - 1 - pair.perbit.left)][static_cast<size_t>(tmpPos.y + offsetY)])
 	{
 		dirpermit.perbit.left = 0;
 	}
-	if (playErea_[static_cast<size_t>(tmpPos.x)][static_cast<size_t>(tmpPos.y - 1)])
+	if (playErea_[static_cast<size_t>(tmpPos.x)][static_cast<size_t>(tmpPos.y - 1 - pair.perbit.up)])
 	{
 		dirpermit.perbit.up = 0;
 	}
-	if (playErea_[static_cast<size_t>(tmpPos.x)][static_cast<size_t>(tmpPos.y + 1)])
+	if (playErea_[static_cast<size_t>(tmpPos.x)][static_cast<size_t>(tmpPos.y + 1 + pair.perbit.down)])
 	{
 		dirpermit.perbit.down = 0;
 		reFlag = true;

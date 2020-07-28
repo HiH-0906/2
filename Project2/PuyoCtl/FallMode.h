@@ -16,6 +16,10 @@ struct FallMode
 				puyo->SetMunyonBit(per);
 				puyo->SetMuyonCnt();
 			}
+			else
+			{
+				puyo->pairMit(DirPermit{0});
+			}
 		});
 		bool eraseFlag = true;
 		std::for_each(stage.puyoList_.rbegin(), stage.puyoList_.rend(), [&](PuyoUnit& puyo) {
@@ -26,7 +30,30 @@ struct FallMode
 		});
 		if (eraseFlag)
 		{
-			stage.mode_ = STAGE_MODE::ERASE;
+			stage.mode_ = STAGE_MODE::PUYON;
+		}
+		for (auto puyo : stage.puyoList_)
+		{
+			if (!puyo->GetDownNow())
+			{
+				continue;
+			}
+			auto vec = puyo->GetGrid(stage.blockSize_);
+			int cnt = 0;
+			for (int y = vec.y; y < stage.stgSize_.y; y++)
+			{
+				if (stage.playErea_[vec.x][y])
+				{
+					if (stage.playErea_[vec.x][y]->id() != PUYO_ID::WALL)
+					{
+						stage.playErea_[vec.x][y]->SetPuyonCnt();
+					}
+				}
+				if (++cnt >= 3)
+				{
+					break;
+				}
+			}
 		}
 	}
 };

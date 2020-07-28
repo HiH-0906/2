@@ -19,13 +19,15 @@ Puyo::Puyo(Vector2&& pos, PUYO_ID id)
 	activ_ = true;
 	id_ = id;
 	puyonCnt_ = 0;
-	puyonMax_ = 12;
+	puyonMax_ = 16;
 	muyonCnt_ = 0;
 	muyonMax_ = 6;
 	downCnt_ = 0;
 	downNum_ = 15;
-	dirpermit_.perbit = { 0,0,0,0 };
+	dirpermit_.per = 0;
+	oldDirpermit_.per = 0;
 	munyonmit_.per = 0;
+	pairMit_.per = 0;
 	vec_ = {
 			{INPUT_ID::LEFT,Vector2{-rad_ * 2,0}},
 			{INPUT_ID::RIGHT,Vector2{rad_ * 2,0}},
@@ -66,10 +68,31 @@ bool Puyo::Update(void)
 	return false;
 }
 
-void Puyo::Draw(void)
+void Puyo::Draw(std::vector<PuyoUnit*> list)
 {
-	//DrawCircle(static_cast<int>(pos_.x + rad_), static_cast<int>(pos_.y + rad_), static_cast<int>(rad_), colorList_[id_], true);
-	DrawOval(static_cast<int>(pos_.x + rad_), static_cast<int>(pos_.y + rad_), static_cast<int>(rad_), static_cast<int>(rad_), colorList_[id_], true);
+	auto vec = this->GetGrid(PUYO_SIZE);
+	int cnt = 0;
+	for (int y = vec.y + 1; y < STAGE_Y; y++)
+	{
+		if (!list[vec.x][y])
+		{
+			break;
+		}
+		if (!list[vec.x][y]->CheckPuyonCnt())
+		{
+			break;
+		}
+		if (++cnt >= 3)
+		{
+			break;
+		}
+	}
+	auto puyon = abs(abs(puyonCnt_ - 8) - 8);
+	DrawOval(static_cast<int>(pos_.x + rad_), static_cast<int>(pos_.y + rad_ + puyon + ((puyon * 2) * cnt)), static_cast<int>(rad_), static_cast<int>(rad_ - puyon), colorList_[id_], true);
+	if(puyonCnt_)
+	{
+		return;
+	}
 	if (munyonmit_.perbit.up)
 	{
 		DrawBox(pos_.x, pos_.y, 1+pos_.x + rad_ * 2, pos_.y + rad_, colorList_[id_], true);
@@ -124,6 +147,11 @@ void Puyo::SetMuyonCnt(void)
 	muyonCnt_ = muyonMax_;
 }
 
+bool Puyo::CheckPuyonCnt(void)
+{
+	return puyonCnt_;
+}
+
 bool Puyo::CheckMuyonCnt(void)
 {
 	return muyonCnt_;
@@ -132,7 +160,7 @@ bool Puyo::CheckMuyonCnt(void)
 void Puyo::ChengeSpeed(int speed, int cnt)
 {
 	vec_[INPUT_ID::DOWN] = Vector2{ 0,speed };
-	downCnt_ = cnt;
+	downNum_ = cnt;
 }
 
 bool Puyo::activ(void)
@@ -143,6 +171,16 @@ bool Puyo::activ(void)
 void Puyo::activ(bool flag)
 {
 	activ_ = flag;
+}
+
+const DirPermit Puyo::pairMit(void)
+{
+	return pairMit_;
+}
+
+void Puyo::pairMit(DirPermit pairMit)
+{
+	pairMit_ = pairMit;
 }
 
 
@@ -194,6 +232,17 @@ void Puyo::SetMunyonBit(DirPermit dirpermit)
 
 bool Puyo::dirpermit(DirPermit dirpermit)
 {
+	oldDirpermit_ = dirpermit_;
 	dirpermit_ = dirpermit;
 	return true;
+}
+
+bool Puyo::GetDownNow(void)
+{
+	return (dirpermit_.perbit.down == 0 && oldDirpermit_.perbit.down == 1);
+}
+
+const DirPermit Puyo::dirpermit(void)
+{
+	return dirpermit_;
 }
