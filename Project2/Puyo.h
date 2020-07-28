@@ -32,13 +32,14 @@ public:
     void SetMunyonBit(DirPermit dirpermit);
     bool dirpermit(DirPermit dirpermit);
     const Vector2& pos(void);
+    void pos(Vector2&& pos);
     const Vector2 GetGrid(int size);
     PUYO_ID& id(void);
     void SetSoftDrop(void);
     void SetPuyonCnt(void);
     void SetMuyonCnt(void);
     bool CheckMuyonCnt(void);
-    void ChengeSpeed(void);
+    void ChengeSpeed(int speed,int cnt);
     bool activ(void);
     void activ(bool flag);
 private:

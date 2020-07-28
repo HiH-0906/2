@@ -6,14 +6,17 @@ struct MunyonMode
 {
 	void operator ()(PleyErea& stage)
 	{
-		if (cnt-- == 0)
+		bool muyon = false;
+		for (auto puyo : stage.puyoList_)
+		{
+			puyo->Update();
+			muyon |= puyo->CheckMuyonCnt();
+		}
+		if (!muyon)
 		{
 			stage.InstancePuyo();
 			stage.CheckMovePuyo(stage.puyoList_[0]);
 			stage.mode_ = STAGE_MODE::DROP;
-			cnt = 6;
 		}
 	}
-	static int cnt;
 };
-int MunyonMode::cnt = 6;

@@ -38,6 +38,9 @@ void PleyErea::InstancePuyo(void)
 	puyoList_.emplace(
 		puyoList_.begin(), std::make_unique<Puyo>(Vector2{ stgSize_.x / 2 * blockSize_,blockSize_ }, static_cast<PUYO_ID>((rand() % 5) + 1))
 		);
+	puyoList_.emplace(
+		puyoList_.begin() + 1, std::make_unique<Puyo>(Vector2{ stgSize_.x / 2 * blockSize_,blockSize_ * 2 }, static_cast<PUYO_ID>((rand() % 5) + 1))
+		);
 }
 
 void PleyErea::Draw(void)
@@ -112,7 +115,7 @@ bool PleyErea::Init(CON_ID id)
 	blockSize_ = 32;
 	playEreaBase_.resize(stgSize_.x * stgSize_.y);
 	eraseEreaBase_.resize(stgSize_.x * stgSize_.y);
-	puyoList_.emplace(puyoList_.begin(), std::make_unique<Puyo>(Vector2{ stgSize_.x / 2 * blockSize_,blockSize_ }, static_cast<PUYO_ID>((rand() % 5) + 1)));
+	InstancePuyo();
 	for (int no = 0; no < stgSize_.x; no++)
 	{
 		playErea_.emplace_back(&playEreaBase_[no * stgSize_.y]);

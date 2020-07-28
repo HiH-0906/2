@@ -21,7 +21,7 @@ Puyo::Puyo(Vector2&& pos, PUYO_ID id)
 	puyonCnt_ = 0;
 	puyonMax_ = 12;
 	muyonCnt_ = 0;
-	muyonMax_ = 12;
+	muyonMax_ = 6;
 	downCnt_ = 0;
 	downNum_ = 15;
 	dirpermit_.perbit = { 0,0,0,0 };
@@ -40,6 +40,14 @@ Puyo::~Puyo()
 
 bool Puyo::Update(void)
 {
+	if (puyonCnt_)
+	{
+		puyonCnt_--;
+	}
+	if (muyonCnt_)
+	{
+		muyonCnt_--;
+	}
 	if (downCnt_ < downNum_)
 	{
 		downCnt_++;
@@ -54,14 +62,6 @@ bool Puyo::Update(void)
 	else
 	{
 		return true;
-	}
-	if (puyonCnt_)
-	{
-		puyonCnt_--;
-	}
-	if (muyonCnt_)
-	{
-		muyonCnt_--;
 	}
 	return false;
 }
@@ -91,6 +91,11 @@ void Puyo::Draw(void)
 const Vector2& Puyo::pos(void)
 {
 	return pos_;
+}
+
+void Puyo::pos(Vector2&& pos)
+{
+	pos_ = pos;
 }
 
 const Vector2 Puyo::GetGrid(int size)
@@ -124,9 +129,10 @@ bool Puyo::CheckMuyonCnt(void)
 	return muyonCnt_;
 }
 
-void Puyo::ChengeSpeed(void)
+void Puyo::ChengeSpeed(int speed, int cnt)
 {
-	/*vec_[INPUT_ID::DOWN] = Vector2{ 0,rad_ * 2 };*/
+	vec_[INPUT_ID::DOWN] = Vector2{ 0,speed };
+	downCnt_ = cnt;
 }
 
 bool Puyo::activ(void)

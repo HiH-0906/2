@@ -13,6 +13,10 @@ struct EraseMode
 		{
 			stage.DeletePuyo();
 			stage.mode_ = STAGE_MODE::FALL;
+			for (auto&& puyo : stage.puyoList_)
+			{
+				puyo->ChengeSpeed(PUYO_RAD / 2, 1);
+			}
 		}
 		else
 		{
