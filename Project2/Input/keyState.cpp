@@ -1,5 +1,6 @@
 #include "keyState.h"
 
+// ∑∞∫›Ã®∏ﬁê›íË í∑Ç¢
 std::map<int, keyData> keyState::_keyCon =
 {
 	{

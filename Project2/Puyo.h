@@ -12,22 +12,21 @@ struct DirBit
     unsigned int left : 1;
     unsigned int right : 1;
 };
-
+// •ûŒü”»•Ê—p‹¤—p‘Ì
 union DirPermit 
 {
     unsigned int per;
     DirBit perbit;
 };
-class Puyo;
+
 using puyoColor = std::map<PUYO_ID, int>;
-using PuyoUnit = std::shared_ptr<Puyo>;
 class Puyo 
 {
 public:
     Puyo(Vector2&& pos,PUYO_ID id);
     ~Puyo();
     bool Update(void);
-    void Draw(std::vector<PuyoUnit*> list);
+    void Draw(int cnt);                     // Ø½Ä‚à‚ç‚¤‚æ‚è¶³İÄŒ‹‰Ê‚à‚ç‚¤•û‚ª‚æ‚³‚»‚¤
     void Move(const INPUT_ID& id);
     void SetMunyonBit(DirPermit dirpermit);
     bool dirpermit(DirPermit dirpermit);
@@ -45,8 +44,7 @@ public:
     void ChengeSpeed(int speed,int cnt);
     bool activ(void);
     void activ(bool flag);
-    const DirPermit pairMit(void);
-    void pairMit(DirPermit pairMit);
+    void playPuyo(bool flag);
 private:
     static puyoColor colorList_;
     int puyonCnt_;
@@ -55,10 +53,10 @@ private:
     int muyonMax_;
     int downCnt_;
     int downNum_;
+    bool playPuyo_;                              // ‘€ì‚Ì’†S‚©‚Ç‚¤‚©
     DirPermit dirpermit_;
     DirPermit oldDirpermit_;
     DirPermit munyonmit_;
-    DirPermit pairMit_;
     std::map<INPUT_ID, Vector2> vec_;
     PUYO_ID id_;
     Vector2 pos_;

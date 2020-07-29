@@ -18,6 +18,7 @@ CON_ID PadState::GetID(void)
 
 void PadState::Update(const int& p_id)
 {
+	// DxLibPower
 	for (auto id : _keyCon)
 	{
 		_input[id.first].second = _input[id.first].first;

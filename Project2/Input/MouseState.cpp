@@ -26,8 +26,11 @@ void MouseState::Update(const int& p_id)
 	}
 	int mposx, mposy;
 	GetMousePoint(&mposx, &mposy);
+	// ‰„X‚Æ‚½‚Ü‚ébuff
 	_buff = _stanPos - Vector2{ mposx,mposy };
+	// ‰æ–Ê”¼•ª
 	int tmp = 256;
+	// ‚²‚è‰Ÿ‚µ
 	if (_buff.x >= tmp)
 	{
 		_input[INPUT_ID::LEFT].first = true;
@@ -62,6 +65,7 @@ void MouseState::Update(const int& p_id)
 	_input[INPUT_ID::RROTA].first = GetMouseTrg(MOUSE_INPUT_RIGHT);
 	if (GetMouseTrg(MOUSE_INPUT_MIDDLE))
 	{
+		// Î²°Ù¸Ø¯¸‚ÅŠî€ˆÊ’u•ÏX
 		GetMousePoint(&_stanPos.x, &_stanPos.y);
 	}
 }

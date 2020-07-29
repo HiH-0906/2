@@ -4,6 +4,7 @@
 #include "Input.h"
 #include "../common/Vector2.h"
 
+// ﾏｳｽ入力ｸﾗｽ 画面の中央(初期値)からどれだけ動いたかで判別わかりずらい
 class MouseState
 	:public Input
 {
@@ -15,9 +16,9 @@ public:
 	void Setting(void)override final;
 private:
 	bool GetMouseTrg(int id);
-	Vector2 _pos;
-	Vector2 _buff;
-	int _mouseData;
-	int _mouseDataOld;
-	Vector2 _stanPos;
+	Vector2 _pos;							// ﾏｳｽPos
+	Vector2 _buff;							// どれだけ動いたか
+	int _mouseData;							// ｸﾘｯｸﾅｳ
+	int _mouseDataOld;						// ｸﾘｯｸｵｰﾙﾄﾞ
+	Vector2 _stanPos;						// 基準位置 初期値真ん中
 };

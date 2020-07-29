@@ -14,6 +14,7 @@ void Input::Setting(void)
 
 bool Input::GetKeyTrg(INPUT_ID key)
 {
+	// MAX‚ð“n‚³‚ê‚½Žž‚Ì‚½‚ß‚Ì¶Þ°ÄÞ
 	if (key == INPUT_ID::MAX)
 	{
 		return false;
@@ -23,19 +24,13 @@ bool Input::GetKeyTrg(INPUT_ID key)
 
 bool Input::GetKeySty(INPUT_ID key)
 {
+	// MAX‚ð“n‚³‚ê‚½Žž‚Ì‚½‚ß‚Ì¶Þ°ÄÞ
 	if (key == INPUT_ID::MAX)
 	{
 		return false;
 	}
 	return _input[key].first && _input[key].second;
 }
-
-void Input::SetDownTrg(void)
-{
-	_input[INPUT_ID::DOWN].first = true;
-	_input[INPUT_ID::DOWN].second = false;
-}
-
 
 void Input::Init()
 {

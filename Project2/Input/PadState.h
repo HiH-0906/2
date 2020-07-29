@@ -1,5 +1,7 @@
 #pragma once
 #include "Input.h"
+
+// ºÝÄÛ°×°“ü—Í¸×½(Žè”²‚«)
 class PadState :
 	public Input
 {

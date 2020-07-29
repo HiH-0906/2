@@ -1,6 +1,6 @@
 #include <utility>
 #include <DxLib.h>
-#include "SceneMng.h"
+#include"SceneMng.h"
 #include"_debug/_DebugConOut.h"
 #include "Puyo.h"
 
@@ -14,6 +14,7 @@ puyoColor Puyo::colorList_ = {
 
 Puyo::Puyo(Vector2&& pos, PUYO_ID id)
 {
+	playPuyo_ = false;
 	pos_ = pos;
 	rad_ = PUYO_RAD;
 	activ_ = true;
@@ -27,7 +28,6 @@ Puyo::Puyo(Vector2&& pos, PUYO_ID id)
 	dirpermit_.per = 0;
 	oldDirpermit_.per = 0;
 	munyonmit_.per = 0;
-	pairMit_.per = 0;
 	vec_ = {
 			{INPUT_ID::LEFT,Vector2{-rad_ * 2,0}},
 			{INPUT_ID::RIGHT,Vector2{rad_ * 2,0}},
@@ -68,27 +68,15 @@ bool Puyo::Update(void)
 	return false;
 }
 
-void Puyo::Draw(std::vector<PuyoUnit*> list)
+void Puyo::Draw(int cnt)
 {
-	auto vec = this->GetGrid(PUYO_SIZE);
-	int cnt = 0;
-	for (int y = vec.y + 1; y < STAGE_Y; y++)
-	{
-		if (!list[vec.x][y])
-		{
-			break;
-		}
-		if (!list[vec.x][y]->CheckPuyonCnt())
-		{
-			break;
-		}
-		if (++cnt >= 3)
-		{
-			break;
-		}
-	}
 	auto puyon = abs(abs(puyonCnt_ - 8) - 8);
 	DrawOval(static_cast<int>(pos_.x + rad_), static_cast<int>(pos_.y + rad_ + puyon + ((puyon * 2) * cnt)), static_cast<int>(rad_), static_cast<int>(rad_ - puyon), colorList_[id_], true);
+	if (playPuyo_)
+	{
+		int tmpRad = 8;
+		DrawOval(static_cast<int>(pos_.x + rad_), static_cast<int>(pos_.y + rad_ + puyon + ((puyon * 2) * cnt)), static_cast<int>(tmpRad), static_cast<int>(tmpRad - puyon), 0x222222, true);
+	}
 	if(puyonCnt_)
 	{
 		return;
@@ -173,16 +161,10 @@ void Puyo::activ(bool flag)
 	activ_ = flag;
 }
 
-const DirPermit Puyo::pairMit(void)
+void Puyo::playPuyo(bool flag)
 {
-	return pairMit_;
+	playPuyo_ = flag;
 }
-
-void Puyo::pairMit(DirPermit pairMit)
-{
-	pairMit_ = pairMit;
-}
-
 
 void Puyo::Move(const INPUT_ID& id)
 {

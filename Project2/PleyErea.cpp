@@ -23,18 +23,24 @@ PleyErea::PleyErea(Vector2&& size, Vector2&& offset, CON_ID id) :size_(size), st
 
 PleyErea::~PleyErea()
 {
+	// ëSëÃΩ√∞ºﬁêîÇ©ÇÁà¯Ç¢ÇƒÇ®Ç≠
 	allStage_--;
 }
 
 void PleyErea::UpDate()
 {
 	(*input_)->Update(playerID_);
-	func_[mode_](*this);
+	if (!func_[mode_](*this))
+	{
+		// Ç±Ç±Ç≈πﬁ∞—µ∞ ﬁ∞Ç…à⁄çsÇµÇ‹ÇµÇÂÇ§ÇÀÇ•Å`
+		TRACE("GAME OVER\n");
+	}
 	Draw();
 }
 
 void PleyErea::InstancePuyo(void)
 {
+	// ≤›Ω¿›ΩÇµÇƒÇ¢ÇÈÇæÇØÅ`
 	puyoList_.emplace(
 		puyoList_.begin(), std::make_unique<Puyo>(Vector2{ stgSize_.x / 2 * blockSize_,blockSize_ }, static_cast<PUYO_ID>((rand() % 5) + 1))
 		);
@@ -45,14 +51,34 @@ void PleyErea::InstancePuyo(void)
 
 void PleyErea::Draw(void)
 {
+	// Ç’ÇÊëÄçÏèÍèäï`âÊ
 	SetDrawScreen(puyoScreenID_);
 	ClsDrawScreen();
 	DrawBox(0, 0, (STAGE_X) * (PUYO_SIZE), (STAGE_Y)*PUYO_SIZE, color_, true);
 	DrawBox(PUYO_SIZE, PUYO_SIZE, (STAGE_X - 1) * PUYO_SIZE, (STAGE_Y - 1) * PUYO_SIZE, 0xffffff, false);
+	// Ç’ÇÊÅ[ÇÒéûÇ«ÇÍÇæÇØíæÇﬁÇ©
 	for (auto&& list : puyoList_)
 	{
-		list->Draw(playErea_);
+		auto vec = list->GetGrid(PUYO_SIZE);
+		int cnt = 0;
+		for (int y = vec.y + 1; y < STAGE_Y; y++)
+		{
+			if (!playErea_[vec.x][y])
+			{
+				break;
+			}
+			if (!playErea_[vec.x][y]->CheckPuyonCnt())
+			{
+				break;
+			}
+			if (++cnt >= 3)
+			{
+				break;
+			}
+		}
+		list->Draw(cnt);
 	}
+	// playEreaëSëÃÇÃï`âÊ
 	SetDrawScreen(screenID_);
 	ClsDrawScreen();
 	
@@ -61,46 +87,44 @@ void PleyErea::Draw(void)
 
 bool PleyErea::CheckMovePuyo(PuyoUnit& puyo)
 {
+	// ìÆÇ¢ÇƒÇ¢Ç¢Ç©ÇÃBitæØƒ
 	auto tmpPos = puyo->GetGrid(blockSize_);
 	bool reFlag = false;
 	DirPermit dirpermit;
+	// è„ÇÕÇ¢ÇØÇ»Ç¢
 	dirpermit.perbit = { 0,1,1,1 };
+	// ÇÕÇ›èoÇƒÇ¢ÇÈèÍçáÇÃµÃæØƒåvéZ
 	int offsetY = (puyo->pos().y % blockSize_ != 0);
-	auto pair = puyo->pairMit();
 
-	if (playErea_[static_cast<size_t>(tmpPos.x + 1 + pair.perbit.right)][static_cast<size_t>(tmpPos.y + offsetY)])
+	if (playErea_[static_cast<size_t>(tmpPos.x + 1)][static_cast<size_t>(tmpPos.y + offsetY)])
 	{
 		dirpermit.perbit.right = 0;
 	}
-	if (playErea_[static_cast<size_t>(tmpPos.x - 1 - pair.perbit.left)][static_cast<size_t>(tmpPos.y + offsetY)])
+	if (playErea_[static_cast<size_t>(tmpPos.x - 1)][static_cast<size_t>(tmpPos.y + offsetY)])
 	{
 		dirpermit.perbit.left = 0;
 	}
-	if (playErea_[static_cast<size_t>(tmpPos.x)][static_cast<size_t>(tmpPos.y - 1 - pair.perbit.up)])
+	if (playErea_[static_cast<size_t>(tmpPos.x)][static_cast<size_t>(tmpPos.y - 1)])
 	{
 		dirpermit.perbit.up = 0;
 	}
-	if (playErea_[static_cast<size_t>(tmpPos.x)][static_cast<size_t>(tmpPos.y + 1 + pair.perbit.down)])
+	if (playErea_[static_cast<size_t>(tmpPos.x)][static_cast<size_t>(tmpPos.y + 1)])
 	{
+		// â∫Ç…à⁄ìÆÇ≈Ç´Ç»Ç¢Ç∆Ç¢Ç§Ç±Ç∆ÇÕíÖínÇµÇΩÇ¡ÇøÇ„Å[Ç±Ç∆Ç‚Ç»!!
 		dirpermit.perbit.down = 0;
+		auto vec = puyo->GetGrid(blockSize_);
+		playErea_[vec.x][vec.y] = puyo;					// idì¸ÇÍÇƒÅ`
+		puyo->playPuyo(false);
 		reFlag = true;
 	}
+	// ê›íË
 	puyo->dirpermit(dirpermit);
 	return reFlag;
 }
 
-bool PleyErea::CheckMuyonPuyo(void)
-{
-	bool flag = false;
-	for (auto&& puyo : puyoList_)
-	{
-		flag |= puyo->CheckMuyonCnt();
-	}
-	return !flag;
-}
-
 bool PleyErea::Init(CON_ID id)
 {
+	// ä÷êîìoò^
 	func_.try_emplace(STAGE_MODE::DROP,DropMode());
 	func_.try_emplace(STAGE_MODE::ERASE, EraseMode());
 	func_.try_emplace(STAGE_MODE::MUNYON, MunyonMode());
@@ -109,14 +133,18 @@ bool PleyErea::Init(CON_ID id)
 	mode_ = STAGE_MODE::DROP;
 	playerID_ = allStage_;
 	allStage_++;
+	// Ω√∞ºﬁîwåiêFê›íË
 	color_ = 0x000066 << (16 * static_cast<int>(playerID_));
+	// ï`âÊêÊΩ∏ÿ∞›çÏê¨
 	screenID_ = MakeScreen(size_.x, size_.y, true);
 	puyoScreenID_ = MakeScreen(stgSize_.x * PUYO_SIZE, stgSize_.y * PUYO_SIZE, true);
+	// ëÄçÏä÷åW
 	playUnit_ = std::make_unique<playUnit>(*this);
+	// œΩñ⁄ª≤Ωﬁ
 	blockSize_ = 32;
+	// √ﬁ∞¿Õﬁ∞ΩçÏê¨
 	playEreaBase_.resize(stgSize_.x * stgSize_.y);
 	eraseEreaBase_.resize(stgSize_.x * stgSize_.y);
-	InstancePuyo();
 	for (int no = 0; no < stgSize_.x; no++)
 	{
 		playErea_.emplace_back(&playEreaBase_[no * stgSize_.y]);
@@ -136,7 +164,7 @@ bool PleyErea::Init(CON_ID id)
 		playErea_[0][y] = std::make_shared<Puyo>(Vector2{ 0, blockSize_ * y }, PUYO_ID::WALL);
 		playErea_[stgSize_.x - 1][y] = std::make_shared<Puyo>(Vector2{ (stgSize_.x - 1) * blockSize_,(stgSize_.y - 1) * blockSize_ }, PUYO_ID::WALL);
 	}
-
+	// inputçÏê¨
 	switch (id)
 	{
 	case CON_ID::KEY:
@@ -155,11 +183,20 @@ bool PleyErea::Init(CON_ID id)
 		TRACE("ÉRÉìÉgÉçÅ[ÉâÅ[Ç™default");
 		break;
 	}
+	// Ç’ÇÊÇÃ≤›Ω¿›Ω
+	InstancePuyo();
 	return true;
+}
+
+Vector2 PleyErea::ConvertGrid(Vector2& pos)
+{
+	// éÛÇØéÊÇ¡ÇΩposÇœΩñ⁄Ç÷
+	return Vector2{ pos.x / blockSize_,pos.y / blockSize_ };
 }
 
 void PleyErea::DeletePuyo(void)
 {
+	// Ç’ÇÊÇÃÇ¢Ç»Ç≠Ç»Ç¡ÇΩî†ÇÃçÌèú
 	auto itr = std::remove_if(puyoList_.begin(), puyoList_.end(), [](auto&& puyo) {return !(puyo->activ()); });
 	if (itr != puyoList_.end())
 	{
@@ -169,7 +206,9 @@ void PleyErea::DeletePuyo(void)
 
 bool PleyErea::SetErasePuyo(Vector2 vec, PUYO_ID id)
 {
+	// Ç≥ÇÊÇ»ÇÁÇ’ÇÊ
 	memset(eraseEreaBase_.data(), 0, eraseEreaBase_.size() * sizeof(PUYO_ID));
+	// çÌèúéû√ﬁ∞¿èâä˙âª
 	for (auto&& puyo : puyoList_)
 	{
 		auto vec = puyo->GetGrid(blockSize_);
