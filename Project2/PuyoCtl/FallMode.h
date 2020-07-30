@@ -13,6 +13,31 @@ struct FallMode
 				auto vec = puyo->GetGrid(stage.blockSize_);
 				stage.playErea_[vec.x][vec.y].reset();
 			}
+			auto SetBit = [&](PUYO_ID id, Vector2 vec)
+			{
+				if (id == PUYO_ID::OZAYMA)
+				{
+					return false;
+				}
+				if (!stage.playErea_[vec.x][vec.y])
+				{
+					return false;
+				}
+				// ‚Â‚È‚ª‚Á‚Ä‚¢‚¢‚©H
+				return stage.playErea_[vec.x][vec.y]->id() == id;
+			};
+			for (auto&& puyo : stage.puyoList_)
+			{
+				DirPermit bit;
+				auto vec = puyo->GetGrid(stage.blockSize_);
+				auto id = puyo->id();
+				bit.perbit.up = SetBit(id, { vec.x,vec.y - 1 });
+				bit.perbit.down = SetBit(id, { vec.x,vec.y + 1 });
+				bit.perbit.left = SetBit(id, { vec.x - 1,vec.y });
+				bit.perbit.right = SetBit(id, { vec.x + 1,vec.y });
+				puyo->SetMunyonBit(bit);
+				puyo->SetMuyonCnt();
+			}
 		});
 		bool eraseFlag = true;
 		std::for_each(stage.puyoList_.rbegin(), stage.puyoList_.rend(), [&](PuyoUnit& puyo) {

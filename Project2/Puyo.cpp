@@ -21,9 +21,9 @@ Puyo::Puyo(Vector2&& pos, PUYO_ID id)
 	activ_ = true;
 	id_ = id;
 	puyonCnt_ = 0;
-	puyonMax_ = 16;
+	puyonMax_ = 12;
 	muyonCnt_ = 0;
-	muyonMax_ = 6;
+	muyonMax_ = 12;
 	downCnt_ = 0;
 	downNum_ = 15;
 	dirpermit_.per = 0;
@@ -71,24 +71,20 @@ bool Puyo::Update(void)
 
 void Puyo::Draw(int cnt)
 {
-	auto puyon = abs(abs(puyonCnt_ - 8) - 8);
-	DrawOval(static_cast<int>(pos_.x + rad_), static_cast<int>(pos_.y + rad_ + puyon + ((puyon * 2) * cnt)), static_cast<int>(rad_ + (puyon / 2)), static_cast<int>(rad_ - puyon), colorList_[id_], true);
+	auto puyon = abs(abs(puyonCnt_ - 6) - 6);
+	DrawOval(static_cast<int>(pos_.x + rad_), static_cast<int>(pos_.y + rad_ + puyon + ((puyon * 2) * cnt)), static_cast<int>(rad_), static_cast<int>(rad_ - puyon), colorList_[id_], true);
 	if (playPuyo_)
 	{
 		int tmpRad = 8;
 		DrawOval(static_cast<int>(pos_.x + rad_), static_cast<int>(pos_.y + rad_ + puyon + ((puyon * 2) * cnt)), static_cast<int>(tmpRad), static_cast<int>(tmpRad - puyon), 0x222222, true);
 	}
-	if(puyonCnt_)
-	{
-		return;
-	}
 	if (munyonmit_.perbit.up)
 	{
-		DrawBox(pos_.x, pos_.y, 1+pos_.x + rad_ * 2, pos_.y + rad_, colorList_[id_], true);
+		DrawBox(pos_.x, (pos_.y + puyon + ((puyon * 2) * cnt)), 1 + (pos_.x) + rad_ * 2, (pos_.y + puyon + ((puyon * 2) * cnt)) + rad_, colorList_[id_], true);
 	}
 	if (munyonmit_.perbit.down)
 	{
-		DrawBox(pos_.x, pos_.y + rad_, 1+pos_.x + rad_ * 2, pos_.y + rad_ * 2, colorList_[id_], true);
+		DrawBox(pos_.x, (pos_.y + puyon + ((puyon * 2) * cnt)) + rad_ , 1+ (pos_.x ) + rad_ * 2, (pos_.y + puyon + ((puyon * 2) * cnt)) + rad_ * 2 , colorList_[id_], true);
 	}
 	if (munyonmit_.perbit.left)
 	{

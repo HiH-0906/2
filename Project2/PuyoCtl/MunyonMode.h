@@ -21,12 +21,8 @@ struct MunyonMode
 				stage.mode_ = STAGE_MODE::OZYAMA;
 				return true;
 			}
-			{
-				// ÇﬁÇÊÅ[ÇÒ≤›¿∞ ﬁŸå„≤›Ω¿›Ω
-				stage.InstancePuyo();
-				stage.CheckMovePuyo(stage.puyoList_[0]);
-				stage.mode_ = STAGE_MODE::DROP;
-			}
+			// ÇﬁÇÊÅ[ÇÒ∂≥›ƒå„è¡ãé
+			stage.mode_ = STAGE_MODE::ERASE;
 		}
 		return true;
 	}

@@ -25,55 +25,29 @@ struct EraseMode
 		}
 		else
 		{
+			// 連鎖数を相手へかつ打ち消し
 			if (stage.rensaNum_)
 			{
 				auto checkNum = stage.ozyamaCnt_ - stage.rensaNum_ * stage.rensaNum_;
-				if (checkNum > 0)
+				if (checkNum >= 0 )
 				{
-					stage.ozyamaCnt_ -= stage.rensaNum_ * stage.rensaNum_;
+					stage.ozyamaCnt_ = checkNum;
 				}
 				else
 				{
-					stage.ozyamaCnt_ += abs(checkNum);
+					if (stage.ozyamaCnt_ != 0)
+					{
+						stage.ozyamaCnt_ += abs(checkNum);
+					}
 					lpSceneMng.AddRensaQue(RENSA_QUE{ stage.playerID_,stage.rensaNum_ });
-					stage.rensaNum_ = 0;
 				}
+				stage.rensaNum_ = 0;
 			}
-			// 消す奴がいない場合むにょーんへ
+			// 消す奴がいない場合ﾄﾞﾛｯﾌﾟへ
 
-			// むにょーんBitSet関数
-			auto SetBit = [&](PUYO_ID id, Vector2 vec)
-			{
-				if (id == PUYO_ID::OZAYMA)
-				{
-					return false;
-				}
-				if (!stage.playErea_[vec.x][vec.y])
-				{
-					return false;
-				}
-				// つながっていいか？
-				return stage.playErea_[vec.x][vec.y]->id() == id;
-			};
-			// ｹﾞｰﾑｵｰﾊﾞｰ位置判別
-			if (stage.playErea_[4][1])
-			{
-				return false;
-			}
-			// むよーんﾁｪｯｸ
-			for (auto&& puyo : stage.puyoList_)
-			{
-				DirPermit bit;
-				auto vec = puyo->GetGrid(stage.blockSize_);
-				auto id = puyo->id();
-				bit.perbit.up = SetBit(id, { vec.x,vec.y - 1 });
-				bit.perbit.down = SetBit(id, { vec.x,vec.y + 1 });
-				bit.perbit.left = SetBit(id, { vec.x - 1,vec.y });
-				bit.perbit.right = SetBit(id, { vec.x + 1,vec.y });
-				puyo->SetMunyonBit(bit);
-				puyo->SetMuyonCnt();
-			}
-			stage.mode_ = STAGE_MODE::MUNYON;
+			stage.InstancePuyo();
+			stage.CheckMovePuyo(stage.puyoList_[0]);
+			stage.mode_ = STAGE_MODE::DROP;
 		}
 		return true;
 	}
