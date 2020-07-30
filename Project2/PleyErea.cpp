@@ -1,8 +1,8 @@
 #include <functional>
 #include <algorithm>
+#include "_debug/_DebugConOut.h"
 #include "PleyErea.h"
 #include "SceneMng.h"
-#include "_debug/_DebugConOut.h"
 #include "Input/keyState.h"
 #include "Input/PadState.h"
 #include "Input/MouseState.h"
@@ -11,6 +11,8 @@
 #include "PuyoCtl/FallMode.h"
 #include "PuyoCtl/MunyonMode.h"
 #include "PuyoCtl/PuyonMode.h"
+#include "PuyoCtl/OzyamaMode.h"
+
 
 int PleyErea::allStage_ = 0;
 
@@ -30,7 +32,7 @@ PleyErea::~PleyErea()
 void PleyErea::UpDate()
 {
 	(*input_)->Update(playerID_);
-	if (!func_[mode_](*this))
+	if (!stageFunc_[mode_](*this))
 	{
 		// Ç±Ç±Ç≈πﬁ∞—µ∞ ﬁ∞Ç…à⁄çsÇµÇ‹ÇµÇÂÇ§ÇÀÇ•Å`
 		TRACE("GAME OVER\n");
@@ -125,14 +127,18 @@ bool PleyErea::CheckMovePuyo(PuyoUnit& puyo)
 bool PleyErea::Init(CON_ID id)
 {
 	// ä÷êîìoò^
-	func_.try_emplace(STAGE_MODE::DROP,DropMode());
-	func_.try_emplace(STAGE_MODE::ERASE, EraseMode());
-	func_.try_emplace(STAGE_MODE::MUNYON, MunyonMode());
-	func_.try_emplace(STAGE_MODE::PUYON, PuyonMode());
-	func_.try_emplace(STAGE_MODE::FALL, FallMode());
+	stageFunc_.try_emplace(STAGE_MODE::DROP,DropMode());
+	stageFunc_.try_emplace(STAGE_MODE::ERASE, EraseMode());
+	stageFunc_.try_emplace(STAGE_MODE::MUNYON, MunyonMode());
+	stageFunc_.try_emplace(STAGE_MODE::PUYON, PuyonMode());
+	stageFunc_.try_emplace(STAGE_MODE::FALL, FallMode());
+	stageFunc_.try_emplace(STAGE_MODE::OZYAMA, OzyamaMode());
 	mode_ = STAGE_MODE::DROP;
 	playerID_ = allStage_;
 	allStage_++;
+	// èâä˙òAçΩêî
+	rensaNum_ = 0;
+	ozyamaCnt_ = 0;
 	// Ω√∞ºﬁîwåiêFê›íË
 	color_ = 0x000066 << (16 * static_cast<int>(playerID_));
 	// ï`âÊêÊΩ∏ÿ∞›çÏê¨
@@ -185,10 +191,11 @@ bool PleyErea::Init(CON_ID id)
 	}
 	// Ç’ÇÊÇÃ≤›Ω¿›Ω
 	InstancePuyo();
+	
 	return true;
 }
 
-Vector2 PleyErea::ConvertGrid(Vector2& pos)
+Vector2 PleyErea::ConvertGrid(Vector2&& pos)
 {
 	// éÛÇØéÊÇ¡ÇΩposÇœΩñ⁄Ç÷
 	return Vector2{ pos.x / blockSize_,pos.y / blockSize_ };
@@ -220,6 +227,11 @@ bool PleyErea::SetErasePuyo(Vector2 vec, PUYO_ID id)
 		{
 			if (playErea_[vec.x][vec.y])
 			{
+				if (playErea_[vec.x][vec.y]->id() == PUYO_ID::OZAYMA)
+				{
+					eraseErea_[vec.x][vec.y] = playErea_[vec.x][vec.y];
+					return;
+				}
 				if (playErea_[vec.x][vec.y]->id() == id)
 				{
 					count++;
@@ -265,5 +277,39 @@ const Vector2 PleyErea::offset(void)
 const int PleyErea::GetScreenID(void)const
 {
 	return screenID_;
+}
+
+void PleyErea::ozyamaCnt(int cnt)
+{
+	ozyamaCnt_ += cnt * cnt;
+}
+
+void PleyErea::FallOzyama()
+{
+	if (ozyamaCnt_ == 0)
+	{
+		return;
+	}
+	for (int cnt = 0; cnt < ozyamaCnt_; cnt++)
+	{
+		// ∂≥›ƒÇ™0ä‹Ç‹Ç»Ç¢ÇΩÇﬂ-1
+		Vector2 vec = { cnt % (stgSize_.x - 2) + 1 ,((ozyamaCnt_ / (stgSize_.x - 2)) - cnt / (stgSize_.x -2)) };
+		auto checkVec = ConvertGrid(Vector2{ (blockSize_ * vec.x),blockSize_ + (blockSize_ * vec.y) });
+		if (playErea_[checkVec.x][checkVec.y])
+		{
+			continue;
+		}
+		puyoList_.emplace(
+			puyoList_.begin(), std::make_unique<Puyo>(Vector2{ (blockSize_ * vec.x),blockSize_ + (blockSize_ * vec.y) }, PUYO_ID::OZAYMA)
+			);
+		CheckMovePuyo(puyoList_[0]);
+		puyoList_[0]->ChengeSpeed(16, 1);
+	}
+	ozyamaCnt_ = 0;
+}
+
+const int PleyErea::playerID(void) const
+{
+	return playerID_;
 }
 

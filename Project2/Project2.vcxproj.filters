@@ -33,9 +33,6 @@
     <ClCompile Include="State\INPUT_ID.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="State\PLAYER_ID.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="Puyo.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
@@ -77,9 +74,6 @@
     <ClInclude Include="State\INPUT_ID.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="State\PLAYER_ID.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="Puyo.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
@@ -117,6 +111,9 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="PuyoCtl\EraseMode.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="PuyoCtl\OzyamaMode.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

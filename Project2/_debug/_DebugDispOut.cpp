@@ -50,7 +50,7 @@ void _DebugDispOut::WaitMode(void)
 		}
 		TRACE("ÉXÉçÅ[ÅF%f\n", _waitTime);
 	}
-	if (CheckHitKey(KEY_INPUT_PAUSE))
+	if (CheckHitKey(KEY_INPUT_YEN))
 	{
 		TRACE("àÍéûí‚é~\n");
 		_waitTime = -1.0;

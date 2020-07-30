@@ -12,6 +12,7 @@ struct EraseMode
 		});
 		if (delFlag)
 		{
+			stage.rensaNum_++;
 			// Á‚·“z‚¢‚½‚Ì‚ÅÁ‚·
 			stage.DeletePuyo();
 			// ‚à‚¤ˆê“xÌ«°Ù
@@ -24,11 +25,29 @@ struct EraseMode
 		}
 		else
 		{
+			if (stage.rensaNum_)
+			{
+				auto checkNum = stage.ozyamaCnt_ - stage.rensaNum_ * stage.rensaNum_;
+				if (checkNum > 0)
+				{
+					stage.ozyamaCnt_ -= stage.rensaNum_ * stage.rensaNum_;
+				}
+				else
+				{
+					stage.ozyamaCnt_ += abs(checkNum);
+					lpSceneMng.AddRensaQue(RENSA_QUE{ stage.playerID_,stage.rensaNum_ });
+					stage.rensaNum_ = 0;
+				}
+			}
 			// Á‚·“z‚ª‚¢‚È‚¢ê‡‚Ş‚É‚å[‚ñ‚Ö
 
 			// ‚Ş‚É‚å[‚ñBitSetŠÖ”
 			auto SetBit = [&](PUYO_ID id, Vector2 vec)
 			{
+				if (id == PUYO_ID::OZAYMA)
+				{
+					return false;
+				}
 				if (!stage.playErea_[vec.x][vec.y])
 				{
 					return false;

@@ -7,7 +7,7 @@ struct DropMode
 	bool operator ()(PleyErea& stage)
 	{
 		// —‚Æ‚·[
-		stage.func_[STAGE_MODE::FALL](stage);
+		stage.stageFunc_[STAGE_MODE::FALL](stage);
 		// ‘€ì
 		stage.playUnit_->Update();
 		return true;

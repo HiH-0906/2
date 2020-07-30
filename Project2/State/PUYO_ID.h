@@ -7,6 +7,7 @@ enum class PUYO_ID
 	BULE,
 	YELLOW,
 	PURPLE,
+	OZAYMA,				// ‚¨Ž×–‚‚Õ‚æ
 	WALL,				// •Ç
 	MAX
 };

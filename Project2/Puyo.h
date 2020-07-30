@@ -1,6 +1,5 @@
 #pragma once
 #include<map>
-#include "Obj.h"
 #include "State/PUYO_ID.h"
 #include "State/INPUT_ID.h"
 

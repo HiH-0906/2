@@ -24,6 +24,7 @@ enum class STAGE_MODE
 	FALL,
 	MUNYON,
 	ERASE,
+	OZYAMA,
 };
 
 using PuyoSt = std::pair < PUYO_ID, PUYO_STATE >;
@@ -37,6 +38,8 @@ public:
 	void UpDate(void);								// 更新用
 	const Vector2 offset(void);						// ｵﾌｾｯﾄのget	いるっけ…？
 	const int GetScreenID(void)const;				// 描画用ｽｸﾘｰﾝのget
+	void ozyamaCnt(int cnt);						// お邪魔ぷよ予約
+	const int playerID(void)const;
 private:
 	void InstancePuyo(void);
 	void Draw(void);								// 描画
@@ -44,13 +47,13 @@ private:
 	bool SetErasePuyo(Vector2 vec, PUYO_ID id);		// 消せるか判断
 	bool CheckMovePuyo(PuyoUnit& puyo);				// 動いていいぷよか判断
 	bool Init(CON_ID id);							// 初期化用関数
-	Vector2 ConvertGrid(Vector2& pos);				// posをGridに
+	Vector2 ConvertGrid(Vector2&& pos);				// posをGridに
 	int screenID_;									// 個別描画用ｽｸﾘｰﾝ
 	int puyoScreenID_;								// ぷよ操作場所描画用ｽｸﾘｰﾝ
 	int playerID_;									// 自分が何番目か
 	const Vector2 stgSize_;							// ぷよぷよﾏｽ目
 	const Vector2 size_;							// playEreaの大きさ
-	std::map<STAGE_MODE, std::function<bool(PleyErea&)>> func_;			// Updateまとめ
+	std::map<STAGE_MODE, std::function<bool(PleyErea&)>> stageFunc_;			// Updateまとめ
 	Vector2 offset_;								// 描画時ｵﾌｾｯﾄ
 	std::shared_ptr<Input*> input_;					// 入力ｸﾗｽ管理用
 	std::vector<PuyoUnit> puyoList_;				// ぷよ管理用ﾘｽﾄ
@@ -60,9 +63,12 @@ private:
 	std::vector<PuyoUnit> eraseEreaBase_;			// playErea全体の消すとこﾃﾞｰﾀ管理用配列
 	int color_;										// ｴﾘｱの色
 	int blockSize_;									// 1ﾏｽの大きさ
+	int rensaNum_;									// 現在連鎖数
+	int ozyamaCnt_;									// お邪魔ぷよ落下数
 	static int allStage_;							// 全体でplayEreaがいくつあるかのｶｳﾝﾄ
 	STAGE_MODE mode_;								// 現在のﾓｰﾄﾞ
 	std::unique_ptr<playUnit> playUnit_;			// 操作系まとめ
+	void FallOzyama(void);							// お邪魔ぷよｲﾝｽﾀﾝｽ用
 
 	friend class playUnit;
 	friend struct FallMode;
@@ -70,5 +76,6 @@ private:
 	friend struct EraseMode;
 	friend struct PuyonMode;
 	friend struct MunyonMode;
+	friend struct OzyamaMode;
 };
 

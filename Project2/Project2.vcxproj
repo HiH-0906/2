@@ -164,7 +164,6 @@
     <ClCompile Include="Puyo.cpp" />
     <ClCompile Include="SceneMng.cpp" />
     <ClCompile Include="State\INPUT_ID.cpp" />
-    <ClCompile Include="State\PLAYER_ID.cpp" />
     <ClCompile Include="_debug\_DebugConOut.cpp" />
     <ClCompile Include="_debug\_DebugDispOut.cpp" />
   </ItemGroup>
@@ -181,12 +180,12 @@
     <ClInclude Include="PuyoCtl\DropMode.h" />
     <ClInclude Include="PuyoCtl\EraseMode.h" />
     <ClInclude Include="PuyoCtl\MunyonMode.h" />
+    <ClInclude Include="PuyoCtl\OzyamaMode.h" />
     <ClInclude Include="PuyoCtl\PuyonMode.h" />
     <ClInclude Include="PuyoCtl\FallMode.h" />
     <ClInclude Include="SceneMng.h" />
     <ClInclude Include="State\CON_ID.h" />
     <ClInclude Include="State\INPUT_ID.h" />
-    <ClInclude Include="State\PLAYER_ID.h" />
     <ClInclude Include="State\PUYO_ID.h" />
     <ClInclude Include="_debug\_DebugConOut.h" />
     <ClInclude Include="_debug\_DebugDispOut.h" />

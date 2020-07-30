@@ -16,10 +16,17 @@ struct MunyonMode
 		}
 		if (!muyon)
 		{
-			// ÇﬁÇÊÅ[ÇÒ≤›¿∞ ﬁŸå„≤›Ω¿›Ω
-			stage.InstancePuyo();
-			stage.CheckMovePuyo(stage.puyoList_[0]);
-			stage.mode_ = STAGE_MODE::DROP;
+			if (stage.ozyamaCnt_)
+			{
+				stage.mode_ = STAGE_MODE::OZYAMA;
+				return true;
+			}
+			{
+				// ÇﬁÇÊÅ[ÇÒ≤›¿∞ ﬁŸå„≤›Ω¿›Ω
+				stage.InstancePuyo();
+				stage.CheckMovePuyo(stage.puyoList_[0]);
+				stage.mode_ = STAGE_MODE::DROP;
+			}
 		}
 		return true;
 	}

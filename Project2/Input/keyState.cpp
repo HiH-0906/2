@@ -10,8 +10,8 @@ std::map<int, keyData> keyState::_keyCon =
 				keyPair{ INPUT_ID::RIGHT,KEY_INPUT_D },
 				keyPair{ INPUT_ID::UP,KEY_INPUT_W },
 				keyPair{ INPUT_ID::DOWN,KEY_INPUT_S },
-				keyPair{INPUT_ID::LROTA,KEY_INPUT_COMMA},
-				keyPair{INPUT_ID::RROTA,KEY_INPUT_PERIOD}
+				keyPair{INPUT_ID::LROTA,KEY_INPUT_X},
+				keyPair{INPUT_ID::RROTA,KEY_INPUT_C}
 				}
 	},
 	{

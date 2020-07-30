@@ -10,6 +10,7 @@ puyoColor Puyo::colorList_ = {
 	{PUYO_ID::GREEN,0x88ff88},
 	{PUYO_ID::PURPLE,0xff88ff},
 	{PUYO_ID::YELLOW,0xffff88},
+	{PUYO_ID::OZAYMA,0x888888}
 };
 
 Puyo::Puyo(Vector2&& pos, PUYO_ID id)
@@ -71,7 +72,7 @@ bool Puyo::Update(void)
 void Puyo::Draw(int cnt)
 {
 	auto puyon = abs(abs(puyonCnt_ - 8) - 8);
-	DrawOval(static_cast<int>(pos_.x + rad_), static_cast<int>(pos_.y + rad_ + puyon + ((puyon * 2) * cnt)), static_cast<int>(rad_), static_cast<int>(rad_ - puyon), colorList_[id_], true);
+	DrawOval(static_cast<int>(pos_.x + rad_), static_cast<int>(pos_.y + rad_ + puyon + ((puyon * 2) * cnt)), static_cast<int>(rad_ + (puyon / 2)), static_cast<int>(rad_ - puyon), colorList_[id_], true);
 	if (playPuyo_)
 	{
 		int tmpRad = 8;
