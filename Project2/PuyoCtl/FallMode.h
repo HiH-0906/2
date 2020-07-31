@@ -11,32 +11,8 @@ struct FallMode
 			{
 				// いい場合書き込んである情報削除
 				auto vec = puyo->GetGrid(stage.blockSize_);
+				puyo->SetMunyonBit(DirPermit{ 0 });
 				stage.playErea_[vec.x][vec.y].reset();
-			}
-			auto SetBit = [&](PUYO_ID id, Vector2 vec)
-			{
-				if (id == PUYO_ID::OZAYMA)
-				{
-					return false;
-				}
-				if (!stage.playErea_[vec.x][vec.y])
-				{
-					return false;
-				}
-				// つながっていいか？
-				return stage.playErea_[vec.x][vec.y]->id() == id;
-			};
-			for (auto&& puyo : stage.puyoList_)
-			{
-				DirPermit bit;
-				auto vec = puyo->GetGrid(stage.blockSize_);
-				auto id = puyo->id();
-				bit.perbit.up = SetBit(id, { vec.x,vec.y - 1 });
-				bit.perbit.down = SetBit(id, { vec.x,vec.y + 1 });
-				bit.perbit.left = SetBit(id, { vec.x - 1,vec.y });
-				bit.perbit.right = SetBit(id, { vec.x + 1,vec.y });
-				puyo->SetMunyonBit(bit);
-				puyo->SetMuyonCnt();
 			}
 		});
 		bool eraseFlag = true;
@@ -68,8 +44,15 @@ struct FallMode
 					// 壁はぷよーんしません
 					if (stage.playErea_[vec.x][y]->id() != PUYO_ID::WALL)
 					{
-						// ぷよーん
-						stage.playErea_[vec.x][y]->SetPuyonCnt();
+						// ぷよーんしないぷよが降ってきていた場合しない
+						if (!stage.playErea_[vec.x][y]->SetPuyonCnt())
+						{
+							break;
+						}
+					}
+					else
+					{
+						break;
 					}
 				}
 				// ぷよーんは自分含めて３人までなんだ…

@@ -56,6 +56,7 @@ private:
 	std::map<STAGE_MODE, std::function<bool(PleyErea&)>> stageFunc_;			// Updateまとめ
 	Vector2 offset_;								// 描画時ｵﾌｾｯﾄ
 	std::shared_ptr<Input*> input_;					// 入力ｸﾗｽ管理用
+	std::array<PuyoUnit, 2> nextPuyo_;				// 次降ってくるぷよ
 	std::vector<PuyoUnit> puyoList_;				// ぷよ管理用ﾘｽﾄ
 	std::vector<PuyoUnit*> playErea_;				// 下の奴を二次元配列みたいにｱｸｾｽするとき用
 	std::vector<PuyoUnit> playEreaBase_;			// playErea全体のﾃﾞｰﾀ管理用配列

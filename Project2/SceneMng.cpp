@@ -51,7 +51,7 @@ void SceneMng::RunRensaQue(void)
 	{
 		for (auto&& stage:playErea_)
 		{
-			if (stage->playerID()==que.first)
+			if (stage->playerID() == que.first)
 			{
 				continue;
 			}

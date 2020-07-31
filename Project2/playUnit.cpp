@@ -107,9 +107,11 @@ void playUnit::RotaPuyo(Vector2 puyo1, Vector2 puyo2, bool rotaRight)
 {
 	auto move = playErea_.blockSize_;
 	int offsetY = (playErea_.puyoList_[targetID_]->pos().y % playErea_.blockSize_ != 0);
+	int tmp = -playErea_.blockSize_;
 	if (!rotaRight)
 	{
 		move = -playErea_.blockSize_;
+		tmp = -tmp;
 	}
 	Vector2 rotaPos_ = { 0,0 };
 	if (puyo1.y < puyo2.y)
@@ -119,6 +121,7 @@ void playUnit::RotaPuyo(Vector2 puyo1, Vector2 puyo2, bool rotaRight)
 	if (puyo1.y > puyo2.y)
 	{
 		rotaPos_ = Vector2{ puyo2.x - move,puyo1.y };
+		tmp = -tmp;
 	}
 	if (puyo1.x < puyo2.x)
 	{
@@ -128,10 +131,34 @@ void playUnit::RotaPuyo(Vector2 puyo1, Vector2 puyo2, bool rotaRight)
 	{
 		rotaPos_ = Vector2{ puyo1.x ,puyo2.y + move };
 	}
-	auto vec = playErea_.ConvertGrid(std::move( rotaPos_));
+	auto vec = playErea_.ConvertGrid(std::move(rotaPos_));
 	if (!playErea_.playErea_[vec.x][vec.y + offsetY])
 	{
 		playErea_.puyoList_[targetID_ ^ 1]->pos(std::move(rotaPos_));
+	}
+	else
+	{
+		if (playErea_.playErea_[vec.x][vec.y + offsetY])
+		{
+			if (playErea_.playErea_[vec.x][vec.y + offsetY]->id() == PUYO_ID::WALL)
+			{
+				if (vec.y >= playErea_.stgSize_.y - 2)
+				{
+					rotaPos_.y -= abs(tmp);
+					playErea_.puyoList_[targetID_ ^ 1]->pos(std::move(rotaPos_));
+					rotaPos_.y -= abs(tmp);
+					playErea_.puyoList_[targetID_]->pos(std::move(rotaPos_));
+				}
+				else
+				{
+					rotaPos_.x += tmp;
+					playErea_.puyoList_[targetID_ ^ 1]->pos(std::move(rotaPos_));
+					rotaPos_.x += tmp;
+					playErea_.puyoList_[targetID_]->pos(std::move(rotaPos_));
+
+				}
+			}
+		}
 	}
 	if (playErea_.puyoList_[0]->pos().y > playErea_.puyoList_[1]->pos().y)
 	{

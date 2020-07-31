@@ -16,11 +16,6 @@ struct MunyonMode
 		}
 		if (!muyon)
 		{
-			if (stage.ozyamaCnt_)
-			{
-				stage.mode_ = STAGE_MODE::OZYAMA;
-				return true;
-			}
 			// ÇﬁÇÊÅ[ÇÒ∂≥›ƒå„è¡ãé
 			stage.mode_ = STAGE_MODE::ERASE;
 		}

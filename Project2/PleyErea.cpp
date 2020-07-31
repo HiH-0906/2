@@ -3,6 +3,7 @@
 #include "_debug/_DebugConOut.h"
 #include "PleyErea.h"
 #include "SceneMng.h"
+#include "OzyamaPuyo.h"
 #include "Input/keyState.h"
 #include "Input/PadState.h"
 #include "Input/MouseState.h"
@@ -44,11 +45,14 @@ void PleyErea::InstancePuyo(void)
 {
 	// ｲﾝｽﾀﾝｽしているだけ～
 	puyoList_.emplace(
-		puyoList_.begin(), std::make_unique<Puyo>(Vector2{ stgSize_.x / 2 * blockSize_,blockSize_ }, static_cast<PUYO_ID>((rand() % 5) + 1))
+		puyoList_.begin(), std::make_unique<Puyo>(Vector2{ stgSize_.x / 2 * blockSize_,blockSize_ }, nextPuyo_[0]->id())
 		);
 	puyoList_.emplace(
-		puyoList_.begin() + 1, std::make_unique<Puyo>(Vector2{ stgSize_.x / 2 * blockSize_,blockSize_ * 2 }, static_cast<PUYO_ID>((rand() % 5) + 1))
+		puyoList_.begin() + 1, std::make_unique<Puyo>(Vector2{ stgSize_.x / 2 * blockSize_,blockSize_ * 2 }, nextPuyo_[1]->id())
 		);
+	nextPuyo_[0] = std::make_shared<Puyo>(Vector2{ size_.x - blockSize_ * 2, blockSize_ * 2 }, static_cast<PUYO_ID>((rand() % 5) + 1));
+	nextPuyo_[1] = std::make_shared<Puyo>(Vector2{ size_.x - blockSize_ * 2, blockSize_ * 3 }, static_cast<PUYO_ID>((rand() % 5) + 1));
+
 }
 
 void PleyErea::Draw(void)
@@ -84,6 +88,11 @@ void PleyErea::Draw(void)
 	SetDrawScreen(screenID_);
 	ClsDrawScreen();
 	
+	for (auto puyo: nextPuyo_)
+	{
+		DrawOval(static_cast<int>(puyo->pos().x + PUYO_RAD), static_cast<int>(puyo->pos().y + PUYO_RAD), static_cast<int>(PUYO_RAD), static_cast<int>(PUYO_RAD), puyo->GetColor(), true);
+	}
+
 	DrawGraph(offset_.x, offset_.y, puyoScreenID_, true);
 }
 
@@ -189,6 +198,8 @@ bool PleyErea::Init(CON_ID id)
 		TRACE("コントローラーがdefault");
 		break;
 	}
+	nextPuyo_[0] = std::make_shared<Puyo>(Vector2{ size_.x - blockSize_ * 2, blockSize_ * 2 }, static_cast<PUYO_ID>((rand() % 5) + 1));
+	nextPuyo_[1] = std::make_shared<Puyo>(Vector2{ size_.x - blockSize_ * 2, blockSize_ * 3 }, static_cast<PUYO_ID>((rand() % 5) + 1));
 	// ぷよのｲﾝｽﾀﾝｽ
 	InstancePuyo();
 	
@@ -281,7 +292,7 @@ const int PleyErea::GetScreenID(void)const
 
 void PleyErea::ozyamaCnt(int cnt)
 {
-	ozyamaCnt_ += cnt * cnt;
+	ozyamaCnt_ += cnt;
 }
 
 void PleyErea::FallOzyama()
@@ -290,17 +301,18 @@ void PleyErea::FallOzyama()
 	{
 		return;
 	}
+	int offset = rand() % 6;
 	for (int cnt = 0; cnt < ozyamaCnt_; cnt++)
 	{
 		// ｶｳﾝﾄが0含まないため-1
-		Vector2 vec = { cnt % (stgSize_.x - 2) + 1 ,((ozyamaCnt_ / (stgSize_.x - 2)) - cnt / (stgSize_.x -2)) };
+		Vector2 vec = { (offset + cnt) % (stgSize_.x - 2) + 1 ,((ozyamaCnt_ / (stgSize_.x - 2)) - cnt / (stgSize_.x -2)) };
 		auto checkVec = ConvertGrid(Vector2{ (blockSize_ * vec.x),blockSize_ + (blockSize_ * vec.y) });
 		if (playErea_[checkVec.x][checkVec.y])
 		{
 			continue;
 		}
 		puyoList_.emplace(
-			puyoList_.begin(), std::make_unique<Puyo>(Vector2{ (blockSize_ * vec.x),blockSize_ + (blockSize_ * vec.y) }, PUYO_ID::OZAYMA)
+			puyoList_.begin(), std::make_unique<OzyamaPuyo>(Vector2{ (blockSize_ * vec.x),blockSize_ + (blockSize_ * vec.y) }, PUYO_ID::OZAYMA)
 			);
 		CheckMovePuyo(puyoList_[0]);
 		puyoList_[0]->ChengeSpeed(16, 1);

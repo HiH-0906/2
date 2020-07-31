@@ -37,14 +37,18 @@ struct EraseMode
 				{
 					if (stage.ozyamaCnt_ != 0)
 					{
-						stage.ozyamaCnt_ += abs(checkNum);
+						stage.ozyamaCnt_ = 0;
 					}
-					lpSceneMng.AddRensaQue(RENSA_QUE{ stage.playerID_,stage.rensaNum_ });
+					lpSceneMng.AddRensaQue(RENSA_QUE{ stage.playerID_,abs(checkNum)});
 				}
 				stage.rensaNum_ = 0;
 			}
 			// Á‚·“z‚ª‚¢‚È‚¢ê‡ÄŞÛ¯Ìß‚Ö
-
+			if (stage.ozyamaCnt_)
+			{
+				stage.mode_ = STAGE_MODE::OZYAMA;
+				return true;
+			}
 			stage.InstancePuyo();
 			stage.CheckMovePuyo(stage.puyoList_[0]);
 			stage.mode_ = STAGE_MODE::DROP;

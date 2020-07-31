@@ -18,10 +18,6 @@ struct PuyonMode
 			// ÇﬁÇ…ÇÂÅ[ÇÒBitSetä÷êî
 			auto SetBit = [&](PUYO_ID id, Vector2 vec)
 			{
-				if (id == PUYO_ID::OZAYMA)
-				{
-					return false;
-				}
 				if (!stage.playErea_[vec.x][vec.y])
 				{
 					return false;
