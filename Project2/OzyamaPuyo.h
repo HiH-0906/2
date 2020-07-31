@@ -11,6 +11,7 @@ public:
 	~OzyamaPuyo();
 	void SetMuyonCnt(void)override;
 	bool SetPuyonCnt(void)override;
+	void SetMunyonBit(DirPermit dirpermit)override;
 private:
 };
 

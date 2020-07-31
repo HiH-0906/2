@@ -28,7 +28,7 @@ public:
     bool Update(void);
     void Draw(int cnt);                     // Ø½Ä‚à‚ç‚¤‚æ‚è¶³ÝÄŒ‹‰Ê‚à‚ç‚¤•û‚ª‚æ‚³‚»‚¤
     void Move(const INPUT_ID& id);
-    void SetMunyonBit(DirPermit dirpermit);
+    virtual void SetMunyonBit(DirPermit dirpermit);
     bool dirpermit(DirPermit dirpermit);
     bool GetDownNow(void);
     const DirPermit dirpermit(void);

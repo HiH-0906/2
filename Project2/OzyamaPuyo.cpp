@@ -42,3 +42,8 @@ bool OzyamaPuyo::SetPuyonCnt(void)
 	// ‰½‚à‚µ‚È‚¢
 	return false;
 }
+
+void OzyamaPuyo::SetMunyonBit(DirPermit dirpermit)
+{
+	// ‰½‚à‚µ‚È‚¢
+}
