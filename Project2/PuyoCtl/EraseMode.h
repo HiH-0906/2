@@ -44,8 +44,8 @@ struct EraseMode
 
 				// ‰Î—Í‚ª‚È‚¢
 				// auto checkNum = stage.ozyamaCnt_ - (stage.rensaMax_ / 2) * (stage.rensaNum_ - 1) * (stage.eraseCnt_ / 4);
-				stage.rensaNum_ = stage.rensaNum_ * (stage.rensaMax_ / 2) + (stage.eraseCnt_ / 8);
-				auto checkNum = stage.ozyamaCnt_ - stage.rensaNum_ * stage.rensaNum_;
+				stage.rensaNum_ = stage.rensaNum_ * (stage.rensaMax_ / 2);
+				auto checkNum = stage.ozyamaCnt_ - (stage.rensaNum_ * stage.rensaNum_ + (stage.eraseCnt_ / 8));
 				if (checkNum >= 0 )
 				{
 					stage.ozyamaCnt_ = checkNum;
