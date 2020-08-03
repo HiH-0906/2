@@ -15,7 +15,15 @@ struct EraseMode
 			stage.rensaNum_++;
 			// Á‚·“z‚¢‚½‚Ì‚ÅÁ‚·
 			stage.DeletePuyo();
-			// ‚à‚¤ˆê“xÌ«°Ù
+			std::for_each(stage.puyoList_.rbegin(), stage.puyoList_.rend(), [&](PuyoUnit& puyo) {
+				if (!stage.CheckMovePuyo(puyo))
+				{
+					// ‘‚«ž‚ñ‚Å‚ ‚éî•ñíœ
+					auto vec = puyo->GetGrid(stage.blockSize_);
+					puyo->SetMunyonBit(DirPermit{ 0 });
+					stage.playErea_[vec.x][vec.y].reset();
+				}
+			});
 			stage.mode_ = STAGE_MODE::FALL;
 			for (auto&& puyo : stage.puyoList_)
 			{

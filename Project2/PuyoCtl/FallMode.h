@@ -7,14 +7,9 @@ struct FallMode
 	{
 		std::for_each(stage.puyoList_.rbegin(), stage.puyoList_.rend(), [&](PuyoUnit& puyo) {
 			// “®‚¢‚Ä‚¢‚¢[H
-			if (!stage.CheckMovePuyo(puyo))
-			{
-				// ‚¢‚¢ê‡‘‚«‚ñ‚Å‚ ‚éî•ñíœ
-				auto vec = puyo->GetGrid(stage.blockSize_);
-				puyo->SetMunyonBit(DirPermit{ 0 });
-				stage.playErea_[vec.x][vec.y].reset();
-			}
-		});
+			stage.CheckMovePuyo(puyo);
+		}
+		);
 		bool eraseFlag = true;
 		std::for_each(stage.puyoList_.rbegin(), stage.puyoList_.rend(), [&](PuyoUnit& puyo) {
 			// “®‚¢‚Ä‚é‚â‚Â‚ª‚¢‚éê‡Erase‚ÉˆÚs‚µ‚È‚¢

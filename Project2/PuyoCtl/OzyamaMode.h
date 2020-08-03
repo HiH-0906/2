@@ -9,6 +9,7 @@ struct OzyamaMode
 		stage.FallOzyama();
 		// óéÇ∆Ç∑Å[
 		stage.stageFunc_[STAGE_MODE::FALL](stage);
+		stage.mode_ = STAGE_MODE::FALL;
 		return true;
 	}
 };

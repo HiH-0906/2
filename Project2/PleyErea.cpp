@@ -82,6 +82,7 @@ void PleyErea::Draw(void)
 				break;
 			}
 		}
+
 		list->Draw(cnt);
 	}
 	DrawOzyama();
@@ -96,6 +97,13 @@ void PleyErea::Draw(void)
 
 	DrawGraph(offset_.x, offset_.y, puyoScreenID_, true);
 	DrawGraph(offset_.x, offset_.y, NoticeOzyamaScrID, true);
+	for (auto tmp : playEreaBase_)
+	{
+		if (tmp)
+		{
+			DrawFormatString(offset_.x+tmp->pos().x, offset_.y+ tmp->pos().y, 0xffffff, "%d", tmp->id());
+		}
+	}
 }
 
 void PleyErea::DrawOzyama(void)
@@ -123,27 +131,29 @@ bool PleyErea::CheckMovePuyo(PuyoUnit& puyo)
 	dirpermit.perbit = { 0,1,1,1 };
 	// ÇÕÇ›èoÇƒÇ¢ÇÈèÍçáÇÃµÃæØƒåvéZ
 	int offsetY = (puyo->pos().y % blockSize_ != 0);
-
-	if (playErea_[static_cast<size_t>(tmpPos.x + 1)][static_cast<size_t>(tmpPos.y + offsetY)])
+	if (tmpPos.y >= 0)
 	{
-		dirpermit.perbit.right = 0;
-	}
-	if (playErea_[static_cast<size_t>(tmpPos.x - 1)][static_cast<size_t>(tmpPos.y + offsetY)])
-	{
-		dirpermit.perbit.left = 0;
-	}
-	if (playErea_[static_cast<size_t>(tmpPos.x)][static_cast<size_t>(tmpPos.y - 1)])
-	{
-		dirpermit.perbit.up = 0;
-	}
-	if (playErea_[static_cast<size_t>(tmpPos.x)][static_cast<size_t>(tmpPos.y + 1)])
-	{
-		// â∫Ç…à⁄ìÆÇ≈Ç´Ç»Ç¢Ç∆Ç¢Ç§Ç±Ç∆ÇÕíÖínÇµÇΩÇ¡ÇøÇ„Å[Ç±Ç∆Ç‚Ç»!!
-		dirpermit.perbit.down = 0;
-		auto vec = puyo->GetGrid(blockSize_);
-		playErea_[vec.x][vec.y] = puyo;					// idì¸ÇÍÇƒÅ`
-		puyo->playPuyo(false);
-		reFlag = true;
+		if (playErea_[static_cast<size_t>(tmpPos.x + 1)][static_cast<size_t>(tmpPos.y + offsetY)])
+		{
+			dirpermit.perbit.right = 0;
+		}
+		if (playErea_[static_cast<size_t>(tmpPos.x - 1)][static_cast<size_t>(tmpPos.y + offsetY)])
+		{
+			dirpermit.perbit.left = 0;
+		}
+		if (playErea_[static_cast<size_t>(tmpPos.x)][static_cast<size_t>(tmpPos.y - 1)])
+		{
+			dirpermit.perbit.up = 0;
+		}
+		if (playErea_[static_cast<size_t>(tmpPos.x)][static_cast<size_t>(tmpPos.y + 1)])
+		{
+			// â∫Ç…à⁄ìÆÇ≈Ç´Ç»Ç¢Ç∆Ç¢Ç§Ç±Ç∆ÇÕíÖínÇµÇΩÇ¡ÇøÇ„Å[Ç±Ç∆Ç‚Ç»!!
+			dirpermit.perbit.down = 0;
+			auto vec = puyo->GetGrid(blockSize_);
+			playErea_[vec.x][vec.y] = puyo;					// idì¸ÇÍÇƒÅ`
+			puyo->playPuyo(false);
+			reFlag = true;
+		}
 	}
 	// ê›íË
 	puyo->dirpermit(dirpermit);
@@ -192,13 +202,12 @@ bool PleyErea::Init(CON_ID id)
 
 	for (int x = 0; x < stgSize_.x; x++)
 	{
-		playErea_[x][0] = std::make_shared<Puyo>(Vector2{ x * blockSize_ ,0 }, PUYO_ID::WALL);
 		playErea_[x][stgSize_.y - 1] = std::make_shared<Puyo>(Vector2{ x * blockSize_ ,(stgSize_.y - 1) * blockSize_ }, PUYO_ID::WALL);
 	}
 	for (int y = 0; y < stgSize_.y; y++)
 	{
 		playErea_[0][y] = std::make_shared<Puyo>(Vector2{ 0, blockSize_ * y }, PUYO_ID::WALL);
-		playErea_[stgSize_.x - 1][y] = std::make_shared<Puyo>(Vector2{ (stgSize_.x - 1) * blockSize_,(stgSize_.y - 1) * blockSize_ }, PUYO_ID::WALL);
+		playErea_[stgSize_.x - 1][y] = std::make_shared<Puyo>(Vector2{ (stgSize_.x - 1) * blockSize_,(y) * blockSize_ }, PUYO_ID::WALL);
 	}
 	// inputçÏê¨
 	switch (id)
@@ -319,7 +328,7 @@ void PleyErea::ozyamaCnt(int cnt)
 
 void PleyErea::FallOzyama()
 {
-	if (ozyamaCnt_ == 0)
+	if (ozyamaCnt_ <= 0)
 	{
 		return;
 	}
@@ -328,22 +337,17 @@ void PleyErea::FallOzyama()
 	int count = 0;
 	for (int cnt = 0; cnt < ozyamaCnt_; cnt++)
 	{
-		Vector2 vec = { (offset + cnt) % (stgSize_.x - 2) + 1 ,((ozyamaCnt_ / (stgSize_.x - 2)) - cnt / (stgSize_.x -2)) };
-		auto checkVec = ConvertGrid(Vector2{ (blockSize_ * vec.x),blockSize_ + (blockSize_ * vec.y) });
-		if (playErea_[checkVec.x][checkVec.y])
-		{
-			continue;
-		}
+		Vector2 vec = { ((offset + cnt) % (stgSize_.x - 2)) ,((offset + cnt) / (stgSize_.x - 2)) };
 		puyoList_.emplace(
-			puyoList_.begin(), std::make_unique<OzyamaPuyo>(Vector2{ (blockSize_ * vec.x),blockSize_ + (blockSize_ * vec.y) }, PUYO_ID::OZAYMA)
+			puyoList_.begin(), std::make_shared<OzyamaPuyo>(Vector2{ blockSize_+(blockSize_ * vec.x),-(blockSize_ * vec.y) }, PUYO_ID::OZAYMA)
 			);
 		CheckMovePuyo(puyoList_[0]);
 		puyoList_[0]->ChengeSpeed(16, 1);
-		count++;
 		if (cnt >= ozyamaFallMax_)
 		{
 			break;
 		}
+		count++;
 	}
 	ozyamaCnt_ -= count;
 }
