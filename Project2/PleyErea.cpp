@@ -50,8 +50,8 @@ void PleyErea::InstancePuyo(void)
 	puyoList_.emplace(
 		puyoList_.begin() + 1, std::make_unique<Puyo>(Vector2{ stgSize_.x / 2 * blockSize_,blockSize_ * 2 }, nextPuyo_[1]->id())
 		);
-	nextPuyo_[0] = std::make_shared<Puyo>(Vector2{ size_.x - blockSize_ * 2, blockSize_ * 2 }, static_cast<PUYO_ID>((rand() % 5) + 1));
-	nextPuyo_[1] = std::make_shared<Puyo>(Vector2{ size_.x - blockSize_ * 2, blockSize_ * 3 }, static_cast<PUYO_ID>((rand() % 5) + 1));
+	nextPuyo_[0] = std::make_shared<Puyo>(Vector2{ blockSize_ * (stgSize_.x + 2), blockSize_ * 2 }, static_cast<PUYO_ID>((rand() % 5) + 1));
+	nextPuyo_[1] = std::make_shared<Puyo>(Vector2{ blockSize_ * (stgSize_.x + 2), blockSize_ * 3 }, static_cast<PUYO_ID>((rand() % 5) + 1));
 
 }
 
@@ -84,16 +84,33 @@ void PleyErea::Draw(void)
 		}
 		list->Draw(cnt);
 	}
+	DrawOzyama();
 	// playEreaëSëÃÇÃï`âÊ
 	SetDrawScreen(screenID_);
 	ClsDrawScreen();
 	
 	for (auto puyo: nextPuyo_)
 	{
-		DrawOval(static_cast<int>(puyo->pos().x + PUYO_RAD), static_cast<int>(puyo->pos().y + PUYO_RAD), static_cast<int>(PUYO_RAD), static_cast<int>(PUYO_RAD), puyo->GetColor(), true);
+		DrawOval(static_cast<int>(offset_.x + puyo->pos().x + PUYO_RAD), static_cast<int>(offset_.y + puyo->pos().y + PUYO_RAD), static_cast<int>(PUYO_RAD), static_cast<int>(PUYO_RAD), puyo->GetColor(), true);
 	}
 
 	DrawGraph(offset_.x, offset_.y, puyoScreenID_, true);
+	DrawGraph(offset_.x, offset_.y, NoticeOzyamaScrID, true);
+}
+
+void PleyErea::DrawOzyama(void)
+{
+	SetDrawScreen(NoticeOzyamaScrID);
+	ClsDrawScreen();
+	if (ozyamaCnt_ <= 0)
+	{
+		return;
+	}
+	int size = blockSize_ / 2;
+	for (int i = 0; i < ozyamaCnt_; i++)
+	{
+		DrawCircle((size * (i % 12) + 8) + blockSize_, (24 - (size * (i / 12))), 8, 0x888888, true);
+	}
 }
 
 bool PleyErea::CheckMovePuyo(PuyoUnit& puyo)
@@ -148,11 +165,15 @@ bool PleyErea::Init(CON_ID id)
 	// èâä˙òAçΩêî
 	rensaNum_ = 0;
 	ozyamaCnt_ = 0;
+	eraseCnt_ = 0;
+	rensaMax_ = 2;
+	ozyamaFallMax_ = 24;
 	// Ω√∞ºﬁîwåiêFê›íË
 	color_ = 0x000066 << (16 * static_cast<int>(playerID_));
 	// ï`âÊêÊΩ∏ÿ∞›çÏê¨
 	screenID_ = MakeScreen(size_.x, size_.y, true);
 	puyoScreenID_ = MakeScreen(stgSize_.x * PUYO_SIZE, stgSize_.y * PUYO_SIZE, true);
+	NoticeOzyamaScrID = MakeScreen(stgSize_.x * PUYO_SIZE, PUYO_SIZE, true);
 	// ëÄçÏä÷åW
 	playUnit_ = std::make_unique<playUnit>(*this);
 	// œΩñ⁄ª≤Ωﬁ
@@ -198,8 +219,8 @@ bool PleyErea::Init(CON_ID id)
 		TRACE("ÉRÉìÉgÉçÅ[ÉâÅ[Ç™default");
 		break;
 	}
-	nextPuyo_[0] = std::make_shared<Puyo>(Vector2{ size_.x - blockSize_ * 2, blockSize_ * 2 }, static_cast<PUYO_ID>((rand() % 5) + 1));
-	nextPuyo_[1] = std::make_shared<Puyo>(Vector2{ size_.x - blockSize_ * 2, blockSize_ * 3 }, static_cast<PUYO_ID>((rand() % 5) + 1));
+	nextPuyo_[0] = std::make_shared<Puyo>(Vector2{ blockSize_ * (stgSize_.x + 2),blockSize_ * 2 }, static_cast<PUYO_ID>((rand() % 5) + 1));
+	nextPuyo_[1] = std::make_shared<Puyo>(Vector2{ blockSize_ * (stgSize_.x + 2), blockSize_ * 3 }, static_cast<PUYO_ID>((rand() % 5) + 1));
 	// Ç’ÇÊÇÃ≤›Ω¿›Ω
 	InstancePuyo();
 	
@@ -276,6 +297,7 @@ bool PleyErea::SetErasePuyo(Vector2 vec, PUYO_ID id)
 				playErea_[vec.x][vec.y].reset();
 			}
 		}
+		eraseCnt_ += count;
 		return true;
 	}
 }
@@ -301,10 +323,11 @@ void PleyErea::FallOzyama()
 	{
 		return;
 	}
+	// ñ≥óùÇ‚ÇËä¥
 	int offset = rand() % 6;
+	int count = 0;
 	for (int cnt = 0; cnt < ozyamaCnt_; cnt++)
 	{
-		// ∂≥›ƒÇ™0ä‹Ç‹Ç»Ç¢ÇΩÇﬂ-1
 		Vector2 vec = { (offset + cnt) % (stgSize_.x - 2) + 1 ,((ozyamaCnt_ / (stgSize_.x - 2)) - cnt / (stgSize_.x -2)) };
 		auto checkVec = ConvertGrid(Vector2{ (blockSize_ * vec.x),blockSize_ + (blockSize_ * vec.y) });
 		if (playErea_[checkVec.x][checkVec.y])
@@ -316,8 +339,13 @@ void PleyErea::FallOzyama()
 			);
 		CheckMovePuyo(puyoList_[0]);
 		puyoList_[0]->ChengeSpeed(16, 1);
+		count++;
+		if (cnt >= ozyamaFallMax_)
+		{
+			break;
+		}
 	}
-	ozyamaCnt_ = 0;
+	ozyamaCnt_ -= count;
 }
 
 const int PleyErea::playerID(void) const

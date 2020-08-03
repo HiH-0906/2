@@ -8,8 +8,16 @@
 #define STAGE_X 8
 #define STAGE_Y 15
 
+// RENSA_QUE用
+enum class RENSA_DATA
+{
+	ID,
+	RENSA,
+	CNT
+};
+
 #define lpSceneMng SceneMng::GetInstance()
-using RENSA_QUE = std::pair<int, int>;						// 連鎖数通知用ｷｭｰ?playerIDと連鎖数
+using RENSA_QUE = std::tuple<int, int,int>;						// 連鎖数通知用ｷｭｰ?playerIDと連鎖数と消した数
 
 class SceneMng
 {

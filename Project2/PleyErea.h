@@ -43,6 +43,7 @@ public:
 private:
 	void InstancePuyo(void);
 	void Draw(void);								// •`‰æ
+	void DrawOzyama(void);							// ‚¨×–‚‚Õ‚æ—\‚Ì•`‰æ
 	void DeletePuyo(void);							// ¡‚Ì‚Õ‚æ‚ğ“®‚¯‚È‚­‚·‚é‚Ì‚ÆŸ‚Ì‚Õ‚æ²İ½Àİ½
 	bool SetErasePuyo(Vector2 vec, PUYO_ID id);		// Á‚¹‚é‚©”»’f
 	bool CheckMovePuyo(PuyoUnit& puyo);				// “®‚¢‚Ä‚¢‚¢‚Õ‚æ‚©”»’f
@@ -50,6 +51,7 @@ private:
 	Vector2 ConvertGrid(Vector2&& pos);				// pos‚ğGrid‚É
 	int screenID_;									// ŒÂ•Ê•`‰æ—p½¸Ø°İ
 	int puyoScreenID_;								// ‚Õ‚æ‘€ìêŠ•`‰æ—p½¸Ø°İ
+	int NoticeOzyamaScrID;							// ‚¨×–‚‚Õ‚æ—\—p½¸Ø°İ
 	int playerID_;									// ©•ª‚ª‰½”Ô–Ú‚©
 	const Vector2 stgSize_;							// ‚Õ‚æ‚Õ‚æÏ½–Ú
 	const Vector2 size_;							// playErea‚Ì‘å‚«‚³
@@ -65,7 +67,10 @@ private:
 	int color_;										// ´Ø±‚ÌF
 	int blockSize_;									// 1Ï½‚Ì‘å‚«‚³
 	int rensaNum_;									// Œ»İ˜A½”
+	int rensaMax_;									// ¡‚Ì‡‚Å‚ÌÅ‘å˜A½”
 	int ozyamaCnt_;									// ‚¨×–‚‚Õ‚æ—‰º”
+	int ozyamaFallMax_;								// ‚¨×–‚‚Õ‚æ“¯—‰ºÅ‘å”
+	int eraseCnt_;									// ¡‚ÌErase‚Å‚¢‚­‚Â‚Õ‚æÁ‚µ‚½‚©
 	static int allStage_;							// ‘S‘Ì‚ÅplayErea‚ª‚¢‚­‚Â‚ ‚é‚©‚Ì¶³İÄ
 	STAGE_MODE mode_;								// Œ»İ‚ÌÓ°ÄŞ
 	std::unique_ptr<playUnit> playUnit_;			// ‘€ìŒn‚Ü‚Æ‚ß

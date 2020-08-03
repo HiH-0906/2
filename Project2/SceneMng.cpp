@@ -47,15 +47,17 @@ void SceneMng::Draw()
 
 void SceneMng::RunRensaQue(void)
 {
+	int id, rensa, cnt;
 	for (auto que : rensaQue_)
 	{
+		std::tie(id, rensa, cnt) = que;
 		for (auto&& stage:playErea_)
 		{
-			if (stage->playerID() == que.first)
+			if (stage->playerID() == id)
 			{
 				continue;
 			}
-			stage->ozyamaCnt(que.second);
+			stage->ozyamaCnt(rensa);
 		}
 	}
 	rensaQue_.clear();
@@ -70,8 +72,8 @@ bool SceneMng::SysInit(void)
 	{
 		return false;
 	}
-	Vector2 size = { 512,512 };
-	Vector2 offset = { 100,0 };
+	Vector2 size = { 512, 768 };
+	Vector2 offset = { 100,64 };
 	playErea_.emplace_back(std::make_unique<PleyErea>(std::move(size),std::move(offset),CON_ID::KEY));
 	playErea_.emplace_back(std::make_unique<PleyErea>(std::move(size), std::move(offset),CON_ID::KEY));
 	return true;

@@ -28,6 +28,15 @@ struct EraseMode
 			// ˜A½”‚ğ‘Šè‚Ö‚©‚Â‘Å‚¿Á‚µ
 			if (stage.rensaNum_)
 			{
+				if (stage.rensaNum_ > stage.rensaMax_)
+				{
+					stage.rensaMax_ = stage.rensaNum_;
+				}
+				// ‚¨×–‚ŒvZ ŠÖ”‚É‚µ‚½•û‚ª‚¢‚¢‚©‚à
+
+				// ‰Î—Í‚ª‚È‚¢
+				// auto checkNum = stage.ozyamaCnt_ - (stage.rensaMax_ / 2) * (stage.rensaNum_ - 1) * (stage.eraseCnt_ / 4);
+				stage.rensaNum_ = stage.rensaNum_ * (stage.rensaMax_ / 2) + (stage.eraseCnt_ / 8);
 				auto checkNum = stage.ozyamaCnt_ - stage.rensaNum_ * stage.rensaNum_;
 				if (checkNum >= 0 )
 				{
@@ -39,9 +48,11 @@ struct EraseMode
 					{
 						stage.ozyamaCnt_ = 0;
 					}
-					lpSceneMng.AddRensaQue(RENSA_QUE{ stage.playerID_,abs(checkNum)});
+					lpSceneMng.AddRensaQue(RENSA_QUE{ stage.playerID_,abs(checkNum),stage.eraseCnt_ });
+					
 				}
 				stage.rensaNum_ = 0;
+				stage.eraseCnt_ = 0;
 			}
 			// Á‚·“z‚ª‚¢‚È‚¢ê‡ÄŞÛ¯Ìß‚Ö
 			if (stage.ozyamaCnt_)
