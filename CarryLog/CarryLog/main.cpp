@@ -1,6 +1,9 @@
 #include<DxLib.h>
 #include<cmath>
+#include<memory>
+#include<vector>
 #include"Geometry.h"
+#include"Rock.h"
 
 
 using namespace std;
@@ -31,21 +34,38 @@ Matrix RotatePosition(const Position2& center, float angle) {
 	//②原点中心に回転して
 	//③中心を元の座標へ戻す
 
-	Matrix mat = IdentityMat();
+	Matrix mat = MultipleMat(TranslateMat(center.x, center.y),
+		MultipleMat(RotateMat(angle),
+			TranslateMat(-center.x, -center.y)));
 	return mat;
 	//これを書き換えて、特定の点を中心に回転を行うようにしてください。
 }
 
+float Clamp(float value, float minVal = 0.0f, float maxVal = 1.0f) {
+	//今は値をそのまま返していますが、クランプ(最小値最大値の範囲を超えたら最小値もしくは最大値にする)した
+	//値を返してください。
+	return min(maxVal, max(minVal, value));
+}
+
 //カプセルと円が当たったか？
 bool IsHit(const Capsule& cap, const Circle& cc) {
-	return false;
+	auto vp = cc.pos - cap.posA;
+	auto v = cap.posB - cap.posA;
+	auto vv = v * (Clamp(Dot(v, vp) / Dot(v, v)));
+	auto d = (vp - vv).Magnitude();
+	return d <= cap.radius + cc.radius;
 }
 
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	ChangeWindowMode(true);
 	SetGraphMode(512, 800, 32);
 	DxLib_Init();
+	SetWindowText("1916035_橋本大輝");
 	SetDrawScreen(DX_SCREEN_BACK);
+
+	using ShareRock = std::shared_ptr<Rock>;
+	
+	std::vector<ShareRock> rockList_;
 
 	int sw, sh;//スクリーン幅、高さ
 	GetDrawScreenSize(&sw, &sh);
@@ -57,6 +77,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	auto cascadeH = LoadGraph("img/cascade_chip.png");
 	auto chipH = LoadGraph("img/atlas0.png");
+	auto rockH = LoadGraph("img/rock.png");
+	int explosionH[12];
+	LoadDivGraph("explosion.png", 12, 12, 1, 128, 128, explosionH);
 
 	Capsule cap(20,Position2((sw-wdW)/2,sh-100),Position2((sw - wdW) / 2+wdW,sh-100));
 
@@ -101,11 +124,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		else {
 			angle = 0.0f;
 		}
-
-		//当たり判定を完成させて当たったときの反応を書いてください
-		//if(IsHit(cap,circle)){
-		//	反応をここに書いてください。
-		//}
+		for (auto rock : rockList_)
+		{
+			//当たり判定を完成させて当たったときの反応を書いてください
+			if (IsHit(cap,rock->data())) {
+				//反応をここに書いてください。
+				rock->SetAlive(false);
+			}
+		}
 
 		//カプセル回転
 		Matrix rotMat=RotatePosition(Position2(mx, my), angle);
@@ -141,6 +167,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			destY += dest_chip_size;
 		}
 
+		for (auto rock:rockList_)
+		{
+			DrawGraph(rock->data().pos.x, rock->data().pos.y, rockH, true);
+		}
 
 		DrawWood(cap, woodH);
 		DrawCircle(mx, my, 30, 0xff0000, false, 3);

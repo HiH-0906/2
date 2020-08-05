@@ -159,10 +159,10 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Input\MouseState.cpp" />
     <ClCompile Include="Input\PadState.cpp" />
-    <ClCompile Include="OzyamaPuyo.cpp" />
+    <ClCompile Include="Puyo\OzyamaPuyo.cpp" />
     <ClCompile Include="playUnit.cpp" />
     <ClCompile Include="PleyErea.cpp" />
-    <ClCompile Include="Puyo.cpp" />
+    <ClCompile Include="Puyo\Puyo.cpp" />
     <ClCompile Include="SceneMng.cpp" />
     <ClCompile Include="State\INPUT_ID.cpp" />
     <ClCompile Include="_debug\_DebugConOut.cpp" />
@@ -175,10 +175,10 @@
     <ClInclude Include="Input\keyState.h" />
     <ClInclude Include="Input\MouseState.h" />
     <ClInclude Include="Input\PadState.h" />
-    <ClInclude Include="OzyamaPuyo.h" />
+    <ClInclude Include="Puyo\OzyamaPuyo.h" />
     <ClInclude Include="playUnit.h" />
     <ClInclude Include="PleyErea.h" />
-    <ClInclude Include="Puyo.h" />
+    <ClInclude Include="Puyo\Puyo.h" />
     <ClInclude Include="PuyoCtl\DropMode.h" />
     <ClInclude Include="PuyoCtl\EraseMode.h" />
     <ClInclude Include="PuyoCtl\MunyonMode.h" />

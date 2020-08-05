@@ -33,9 +33,6 @@
     <ClCompile Include="State\INPUT_ID.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Puyo.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="Input\PadState.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
@@ -51,7 +48,10 @@
     <ClCompile Include="playUnit.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="OzyamaPuyo.cpp">
+    <ClCompile Include="Puyo\Puyo.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Puyo\OzyamaPuyo.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -75,9 +75,6 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="State\INPUT_ID.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Puyo.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Input\PadState.h">
@@ -119,7 +116,10 @@
     <ClInclude Include="PuyoCtl\OzyamaMode.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="OzyamaPuyo.h">
+    <ClInclude Include="Puyo\Puyo.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Puyo\OzyamaPuyo.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

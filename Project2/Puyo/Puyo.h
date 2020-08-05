@@ -26,7 +26,7 @@ public:
     Puyo(Vector2&& pos,PUYO_ID id);
     virtual ~Puyo();
     bool Update(void);
-    void Draw(int cnt);                     // Ø½Ä‚à‚ç‚¤‚æ‚è¶³ÝÄŒ‹‰Ê‚à‚ç‚¤•û‚ª‚æ‚³‚»‚¤
+    void Draw(int cnt);
     void Move(const INPUT_ID& id);
     virtual void SetMunyonBit(DirPermit dirpermit);
     bool dirpermit(DirPermit dirpermit);
