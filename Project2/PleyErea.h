@@ -6,9 +6,10 @@
 #include "common/Vector2.h"
 #include "Input/Input.h"
 #include "State/CON_ID.h"
-#include "Puyo.h"
+#include "Puyo/Puyo.h"
 #include "State/PUYO_ID.h"
 #include "playUnit.h"
+
 
 enum class PUYO_STATE
 {
@@ -25,10 +26,13 @@ enum class STAGE_MODE
 	MUNYON,
 	ERASE,
 	OZYAMA,
+	GAMEOVER,
 };
 
 using PuyoSt = std::pair < PUYO_ID, PUYO_STATE >;
-using PuyoUnit = std::shared_ptr<Puyo>;
+using sharPuyo = std::shared_ptr<Puyo>;
+
+class NextPuyoCtl;
 
 class PleyErea
 {
@@ -46,9 +50,10 @@ private:
 	void DrawOzyama(void);							// お邪魔ぷよ予告の描画
 	void DeletePuyo(void);							// 今のぷよを動けなくするのと次のぷよｲﾝｽﾀﾝｽ
 	bool SetErasePuyo(Vector2 vec, PUYO_ID id);		// 消せるか判断
-	bool CheckMovePuyo(PuyoUnit& puyo);				// 動いていいぷよか判断
+	bool CheckMovePuyo(sharPuyo& puyo);				// 動いていいぷよか判断
 	bool Init(CON_ID id);							// 初期化用関数
 	Vector2 ConvertGrid(Vector2&& pos);				// posをGridに
+
 	int screenID_;									// 個別描画用ｽｸﾘｰﾝ
 	int puyoScreenID_;								// ぷよ操作場所描画用ｽｸﾘｰﾝ
 	int NoticeOzyamaScrID;							// お邪魔ぷよ予告用ｽｸﾘｰﾝ
@@ -57,13 +62,15 @@ private:
 	const Vector2 size_;							// playEreaの大きさ
 	std::map<STAGE_MODE, std::function<bool(PleyErea&)>> stageFunc_;			// Updateまとめ
 	Vector2 offset_;								// 描画時ｵﾌｾｯﾄ
-	std::shared_ptr<Input*> input_;					// 入力ｸﾗｽ管理用
-	std::array<PuyoUnit, 2> nextPuyo_;				// 次降ってくるぷよ
-	std::vector<PuyoUnit> puyoList_;				// ぷよ管理用ﾘｽﾄ
-	std::vector<PuyoUnit*> playErea_;				// 下の奴を二次元配列みたいにｱｸｾｽするとき用
-	std::vector<PuyoUnit> playEreaBase_;			// playErea全体のﾃﾞｰﾀ管理用配列
-	std::vector<PuyoUnit*> eraseErea_;				// 下の奴を二次元配列みたいにｱｸｾｽするとき用
-	std::vector<PuyoUnit> eraseEreaBase_;			// playErea全体の消すとこﾃﾞｰﾀ管理用配列
+	std::map<CON_ID,std::shared_ptr<Input*>> input_;					// 入力ｸﾗｽ管理用
+	CON_ID inputID_;									// 操作ｸﾗｽ選択用
+
+	std::vector<sharPuyo> puyoList_;				// ぷよ管理用ﾘｽﾄ
+	std::vector<sharPuyo*> playErea_;				// 下の奴を二次元配列みたいにｱｸｾｽするとき用
+	std::vector<sharPuyo> playEreaBase_;			// playErea全体のﾃﾞｰﾀ管理用配列
+	std::vector<sharPuyo*> eraseErea_;				// 下の奴を二次元配列みたいにｱｸｾｽするとき用
+	std::vector<sharPuyo> eraseEreaBase_;			// playErea全体の消すとこﾃﾞｰﾀ管理用配列
+
 	int color_;										// ｴﾘｱの色
 	int blockSize_;									// 1ﾏｽの大きさ
 	int rensaNum_;									// 現在連鎖数
@@ -72,8 +79,10 @@ private:
 	int ozyamaFallMax_;								// お邪魔ぷよ同時落下最大数
 	int eraseCnt_;									// 今のEraseでいくつぷよ消したか
 	static int allStage_;							// 全体でplayEreaがいくつあるかのｶｳﾝﾄ
+
 	STAGE_MODE mode_;								// 現在のﾓｰﾄﾞ
 	std::unique_ptr<playUnit> playUnit_;			// 操作系まとめ
+	std::unique_ptr<NextPuyoCtl> nextPuyo_;			// next管理用
 	void FallOzyama(void);							// お邪魔ぷよｲﾝｽﾀﾝｽ用
 
 	friend class playUnit;
@@ -83,5 +92,6 @@ private:
 	friend struct PuyonMode;
 	friend struct MunyonMode;
 	friend struct OzyamaMode;
+	friend struct GameOverMode;
 };
 

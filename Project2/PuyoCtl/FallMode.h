@@ -5,13 +5,13 @@ struct FallMode
 {
 	bool operator ()(PleyErea& stage)
 	{
-		std::for_each(stage.puyoList_.rbegin(), stage.puyoList_.rend(), [&](PuyoUnit& puyo) {
+		std::for_each(stage.puyoList_.rbegin(), stage.puyoList_.rend(), [&](sharPuyo& puyo) {
 			// “®‚¢‚Ä‚¢‚¢[H
 			stage.CheckMovePuyo(puyo);
 		}
 		);
 		bool eraseFlag = true;
-		std::for_each(stage.puyoList_.rbegin(), stage.puyoList_.rend(), [&](PuyoUnit& puyo) {
+		std::for_each(stage.puyoList_.rbegin(), stage.puyoList_.rend(), [&](sharPuyo& puyo) {
 			// “®‚¢‚Ä‚é‚â‚Â‚ª‚¢‚éê‡Erase‚ÉˆÚs‚µ‚È‚¢
 			if (!puyo->Update())
 			{

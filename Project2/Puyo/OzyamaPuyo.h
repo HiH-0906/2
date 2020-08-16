@@ -1,5 +1,5 @@
 #pragma once
-#include "common/Vector2.h"
+#include "../common/Vector2.h"
 #include "Puyo.h"
 
 class OzyamaPuyo :

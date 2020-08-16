@@ -1,6 +1,7 @@
 #pragma once
 #include <functional>
 #include <map>
+#include <utility>
 #include "common/Vector2.h"
 #include "State/INPUT_ID.h"
 class PleyErea;
@@ -18,5 +19,8 @@ private:
 	void Init(void);											// 初期化
 	void RotaPuyo(Vector2 puyo1, Vector2 puyo2, bool rotaRight);// ぷよ回転用
 	int targetID_;												// 今操作しているぷよ判別用
+	static std::map<int, int> changeKey_;						// ﾁｪﾝｼﾞ用ｷｰID
+	std::pair<bool, bool> change_;								// ﾁｪﾝｼﾞ用押下情報 firstがOLD secondがnew
+	
 };
 

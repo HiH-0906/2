@@ -3,9 +3,10 @@
 #include "_debug/_DebugConOut.h"
 #include "_debug/_DebugDispOut.h"
 #include "State/CON_ID.h"
+#include "EffectMng.h"
 
 
-std::unique_ptr<SceneMng, SceneMng::SceneMngDeleter> SceneMng::S_instance(new SceneMng());
+std::unique_ptr<SceneMng, SceneMng::SceneMngDeleter> SceneMng::s_instance(new SceneMng());
 
 void SceneMng::Run()
 {
@@ -17,6 +18,7 @@ void SceneMng::Run()
 		{
 			erea->UpDate();
 		}
+		lpEffectMng.Update();
 		RunRensaQue();
 		Draw();
 	}
@@ -41,6 +43,7 @@ void SceneMng::Draw()
 	{
 		DrawGraph(static_cast<int>(i) * 512, 0, playErea_[i]->GetScreenID(), true);
 	}
+	lpEffectMng.Draw();
 	_dbgAddDraw();
 	ScreenFlip();
 }
@@ -76,6 +79,7 @@ bool SceneMng::SysInit(void)
 	Vector2 offset = { 100,64 };
 	playErea_.emplace_back(std::make_unique<PleyErea>(std::move(size),std::move(offset),CON_ID::KEY));
 	playErea_.emplace_back(std::make_unique<PleyErea>(std::move(size), std::move(offset),CON_ID::KEY));
+	lpEffectMng.Init({ screenX ,screenY });
 	return true;
 }
 

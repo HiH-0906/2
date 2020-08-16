@@ -24,7 +24,7 @@ class SceneMng
 public:
 	static SceneMng& GetInstance()
 	{
-		return *S_instance;
+		return *s_instance;
 	}
 	void Run();
 	void AddRensaQue(RENSA_QUE&& que);
@@ -46,7 +46,7 @@ private:
 	std::vector<RENSA_QUE> rensaQue_;
 	SceneMng();
 	~SceneMng();
-	static std::unique_ptr<SceneMng,SceneMngDeleter> S_instance;
+	static std::unique_ptr<SceneMng,SceneMngDeleter> s_instance;
 	std::vector<std::unique_ptr<PleyErea>> playErea_;
 };
 

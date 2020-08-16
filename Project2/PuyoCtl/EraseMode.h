@@ -7,7 +7,7 @@ struct EraseMode
 	{
 		// Á‚·“z‚ª‚ ‚é‚©‚Ç‚¤‚©
 		bool delFlag = false;
-		std::for_each(stage.puyoList_.rbegin(), stage.puyoList_.rend(), [&](PuyoUnit& puyo) {
+		std::for_each(stage.puyoList_.rbegin(), stage.puyoList_.rend(), [&](sharPuyo& puyo) {
 			delFlag |= stage.SetErasePuyo(puyo->GetGrid(stage.blockSize_), puyo->id());
 		});
 		if (delFlag)
@@ -15,7 +15,7 @@ struct EraseMode
 			stage.rensaNum_++;
 			// Á‚·“z‚¢‚½‚Ì‚ÅÁ‚·
 			stage.DeletePuyo();
-			std::for_each(stage.puyoList_.rbegin(), stage.puyoList_.rend(), [&](PuyoUnit& puyo) {
+			std::for_each(stage.puyoList_.rbegin(), stage.puyoList_.rend(), [&](sharPuyo& puyo) {
 				if (!stage.CheckMovePuyo(puyo))
 				{
 					// ‘‚«‚ñ‚Å‚ ‚éî•ñíœ

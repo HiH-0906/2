@@ -1,7 +1,8 @@
 #pragma once
 #include<map>
-#include "State/PUYO_ID.h"
-#include "State/INPUT_ID.h"
+#include"../common/Vector2.h"
+#include "../State/PUYO_ID.h"
+#include "../State/INPUT_ID.h"
 
 // ã‰º¶‰EËŞ¯ÄÌ¨°ÙÄŞ
 struct DirBit

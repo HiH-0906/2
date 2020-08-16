@@ -1,7 +1,7 @@
 #include <utility>
 #include <DxLib.h>
-#include"SceneMng.h"
-#include"_debug/_DebugConOut.h"
+#include"../SceneMng.h"
+#include"../_debug/_DebugConOut.h"
 #include "Puyo.h"
 
 puyoColor Puyo::colorList_ = {
@@ -97,7 +97,7 @@ void Puyo::Draw(int cnt)
 {
 	auto puyon = abs(abs(puyonCnt_ - 6) - 6);
 	DrawOval(static_cast<int>(pos_.x + rad_), static_cast<int>(pos_.y + rad_ + puyon + ((puyon * 2) * cnt)), static_cast<int>(rad_ + (puyon / 2)), static_cast<int>(rad_ - puyon), colorList_[id_], true);
-	DrawFormatString(pos_.x, pos_.y, 0xffffff, "%d", id_);
+	//DrawFormatString(pos_.x, pos_.y, 0xffffff, "%d", id_);
 	if (playPuyo_)
 	{
 		int tmpRad = 8;

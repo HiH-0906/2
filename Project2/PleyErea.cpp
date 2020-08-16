@@ -2,8 +2,10 @@
 #include <algorithm>
 #include "_debug/_DebugConOut.h"
 #include "PleyErea.h"
+#include "NextPuyoCtl.h"
 #include "SceneMng.h"
-#include "OzyamaPuyo.h"
+#include "EffectMng.h"
+#include "Puyo/OzyamaPuyo.h"
 #include "Input/keyState.h"
 #include "Input/PadState.h"
 #include "Input/MouseState.h"
@@ -13,6 +15,7 @@
 #include "PuyoCtl/MunyonMode.h"
 #include "PuyoCtl/PuyonMode.h"
 #include "PuyoCtl/OzyamaMode.h"
+#include "PuyoCtl/GameOverMode.h"
 
 
 int PleyErea::allStage_ = 0;
@@ -21,7 +24,7 @@ PleyErea::PleyErea(Vector2&& size, Vector2&& offset, CON_ID id) :size_(size), st
 {
 	offset_ = offset;
 	Init(id);
-	(*input_)->Setting();
+	(*input_[inputID_])->Setting();
 }
 
 PleyErea::~PleyErea()
@@ -32,26 +35,25 @@ PleyErea::~PleyErea()
 
 void PleyErea::UpDate()
 {
-	(*input_)->Update(playerID_);
+	(*input_[inputID_])->Update(playerID_);
 	if (!stageFunc_[mode_](*this))
 	{
 		// ここでｹﾞｰﾑｵｰﾊﾞｰに移行しましょうねぇ～
 		TRACE("GAME OVER\n");
+		mode_ = STAGE_MODE::GAMEOVER;
 	}
 	Draw();
 }
 
 void PleyErea::InstancePuyo(void)
 {
+	auto pairPuyo = nextPuyo_->PickUp();
+	pairPuyo.first->pos({ stgSize_.x / 2 * blockSize_, 0 });
+	pairPuyo.second->pos({ stgSize_.x / 2 * blockSize_,blockSize_ });
+
 	// ｲﾝｽﾀﾝｽしているだけ～
-	puyoList_.emplace(
-		puyoList_.begin(), std::make_unique<Puyo>(Vector2{ stgSize_.x / 2 * blockSize_,blockSize_ }, nextPuyo_[0]->id())
-		);
-	puyoList_.emplace(
-		puyoList_.begin() + 1, std::make_unique<Puyo>(Vector2{ stgSize_.x / 2 * blockSize_,blockSize_ * 2 }, nextPuyo_[1]->id())
-		);
-	nextPuyo_[0] = std::make_shared<Puyo>(Vector2{ blockSize_ * (stgSize_.x + 2), blockSize_ * 2 }, static_cast<PUYO_ID>((rand() % 5) + 1));
-	nextPuyo_[1] = std::make_shared<Puyo>(Vector2{ blockSize_ * (stgSize_.x + 2), blockSize_ * 3 }, static_cast<PUYO_ID>((rand() % 5) + 1));
+	puyoList_.emplace(puyoList_.begin(), pairPuyo.first);
+	puyoList_.emplace(puyoList_.begin() + 1, pairPuyo.second);
 
 }
 
@@ -90,20 +92,9 @@ void PleyErea::Draw(void)
 	SetDrawScreen(screenID_);
 	ClsDrawScreen();
 	
-	for (auto puyo: nextPuyo_)
-	{
-		DrawOval(static_cast<int>(offset_.x + puyo->pos().x + PUYO_RAD), static_cast<int>(offset_.y + puyo->pos().y + PUYO_RAD), static_cast<int>(PUYO_RAD), static_cast<int>(PUYO_RAD), puyo->GetColor(), true);
-	}
-
+	nextPuyo_->Draw();
 	DrawGraph(offset_.x, offset_.y, puyoScreenID_, true);
 	DrawGraph(offset_.x, offset_.y, NoticeOzyamaScrID, true);
-	for (auto tmp : playEreaBase_)
-	{
-		if (tmp)
-		{
-			DrawFormatString(offset_.x+tmp->pos().x, offset_.y+ tmp->pos().y, 0xffffff, "%d", tmp->id());
-		}
-	}
 }
 
 void PleyErea::DrawOzyama(void)
@@ -121,7 +112,7 @@ void PleyErea::DrawOzyama(void)
 	}
 }
 
-bool PleyErea::CheckMovePuyo(PuyoUnit& puyo)
+bool PleyErea::CheckMovePuyo(sharPuyo& puyo)
 {
 	// 動いていいかのBitｾｯﾄ
 	auto tmpPos = puyo->GetGrid(blockSize_);
@@ -169,6 +160,7 @@ bool PleyErea::Init(CON_ID id)
 	stageFunc_.try_emplace(STAGE_MODE::PUYON, PuyonMode());
 	stageFunc_.try_emplace(STAGE_MODE::FALL, FallMode());
 	stageFunc_.try_emplace(STAGE_MODE::OZYAMA, OzyamaMode());
+	stageFunc_.try_emplace(STAGE_MODE::GAMEOVER, GameOverMode());
 	mode_ = STAGE_MODE::DROP;
 	playerID_ = allStage_;
 	allStage_++;
@@ -210,26 +202,15 @@ bool PleyErea::Init(CON_ID id)
 		playErea_[stgSize_.x - 1][y] = std::make_shared<Puyo>(Vector2{ (stgSize_.x - 1) * blockSize_,(y) * blockSize_ }, PUYO_ID::WALL);
 	}
 	// input作成
-	switch (id)
-	{
-	case CON_ID::KEY:
-		input_ = std::make_shared<Input*>(new keyState());
-		break;
-	case CON_ID::PAD:
-		input_ = std::make_shared<Input*>(new PadState());
-		break;
-	case CON_ID::MOUSE:
-		input_ = std::make_shared<Input*>(new MouseState());
-		break;
-	case CON_ID::MAX:
-		input_ = std::make_shared<Input*>(new keyState());
-		break;
-	default:
-		TRACE("コントローラーがdefault");
-		break;
-	}
-	nextPuyo_[0] = std::make_shared<Puyo>(Vector2{ blockSize_ * (stgSize_.x + 2),blockSize_ * 2 }, static_cast<PUYO_ID>((rand() % 5) + 1));
-	nextPuyo_[1] = std::make_shared<Puyo>(Vector2{ blockSize_ * (stgSize_.x + 2), blockSize_ * 3 }, static_cast<PUYO_ID>((rand() % 5) + 1));
+	input_.try_emplace(CON_ID::KEY, std::make_shared<Input*>(new keyState()));
+	input_.try_emplace(CON_ID::PAD, std::make_shared<Input*>(new PadState()));
+	input_.try_emplace(CON_ID::MOUSE, std::make_shared<Input*>(new MouseState()));
+
+	inputID_ = id;
+
+	Vector2 pos = { blockSize_ * (stgSize_.x + 2),blockSize_ * 2 };
+	pos += offset_;
+	nextPuyo_ = std::make_unique<NextPuyoCtl>(pos, 3, 2);
 	// ぷよのｲﾝｽﾀﾝｽ
 	InstancePuyo();
 	
@@ -303,6 +284,9 @@ bool PleyErea::SetErasePuyo(Vector2 vec, PUYO_ID id)
 			if (eraseErea_[vec.x][vec.y])
 			{
 				puyo->activ(false);
+				auto efPos = offset_ + puyo->pos() + (blockSize_ / 2);
+				efPos.x += 512 * playerID_;
+				lpEffectMng.SetEffect("ぷよ", efPos);
 				playErea_[vec.x][vec.y].reset();
 			}
 		}

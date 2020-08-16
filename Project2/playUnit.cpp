@@ -3,6 +3,11 @@
 #include "SceneMng.h"
 #include "_debug/_DebugConOut.h"
 
+std::map<int, int> playUnit::changeKey_ = {
+{0,KEY_INPUT_PGUP},
+{1,KEY_INPUT_PGDN}
+};
+
 playUnit::playUnit(PleyErea& erea):playErea_(erea)
 {
 	Init();
@@ -42,18 +47,26 @@ bool playUnit::Update(void)
 	}
 	// ‘€ì‚µ‚Ä‚¢‚é‚º‚Á
 	playErea_.puyoList_[targetID_]->playPuyo(true);
+	// ŽŸ‚Ü‚Å‚É‚Í’¼‚· —ŽG‚È‘€ìØ‚è‘Ö‚¦
+	change_.first = change_.second;
+	change_.second = CheckHitKey(changeKey_[playErea_.playerID()]);
+	if (!change_.first&& change_.second)
+	{
+		++playErea_.inputID_;
+	}
 	return true;
 }
 
 void playUnit::Init(void)
 {
 	targetID_ = 0;
+	change_ = { 0,0 };
 	keyFunc_.try_emplace(INPUT_ID::UP, [&]() {
 		// ‚È‚ñ‚à‚µ‚È‚¢
 	});
 	// Še“ü—Í—pŠÖ”“o˜^ ‚È‚ñ‚©‚Ü‚Æ‚ß‚ê‚»‚¤Š´–žÚ
 	keyFunc_.try_emplace(INPUT_ID::DOWN, [&]() {
-		if ((*playErea_.input_)->GetKeySty(INPUT_ID::DOWN))
+		if ((*playErea_.input_[playErea_.inputID_])->GetKeySty(INPUT_ID::DOWN))
 		{
 			playErea_.puyoList_[0]->SetSoftDrop();
 			playErea_.puyoList_[1]->SetSoftDrop();
@@ -61,7 +74,7 @@ void playUnit::Init(void)
 	});
 	keyFunc_.try_emplace(INPUT_ID::LEFT, [&]() {
 
-		if ((*playErea_.input_)->GetKeyTrg(INPUT_ID::LEFT))
+		if ((*playErea_.input_[playErea_.inputID_])->GetKeyTrg(INPUT_ID::LEFT))
 		{
 			auto vec1 = playErea_.puyoList_[0]->GetGrid(playErea_.blockSize_);
 			auto vec2 = playErea_.puyoList_[1]->GetGrid(playErea_.blockSize_);
@@ -76,7 +89,7 @@ void playUnit::Init(void)
 	});
 	keyFunc_.try_emplace(INPUT_ID::RIGHT, [&]() {
 
-		if ((*playErea_.input_)->GetKeyTrg(INPUT_ID::RIGHT))
+		if ((*playErea_.input_[playErea_.inputID_])->GetKeyTrg(INPUT_ID::RIGHT))
 		{
 			auto vec1 = playErea_.puyoList_[0]->GetGrid(playErea_.blockSize_);
 			auto vec2 = playErea_.puyoList_[1]->GetGrid(playErea_.blockSize_);
@@ -90,13 +103,13 @@ void playUnit::Init(void)
 		}
 	});
 	keyFunc_.try_emplace(INPUT_ID::RROTA, [&]() {
-		if ((*playErea_.input_)->GetKeyTrg(INPUT_ID::RROTA))
+		if ((*playErea_.input_[playErea_.inputID_])->GetKeyTrg(INPUT_ID::RROTA))
 		{
 			RotaPuyo(playErea_.puyoList_[targetID_]->pos(), playErea_.puyoList_[targetID_ ^ 1]->pos(), true);
 		}
 	});
 	keyFunc_.try_emplace(INPUT_ID::LROTA, [&]() {
-		if ((*playErea_.input_)->GetKeyTrg(INPUT_ID::LROTA))
+		if ((*playErea_.input_[playErea_.inputID_])->GetKeyTrg(INPUT_ID::LROTA))
 		{
 			RotaPuyo(playErea_.puyoList_[targetID_]->pos(), playErea_.puyoList_[targetID_ ^ 1]->pos(), false);
 		}

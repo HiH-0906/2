@@ -89,7 +89,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	int frame = 0;
 	bool isLeft = false;
-	while (ProcessMessage() == 0) {
+	while (ProcessMessage() == 0 && !CheckHitKey(KEY_INPUT_ESCAPE)) {
 		ClearDrawScreen();
 		GetHitKeyStateAll(keystate);
 
@@ -123,6 +123,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		}
 		else {
 			angle = 0.0f;
+		}
+		for (auto rock : rockList_)
+		{
+			rock->UpDate();
+		}
+
+		if (frame % 90 == 0)
+		{
+			rockList_.emplace_back(make_shared<Rock>(Circle{ 24,Position2{256,36} }, Position2{ 0,6 }));
 		}
 		for (auto rock : rockList_)
 		{
@@ -169,13 +178,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		for (auto rock:rockList_)
 		{
-			DrawGraph(rock->data().pos.x, rock->data().pos.y, rockH, true);
+			DrawRotaGraph(rock->data().pos.x, rock->data().pos.y, rock->GetRate(), rock->GetAngle(), rockH, true);
 		}
 
 		DrawWood(cap, woodH);
 		DrawCircle(mx, my, 30, 0xff0000, false, 3);
 		++frame;
-		
+		auto itr = std::remove_if(rockList_.begin(), rockList_.end(), [](ShareRock rock) {return !rock->GetAlive(); });
+		rockList_.erase(itr, rockList_.end());
 		ScreenFlip();
 	}
 

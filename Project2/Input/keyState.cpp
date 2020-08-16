@@ -11,7 +11,7 @@ std::map<int, keyData> keyState::_keyCon =
 				keyPair{ INPUT_ID::UP,KEY_INPUT_W },
 				keyPair{ INPUT_ID::DOWN,KEY_INPUT_S },
 				keyPair{INPUT_ID::LROTA,KEY_INPUT_X},
-				keyPair{INPUT_ID::RROTA,KEY_INPUT_C}
+				keyPair{INPUT_ID::RROTA,KEY_INPUT_C},
 				}
 	},
 	{
@@ -22,7 +22,7 @@ std::map<int, keyData> keyState::_keyCon =
 				keyPair{ INPUT_ID::UP,KEY_INPUT_UP },
 				keyPair{ INPUT_ID::DOWN,KEY_INPUT_DOWN },
 				keyPair{INPUT_ID::LROTA,KEY_INPUT_NUMPAD1},
-				keyPair{INPUT_ID::RROTA,KEY_INPUT_NUMPAD2}
+				keyPair{INPUT_ID::RROTA,KEY_INPUT_NUMPAD2},
 				}
 	},
 };

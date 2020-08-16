@@ -10,6 +10,6 @@ public:
 	void Update(const int& p_id)override final;
 	void Setting(void)override;
 private:
-	static keyData _keyCon;
+	static std::map<int, keyData> _keyCon;
 };
 
