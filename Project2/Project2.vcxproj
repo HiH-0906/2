@@ -180,6 +180,7 @@
     <ClInclude Include="Input\PadState.h" />
     <ClInclude Include="NextPuyoCtl.h" />
     <ClInclude Include="PuyoCtl\GameOverMode.h" />
+    <ClInclude Include="PuyoCtl\WinMode.h" />
     <ClInclude Include="Puyo\OzyamaPuyo.h" />
     <ClInclude Include="playUnit.h" />
     <ClInclude Include="PleyErea.h" />

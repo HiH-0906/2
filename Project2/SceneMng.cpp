@@ -1,3 +1,4 @@
+#include <time.h>
 #include <DxLib.h>
 #include "SceneMng.h"
 #include "_debug/_DebugConOut.h"
@@ -14,9 +15,17 @@ void SceneMng::Run()
 	while (!ProcessMessage() && !CheckHitKey(KEY_INPUT_ESCAPE))
 	{
 		_dbgStartDraw();
+		bool gameFlag = true;
 		for (auto&& erea:playErea_)
 		{
-			erea->UpDate();
+			gameFlag &= erea->UpDate();
+		}
+		if (!gameFlag)
+		{
+			for (auto&& erea : playErea_)
+			{
+				erea->SetWinner(true);
+			}
 		}
 		lpEffectMng.Update();
 		RunRensaQue();
@@ -75,11 +84,13 @@ bool SceneMng::SysInit(void)
 	{
 		return false;
 	}
+	srand((unsigned int)time(NULL));
 	Vector2 size = { 512, 768 };
 	Vector2 offset = { 100,64 };
 	playErea_.emplace_back(std::make_unique<PleyErea>(std::move(size),std::move(offset),CON_ID::KEY));
 	playErea_.emplace_back(std::make_unique<PleyErea>(std::move(size), std::move(offset),CON_ID::KEY));
 	lpEffectMng.Init({ screenX ,screenY });
+
 	return true;
 }
 

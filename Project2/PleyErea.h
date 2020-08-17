@@ -27,6 +27,7 @@ enum class STAGE_MODE
 	ERASE,
 	OZYAMA,
 	GAMEOVER,
+	WIN,
 };
 
 using PuyoSt = std::pair < PUYO_ID, PUYO_STATE >;
@@ -39,11 +40,12 @@ class PleyErea
 public:
 	PleyErea(Vector2&& size, Vector2&& offset, CON_ID id);
 	~PleyErea();
-	void UpDate(void);								// 更新用
+	bool UpDate(void);								// 更新用
 	const Vector2 offset(void);						// ｵﾌｾｯﾄのget	いるっけ…？
 	const int GetScreenID(void)const;				// 描画用ｽｸﾘｰﾝのget
 	void ozyamaCnt(int cnt);						// お邪魔ぷよ予約
 	const int playerID(void)const;
+	void SetWinner(bool winner);					// trueで自分が勝者
 private:
 	void InstancePuyo(void);
 	void Draw(void);								// 描画
@@ -93,5 +95,10 @@ private:
 	friend struct MunyonMode;
 	friend struct OzyamaMode;
 	friend struct GameOverMode;
+	friend struct WinMode;
+
+	// imageMng作成予定
+	static int WinImage;
+	static int LoseImage;
 };
 

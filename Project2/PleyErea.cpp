@@ -16,9 +16,12 @@
 #include "PuyoCtl/PuyonMode.h"
 #include "PuyoCtl/OzyamaMode.h"
 #include "PuyoCtl/GameOverMode.h"
+#include "PuyoCtl/WinMode.h"
 
 
 int PleyErea::allStage_ = 0;
+int PleyErea::WinImage = 0;
+int PleyErea::LoseImage = 0;
 
 PleyErea::PleyErea(Vector2&& size, Vector2&& offset, CON_ID id) :size_(size), stgSize_(STAGE_X, STAGE_Y)
 {
@@ -33,16 +36,19 @@ PleyErea::~PleyErea()
 	allStage_--;
 }
 
-void PleyErea::UpDate()
+bool PleyErea::UpDate()
 {
+	bool flag = true;
 	(*input_[inputID_])->Update(playerID_);
 	if (!stageFunc_[mode_](*this))
 	{
 		// Ç±Ç±Ç≈πﬁ∞—µ∞ ﬁ∞Ç…à⁄çsÇµÇ‹ÇµÇÂÇ§ÇÀÇ•Å`
 		TRACE("GAME OVER\n");
 		mode_ = STAGE_MODE::GAMEOVER;
+		flag = false;
 	}
 	Draw();
+	return flag;
 }
 
 void PleyErea::InstancePuyo(void)
@@ -95,6 +101,14 @@ void PleyErea::Draw(void)
 	nextPuyo_->Draw();
 	DrawGraph(offset_.x, offset_.y, puyoScreenID_, true);
 	DrawGraph(offset_.x, offset_.y, NoticeOzyamaScrID, true);
+	if (mode_ == STAGE_MODE::WIN)
+	{
+		DrawGraph(0, 128, WinImage, true);
+	}
+	if (mode_ == STAGE_MODE::GAMEOVER)
+	{
+		DrawGraph(0, 128, LoseImage, true);
+	}
 }
 
 void PleyErea::DrawOzyama(void)
@@ -161,6 +175,7 @@ bool PleyErea::Init(CON_ID id)
 	stageFunc_.try_emplace(STAGE_MODE::FALL, FallMode());
 	stageFunc_.try_emplace(STAGE_MODE::OZYAMA, OzyamaMode());
 	stageFunc_.try_emplace(STAGE_MODE::GAMEOVER, GameOverMode());
+	stageFunc_.try_emplace(STAGE_MODE::WIN, WinMode());
 	mode_ = STAGE_MODE::DROP;
 	playerID_ = allStage_;
 	allStage_++;
@@ -214,6 +229,9 @@ bool PleyErea::Init(CON_ID id)
 	// Ç’ÇÊÇÃ≤›Ω¿›Ω
 	InstancePuyo();
 	
+	WinImage = LoadGraph("image/Ç‚Ç¡ÇΩÅ[.png", true);
+	LoseImage = LoadGraph("image/ÇŒÇΩÇÒÇ´Ç„Å[.png", true);
+
 	return true;
 }
 
@@ -339,5 +357,13 @@ void PleyErea::FallOzyama()
 const int PleyErea::playerID(void) const
 {
 	return playerID_;
+}
+
+void PleyErea::SetWinner(bool winner)
+{
+	if (winner && mode_ != STAGE_MODE::GAMEOVER)
+	{
+		mode_ = STAGE_MODE::WIN;
+	}
 }
 
