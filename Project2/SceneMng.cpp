@@ -1,6 +1,8 @@
 #include <time.h>
 #include <DxLib.h>
 #include "SceneMng.h"
+#include "TitleScene.h"
+#include "GameScene.h"
 #include "_debug/_DebugConOut.h"
 #include "_debug/_DebugDispOut.h"
 #include "State/CON_ID.h"
@@ -12,9 +14,12 @@ std::unique_ptr<SceneMng, SceneMng::SceneMngDeleter> SceneMng::s_instance(new Sc
 void SceneMng::Run()
 {
 	_dbgSetup(screenX, screenY, 16);
+
+	_activeScene = std::make_unique<TitleScene>();
+
 	while (!ProcessMessage() && !CheckHitKey(KEY_INPUT_ESCAPE))
 	{
-		_dbgStartDraw();
+		/*_dbgStartDraw();
 		bool gameFlag = true;
 		for (auto&& erea:playErea_)
 		{
@@ -26,7 +31,8 @@ void SceneMng::Run()
 			{
 				erea->SetWinner(true);
 			}
-		}
+		}*/
+		_activeScene = (*_activeScene).Update(std::move(_activeScene));
 		lpEffectMng.Update();
 		RunRensaQue();
 		Draw();
@@ -48,30 +54,14 @@ void SceneMng::Draw()
 {
 	SetDrawScreen(DX_SCREEN_BACK);
 	ClsDrawScreen();
-	for (size_t i = 0; i < playErea_.size(); i++)
-	{
-		DrawGraph(static_cast<int>(i) * 512, 0, playErea_[i]->GetScreenID(), true);
-	}
-	lpEffectMng.Draw();
+	_activeScene->Draw();
 	_dbgAddDraw();
 	ScreenFlip();
 }
 
 void SceneMng::RunRensaQue(void)
 {
-	int id, rensa, cnt;
-	for (auto que : rensaQue_)
-	{
-		std::tie(id, rensa, cnt) = que;
-		for (auto&& stage:playErea_)
-		{
-			if (stage->playerID() == id)
-			{
-				continue;
-			}
-			stage->ozyamaCnt(rensa);
-		}
-	}
+	_activeScene->RunRensaQue(rensaQue_);
 	rensaQue_.clear();
 }
 
@@ -84,11 +74,6 @@ bool SceneMng::SysInit(void)
 	{
 		return false;
 	}
-	srand((unsigned int)time(NULL));
-	Vector2 size = { 512, 768 };
-	Vector2 offset = { 100,64 };
-	playErea_.emplace_back(std::make_unique<PleyErea>(std::move(size),std::move(offset),CON_ID::KEY));
-	playErea_.emplace_back(std::make_unique<PleyErea>(std::move(size), std::move(offset),CON_ID::KEY));
 	lpEffectMng.Init({ screenX ,screenY });
 
 	return true;

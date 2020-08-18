@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include <vector>
+#include "BaseScene.h"
 #include "PleyErea.h"
 
 #define PUYO_RAD 16
@@ -17,7 +18,7 @@ enum class RENSA_DATA
 };
 
 #define lpSceneMng SceneMng::GetInstance()
-using RENSA_QUE = std::tuple<int, int,int>;						// 連鎖数通知用ｷｭｰ?playerIDと連鎖数と消した数
+
 
 class SceneMng
 {
@@ -39,6 +40,8 @@ private:
 		}
 	};
 
+	unipueBase _activeScene;					// ﾕﾆｰｸﾎﾟｲﾝﾀ
+
 	const int screenX;
 	const int screenY;
 	void Draw();
@@ -47,6 +50,6 @@ private:
 	SceneMng();
 	~SceneMng();
 	static std::unique_ptr<SceneMng,SceneMngDeleter> s_instance;
-	std::vector<std::unique_ptr<PleyErea>> playErea_;
+	//std::vector<std::unique_ptr<PleyErea>> playErea_;
 };
 

@@ -154,7 +154,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BaseScene.cpp" />
     <ClCompile Include="EffectMng.cpp" />
+    <ClCompile Include="GameScene.cpp" />
     <ClCompile Include="Input\Input.cpp" />
     <ClCompile Include="Input\keyState.cpp" />
     <ClCompile Include="main.cpp" />
@@ -167,13 +169,16 @@
     <ClCompile Include="Puyo\Puyo.cpp" />
     <ClCompile Include="SceneMng.cpp" />
     <ClCompile Include="State\INPUT_ID.cpp" />
+    <ClCompile Include="TitleScene.cpp" />
     <ClCompile Include="_debug\_DebugConOut.cpp" />
     <ClCompile Include="_debug\_DebugDispOut.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BaseScene.h" />
     <ClInclude Include="common\details\Vector2.h" />
     <ClInclude Include="common\Vector2.h" />
     <ClInclude Include="EffectMng.h" />
+    <ClInclude Include="GameScene.h" />
     <ClInclude Include="Input\Input.h" />
     <ClInclude Include="Input\keyState.h" />
     <ClInclude Include="Input\MouseState.h" />
@@ -195,6 +200,7 @@
     <ClInclude Include="State\CON_ID.h" />
     <ClInclude Include="State\INPUT_ID.h" />
     <ClInclude Include="State\PUYO_ID.h" />
+    <ClInclude Include="TitleScene.h" />
     <ClInclude Include="_debug\_DebugConOut.h" />
     <ClInclude Include="_debug\_DebugDispOut.h" />
   </ItemGroup>
