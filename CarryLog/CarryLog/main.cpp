@@ -1,4 +1,5 @@
 #include<DxLib.h>
+#include<algorithm>
 #include<cmath>
 #include<memory>
 #include<vector>
