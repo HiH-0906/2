@@ -4,12 +4,12 @@
 
 struct OzyamaMode
 {
-	bool operator ()(PleyErea& stage)
+	int operator ()(PleyErea& stage)
 	{
 		stage.FallOzyama();
 		// óéÇ∆Ç∑Å[
 		stage.stageFunc_[STAGE_MODE::FALL](stage);
 		stage.mode_ = STAGE_MODE::FALL;
-		return true;
+		return 0;
 	}
 };

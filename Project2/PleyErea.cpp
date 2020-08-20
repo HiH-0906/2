@@ -23,9 +23,10 @@ int PleyErea::allStage_ = 0;
 int PleyErea::WinImage = 0;
 int PleyErea::LoseImage = 0;
 
-PleyErea::PleyErea(Vector2&& size, Vector2&& offset, CON_ID id) :size_(size), stgSize_(STAGE_X, STAGE_Y)
+PleyErea::PleyErea(Vector2&& size, Vector2&& offset, Vector2&& pos, CON_ID id) :size_(size), stgSize_(STAGE_X, STAGE_Y)
 {
 	offset_ = offset;
+	pos_ = pos;
 	Init(id);
 	(*input_[inputID_])->Setting();
 }
@@ -36,19 +37,18 @@ PleyErea::~PleyErea()
 	allStage_--;
 }
 
-bool PleyErea::UpDate()
+int PleyErea::UpDate()
 {
-	bool flag = true;
 	(*input_[inputID_])->Update(playerID_);
-	if (!stageFunc_[mode_](*this))
+	int reNum = stageFunc_[mode_](*this);
+	if (reNum == -1)
 	{
-		// ‚±‚±‚Å¹Þ°Ñµ°ÊÞ°‚ÉˆÚs‚µ‚Ü‚µ‚å‚¤‚Ë‚¥`
+		// ‚±‚±‚Å¹Þ°Ñµ°ÊÞ°‚ÉˆÚs
 		TRACE("GAME OVER\n");
 		mode_ = STAGE_MODE::GAMEOVER;
-		flag = false;
 	}
 	Draw();
-	return flag;
+	return reNum;
 }
 
 void PleyErea::InstancePuyo(void)
@@ -68,7 +68,7 @@ void PleyErea::Draw(void)
 	// ‚Õ‚æ‘€ìêŠ•`‰æ
 	SetDrawScreen(puyoScreenID_);
 	ClsDrawScreen();
-	DrawBox(0, 0, (STAGE_X) * (PUYO_SIZE), (STAGE_Y)*PUYO_SIZE, color_, true);
+	//DrawBox(0, 0, (STAGE_X) * (PUYO_SIZE), (STAGE_Y)*PUYO_SIZE, color_, true);
 	DrawBox(PUYO_SIZE, PUYO_SIZE, (STAGE_X - 1) * PUYO_SIZE, (STAGE_Y - 1) * PUYO_SIZE, 0xffffff, false);
 	// ‚Õ‚æ[‚ñŽž‚Ç‚ê‚¾‚¯’¾‚Þ‚©
 	for (auto&& list : puyoList_)
@@ -304,7 +304,7 @@ bool PleyErea::SetErasePuyo(Vector2 vec, PUYO_ID id)
 				puyo->activ(false);
 				auto efPos = offset_ + puyo->pos() + (blockSize_ / 2);
 				efPos.x += 512 * playerID_;
-				lpEffectMng.SetEffect("‚Õ‚æ", efPos);
+				lpEffectMng.SetEffect("‚Õ‚æ", efPos,SCREEN_ID::PLAY);
 				playErea_[vec.x][vec.y].reset();
 			}
 		}
@@ -365,5 +365,10 @@ void PleyErea::SetWinner(bool winner)
 	{
 		mode_ = STAGE_MODE::WIN;
 	}
+}
+
+const Vector2 PleyErea::pos(void) const
+{
+	return pos_;
 }
 

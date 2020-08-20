@@ -1,8 +1,10 @@
 #pragma once
 #include <memory>
 #include <vector>
+#include "common/Vector2.h"
 #include "BaseScene.h"
 #include "PleyErea.h"
+#include "State/SCREEN_ID.h"
 
 #define PUYO_RAD 16
 #define PUYO_SIZE (PUYO_RAD*2)
@@ -17,7 +19,11 @@ enum class RENSA_DATA
 	CNT
 };
 
+
 #define lpSceneMng SceneMng::GetInstance()
+
+using DrawQueT = std::tuple<Vector2&, int&, SCREEN_ID>;
+using DrawList = std::vector<DrawQueT>;
 
 
 class SceneMng
@@ -28,9 +34,9 @@ public:
 		return *s_instance;
 	}
 	void Run();
-	void AddRensaQue(RENSA_QUE&& que);
 	const Vector2 screenSize(void)const;
 	bool SysInit(void);
+	void AddDrawList(DrawQueT&& que);
 private:
 	struct SceneMngDeleter
 	{
@@ -40,16 +46,18 @@ private:
 		}
 	};
 
-	unipueBase _activeScene;					// ÕÆ°¸Îß²ÝÀ
+	unipueBase activeScene_;					// ÕÆ°¸Îß²ÝÀ
 
+	std::map<SCREEN_ID, std::vector<std::pair<int, Vector2>>> DrawMap;
+	std::map<SCREEN_ID, std::vector<int>> EffectMap;
+
+	DrawList drawList_;
 	const int screenX;
 	const int screenY;
+
 	void Draw();
-	void RunRensaQue(void);
-	std::vector<RENSA_QUE> rensaQue_;
 	SceneMng();
 	~SceneMng();
 	static std::unique_ptr<SceneMng,SceneMngDeleter> s_instance;
-	//std::vector<std::unique_ptr<PleyErea>> playErea_;
 };
 

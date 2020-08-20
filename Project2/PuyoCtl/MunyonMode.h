@@ -4,7 +4,7 @@
 
 struct MunyonMode
 {
-	bool operator ()(PleyErea& stage)
+	int operator ()(PleyErea& stage)
 	{
 		// ‚¿‚å‚Á‚Æ‚¾‚¯²İÀ°ÊŞÙ”­¶‚³‚¹‚Ä‚é
 		bool muyon = false;
@@ -19,6 +19,6 @@ struct MunyonMode
 			// ‚Ş‚æ[‚ñ¶³İÄŒãÁ‹
 			stage.mode_ = STAGE_MODE::ERASE;
 		}
-		return true;
+		return 0;
 	}
 };

@@ -15,34 +15,15 @@ void SceneMng::Run()
 {
 	_dbgSetup(screenX, screenY, 16);
 
-	_activeScene = std::make_unique<TitleScene>();
+	activeScene_ = std::make_unique<GameScene>();
 
 	while (!ProcessMessage() && !CheckHitKey(KEY_INPUT_ESCAPE))
 	{
-		/*_dbgStartDraw();
-		bool gameFlag = true;
-		for (auto&& erea:playErea_)
-		{
-			gameFlag &= erea->UpDate();
-		}
-		if (!gameFlag)
-		{
-			for (auto&& erea : playErea_)
-			{
-				erea->SetWinner(true);
-			}
-		}*/
-		_activeScene = (*_activeScene).Update(std::move(_activeScene));
+		activeScene_ = (*activeScene_).Update(std::move(activeScene_));
 		lpEffectMng.Update();
-		RunRensaQue();
 		Draw();
 	}
 	DxLib::DxLib_End();
-}
-
-void SceneMng::AddRensaQue(RENSA_QUE&& que)
-{
-	rensaQue_.push_back(std::move(que));
 }
 
 const Vector2 SceneMng::screenSize(void) const
@@ -54,15 +35,29 @@ void SceneMng::Draw()
 {
 	SetDrawScreen(DX_SCREEN_BACK);
 	ClsDrawScreen();
-	_activeScene->Draw();
+
+	Vector2 pos;
+	int data;
+	SCREEN_ID id;
+	std::pair<int, Vector2> tmp;
+	for (auto que : drawList_)
+	{
+		std::tie(pos, data, id) = que;
+		tmp = { data,pos };
+		DrawMap[id].emplace_back(tmp);
+	}
+	auto List = lpEffectMng.GeteffectList();
+	for (auto que : List)
+	{
+		EffectMap[que.second].emplace_back(que.first);
+	}
+	for (auto id:SCREEN_ID())
+	{
+
+	}
+	activeScene_->Draw();
 	_dbgAddDraw();
 	ScreenFlip();
-}
-
-void SceneMng::RunRensaQue(void)
-{
-	_activeScene->RunRensaQue(rensaQue_);
-	rensaQue_.clear();
 }
 
 bool SceneMng::SysInit(void)
@@ -75,8 +70,12 @@ bool SceneMng::SysInit(void)
 		return false;
 	}
 	lpEffectMng.Init({ screenX ,screenY });
-
 	return true;
+}
+
+void SceneMng::AddDrawList(DrawQueT&& que)
+{
+	drawList_.emplace_back(que);
 }
 
 SceneMng::SceneMng():screenX(1024),screenY(768)

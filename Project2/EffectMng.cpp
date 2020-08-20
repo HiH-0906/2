@@ -21,8 +21,8 @@ bool EffectMng::Init(Vector2&& size)
 void EffectMng::Update(void)
 {
 	UpdateEffekseer2D();
-	auto itr = std::remove_if(playList_.begin(), playList_.end(), [&](int data) {return !IsEffekseer2DEffectPlaying(data); });
-	playList_.erase(itr, playList_.end());
+	auto itr = std::remove_if(effectList_.begin(), effectList_.end(), [&](EffectPair data) {return !IsEffekseer2DEffectPlaying(data.first); });
+	effectList_.erase(itr, effectList_.end());
 }
 
 void EffectMng::Draw(void)
@@ -30,19 +30,25 @@ void EffectMng::Draw(void)
 	DrawEffekseer2D();
 }
 
+const EffectList EffectMng::GeteffectList(void) const
+{
+	return effectList_;
+}
+
 bool EffectMng::StopAll(void)
 {
-	for (auto handle:playList_)
+	for (auto handle: effectList_)
 	{
-		StopEffekseer2DEffect(handle);
+		StopEffekseer2DEffect(handle.first);
 	}
 	return true;
 }
 
-void EffectMng::SetEffect(std::string name, Vector2 pos)
+void EffectMng::SetEffect(std::string name, Vector2 pos, SCREEN_ID id)
 {
-	playList_.emplace_front(PlayEffekseer2DEffect(GetHandle(name)));
-	SetPosPlayingEffekseer2DEffect(playList_.front(),static_cast<float>(pos.x), static_cast<float>(pos.y), 0);
+	EffectPair pair = { PlayEffekseer2DEffect(GetHandle(name)),id };
+	effectList_.emplace_front(pair);
+	SetPosPlayingEffekseer2DEffect(effectList_.front().first,static_cast<float>(pos.x), static_cast<float>(pos.y), 0);
 }
 
 const int EffectMng::GetHandle(std::string name)

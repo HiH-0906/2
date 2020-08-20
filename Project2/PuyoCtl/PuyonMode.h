@@ -3,7 +3,7 @@
 
 struct PuyonMode
 {
-	bool operator ()(PleyErea& stage)
+	int operator ()(PleyErea& stage)
 	{
 		// ぷよーんしてるやつがいるかどうか
 		bool puyon = false;
@@ -28,7 +28,7 @@ struct PuyonMode
 			// ｹﾞｰﾑｵｰﾊﾞｰ位置判別
 			if (stage.playErea_[4][1])
 			{
-				return false;
+				return -1;
 			}
 			// むよーんﾁｪｯｸ
 			for (auto&& puyo : stage.puyoList_)
@@ -46,6 +46,6 @@ struct PuyonMode
 			// むよーん
 			stage.mode_ = STAGE_MODE::MUNYON;
 		}
-		return true;
+		return 0;
 	}
 };

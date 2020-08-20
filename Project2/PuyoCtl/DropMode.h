@@ -4,12 +4,12 @@
 
 struct DropMode 
 {
-	bool operator ()(PleyErea& stage)
+	int operator ()(PleyErea& stage)
 	{
 		// —‚Æ‚·[
 		stage.stageFunc_[STAGE_MODE::FALL](stage);
 		// ‘€ì
 		stage.playUnit_->Update();
-		return true;
+		return 0;
 	}
 };

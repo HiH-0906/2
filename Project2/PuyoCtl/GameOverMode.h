@@ -4,8 +4,8 @@
 
 struct GameOverMode
 {
-	bool operator ()(PleyErea& stage)
+	int operator ()(PleyErea& stage)
 	{
-		return true;
+		return 0;
 	}
 };

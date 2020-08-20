@@ -3,8 +3,9 @@
 
 struct EraseMode
 {
-	bool operator ()(PleyErea& stage)
+	int operator ()(PleyErea& stage)
 	{
+		int reNum = 0;
 		// è¡Ç∑ìzÇ™Ç†ÇÈÇ©Ç«Ç§Ç©
 		bool delFlag = false;
 		std::for_each(stage.puyoList_.rbegin(), stage.puyoList_.rend(), [&](sharPuyo& puyo) {
@@ -56,8 +57,8 @@ struct EraseMode
 					{
 						stage.ozyamaCnt_ = 0;
 					}
-					lpSceneMng.AddRensaQue(RENSA_QUE{ stage.playerID_,abs(checkNum),stage.eraseCnt_ });
-					
+					//lpSceneMng.AddRensaQue(RENSA_QUE{ stage.playerID_,abs(checkNum),stage.eraseCnt_ });
+					reNum = abs(checkNum);
 				}
 				stage.rensaNum_ = 0;
 				stage.eraseCnt_ = 0;
@@ -66,12 +67,12 @@ struct EraseMode
 			if (stage.ozyamaCnt_)
 			{
 				stage.mode_ = STAGE_MODE::OZYAMA;
-				return true;
+				return reNum;
 			}
 			stage.InstancePuyo();
 			stage.CheckMovePuyo(stage.puyoList_[0]);
 			stage.mode_ = STAGE_MODE::DROP;
 		}
-		return true;
+		return reNum;
 	}
 };

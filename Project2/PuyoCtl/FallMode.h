@@ -3,7 +3,7 @@
 
 struct FallMode
 {
-	bool operator ()(PleyErea& stage)
+	int operator ()(PleyErea& stage)
 	{
 		std::for_each(stage.puyoList_.rbegin(), stage.puyoList_.rend(), [&](sharPuyo& puyo) {
 			// “®‚¢‚Ä‚¢‚¢[H
@@ -57,6 +57,6 @@ struct FallMode
 				}
 			}
 		}
-		return true;
+		return 0;
 	}
 };

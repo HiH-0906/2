@@ -96,13 +96,14 @@ bool Puyo::Update(void)
 void Puyo::Draw(int cnt)
 {
 	auto puyon = abs(abs(puyonCnt_ - 6) - 6);
-	DrawOval(static_cast<int>(pos_.x + rad_), static_cast<int>(pos_.y + rad_ + puyon + ((puyon * 2) * cnt)), static_cast<int>(rad_ + (puyon / 2)), static_cast<int>(rad_ - puyon), colorList_[id_], true);
-	//DrawFormatString(pos_.x, pos_.y, 0xffffff, "%d", id_);
 	if (playPuyo_)
 	{
-		int tmpRad = 8;
-		DrawOval(static_cast<int>(pos_.x + rad_), static_cast<int>(pos_.y + rad_ + puyon + ((puyon * 2) * cnt)), static_cast<int>(tmpRad), static_cast<int>(tmpRad - puyon), 0x222222, true);
+		int tmpRad = rad_+2;
+		DrawOval(static_cast<int>(pos_.x + rad_), static_cast<int>(pos_.y + rad_ + puyon + ((puyon * 2) * cnt)), static_cast<int>(tmpRad), static_cast<int>(tmpRad - puyon), 0xffffff, true);
 	}
+	DrawOval(static_cast<int>(pos_.x + rad_), static_cast<int>(pos_.y + rad_ + puyon + ((puyon * 2) * cnt)), static_cast<int>(rad_ + (puyon / 2)), static_cast<int>(rad_ - puyon), colorList_[id_], true);
+	//DrawFormatString(pos_.x, pos_.y, 0xffffff, "%d", id_);
+
 	if (munyonmit_.perbit.up)
 	{
 		DrawBox(pos_.x - (puyon / 2), (pos_.y + puyon + ((puyon * 3) * cnt)), (1 + (pos_.x) + rad_ * 2) + (puyon / 2), (pos_.y + puyon + ((puyon * 2) * cnt)) + rad_, colorList_[id_], true);
