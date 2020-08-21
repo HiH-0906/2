@@ -8,7 +8,6 @@ class GameScene:
 public:
 	GameScene();
 	~GameScene();
-	virtual void Draw(void) override final;
 	virtual unipueBase Update(unipueBase own) override final;
 private:
 	std::vector<std::unique_ptr<PleyErea>> playErea_;

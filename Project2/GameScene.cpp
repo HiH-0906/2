@@ -16,15 +16,6 @@ GameScene::~GameScene()
 {
 }
 
-void GameScene::Draw(void)
-{
-	for (size_t i = 0; i < playErea_.size(); i++)
-	{
-		DrawGraph(playErea_[i]->pos().x, playErea_[i]->pos().y, playErea_[i]->GetScreenID(), true);
-	}
-	lpEffectMng.Draw();
-}
-
 unipueBase GameScene::Update(unipueBase own)
 {
 	_dbgStartDraw();

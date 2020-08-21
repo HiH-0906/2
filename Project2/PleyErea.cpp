@@ -68,7 +68,7 @@ void PleyErea::Draw(void)
 	// ‚Õ‚æ‘€ìêŠ•`‰æ
 	SetDrawScreen(puyoScreenID_);
 	ClsDrawScreen();
-	//DrawBox(0, 0, (STAGE_X) * (PUYO_SIZE), (STAGE_Y)*PUYO_SIZE, color_, true);
+	DrawBox(0, 0, (STAGE_X) * (PUYO_SIZE), (STAGE_Y)*PUYO_SIZE, color_, true);
 	DrawBox(PUYO_SIZE, PUYO_SIZE, (STAGE_X - 1) * PUYO_SIZE, (STAGE_Y - 1) * PUYO_SIZE, 0xffffff, false);
 	// ‚Õ‚æ[‚ñŽž‚Ç‚ê‚¾‚¯’¾‚Þ‚©
 	for (auto&& list : puyoList_)
@@ -109,6 +109,8 @@ void PleyErea::Draw(void)
 	{
 		DrawGraph(0, 128, LoseImage, true);
 	}
+	auto tmpPos = pos_ + (size_ / 2);
+	lpSceneMng.AddDrawList({ tmpPos,screenID_,1.0,0.0,0,SCREEN_ID::PLAY ,DATA_TYPE::IMG ,true});
 }
 
 void PleyErea::DrawOzyama(void)
@@ -303,7 +305,7 @@ bool PleyErea::SetErasePuyo(Vector2 vec, PUYO_ID id)
 			{
 				puyo->activ(false);
 				auto efPos = offset_ + puyo->pos() + (blockSize_ / 2);
-				efPos.x += 512 * playerID_;
+				efPos += pos_;
 				lpEffectMng.SetEffect("‚Õ‚æ", efPos,SCREEN_ID::PLAY);
 				playErea_[vec.x][vec.y].reset();
 			}

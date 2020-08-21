@@ -98,7 +98,7 @@ void Puyo::Draw(int cnt)
 	auto puyon = abs(abs(puyonCnt_ - 6) - 6);
 	if (playPuyo_)
 	{
-		int tmpRad = rad_+2;
+		int tmpRad = rad_ + 2;
 		DrawOval(static_cast<int>(pos_.x + rad_), static_cast<int>(pos_.y + rad_ + puyon + ((puyon * 2) * cnt)), static_cast<int>(tmpRad), static_cast<int>(tmpRad - puyon), 0xffffff, true);
 	}
 	DrawOval(static_cast<int>(pos_.x + rad_), static_cast<int>(pos_.y + rad_ + puyon + ((puyon * 2) * cnt)), static_cast<int>(rad_ + (puyon / 2)), static_cast<int>(rad_ - puyon), colorList_[id_], true);

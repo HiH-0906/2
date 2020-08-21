@@ -35,29 +35,75 @@ void SceneMng::Draw()
 {
 	SetDrawScreen(DX_SCREEN_BACK);
 	ClsDrawScreen();
+	DATA_TYPE type;
 
-	Vector2 pos;
-	int data;
-	SCREEN_ID id;
-	std::pair<int, Vector2> tmp;
-	for (auto que : drawList_)
+	std::sort(drawList_.begin(), drawList_.end(), [](DrawQueT& que1, DrawQueT& que2)
 	{
-		std::tie(pos, data, id) = que;
-		tmp = { data,pos };
-		DrawMap[id].emplace_back(tmp);
-	}
-	auto List = lpEffectMng.GeteffectList();
-	for (auto que : List)
-	{
-		EffectMap[que.second].emplace_back(que.first);
-	}
-	for (auto id:SCREEN_ID())
-	{
+		return std::tie(std::get<static_cast<int>(DRAW_QUE::ID)>(que1), std::get<static_cast<int>(DRAW_QUE::ZODER)>(que1))
+			<
+			std::tie(std::get<static_cast<int>(DRAW_QUE::ID)>(que2), std::get<static_cast<int>(DRAW_QUE::ZODER)>(que2));
+	});
 
+	SCREEN_ID id,nextId;
+	id = SCREEN_ID::BG;
+	SetDrawScreen(drawScreen_[SCREEN_ID::BG]);
+	ClsDrawScreen();
+	for (auto& que:drawList_)
+	{
+		type = std::get<static_cast<int>(DRAW_QUE::TYPE)>(que);
+		nextId = std::get<static_cast<int>(DRAW_QUE::ID)>(que);
+		if (id != nextId)
+		{
+			SetDrawScreen(drawScreen_[nextId]);
+			ClsDrawScreen();
+			id = nextId;
+		}
+
+		(this->*drawFunc_[type])(std::move(que));
 	}
-	activeScene_->Draw();
+	auto itr = std::remove_if(drawList_.begin(), drawList_.end(), [](DrawQueT& que)
+	{
+		return std::get<static_cast<int>(DRAW_QUE::FLAG)>(que);
+	});
+	drawList_.erase(drawList_.begin(), itr);
+
+	SetDrawScreen(DX_SCREEN_BACK);
+	ClsDrawScreen();
+
+	for (auto tmpid : SCREEN_ID())
+	{
+		DrawGraph(0, 0, drawScreen_[tmpid], true);
+	}
+
 	_dbgAddDraw();
 	ScreenFlip();
+}
+
+void SceneMng::EffectDraw(DrawQueT&& que)
+{
+	int handle = std::get<static_cast<int>(DRAW_QUE::HANDLE)>(que);
+	if (IsEffekseer2DEffectPlaying(handle) != 0)
+	{
+		DrawQueT tmpque = DrawQueT{ Vector2{}, 0, 0.0, 0.0, 0, SCREEN_ID::MAX, DATA_TYPE::EFFECT, false };
+		que = tmpque;
+		return;
+	}
+	DrawEffekseer2D_Begin();
+	DrawEffekseer2D_Draw(handle);
+	DrawEffekseer2D_End();
+}
+
+void SceneMng::ImageDraw(DrawQueT&& que)
+{
+	int handle;
+	double rate,rad;
+	Vector2 pos;
+
+	std::tie(pos, handle, rate, rad, std::ignore, std::ignore, std::ignore,std::ignore) = que;
+
+	DrawRotaGraph(pos.x, pos.y, rate, rad, handle, true);
+	DrawQueT tmpque = DrawQueT{ Vector2{}, 0, 0.0, 0.0, 0, SCREEN_ID::MAX, DATA_TYPE::IMG, false };
+	que = tmpque;
 }
 
 bool SceneMng::SysInit(void)
@@ -70,6 +116,11 @@ bool SceneMng::SysInit(void)
 		return false;
 	}
 	lpEffectMng.Init({ screenX ,screenY });
+	drawFunc_.try_emplace(DATA_TYPE::IMG, &SceneMng::ImageDraw);
+	drawFunc_.try_emplace(DATA_TYPE::EFFECT, &SceneMng::EffectDraw);
+	drawScreen_.try_emplace(SCREEN_ID::BG, MakeScreen(screenX, screenY));
+	drawScreen_.try_emplace(SCREEN_ID::PLAY, MakeScreen(screenX, screenY));
+	drawScreen_.try_emplace(SCREEN_ID::FRONT, MakeScreen(screenX, screenY));
 	return true;
 }
 

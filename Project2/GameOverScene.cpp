@@ -18,7 +18,3 @@ unipueBase GameOverScene::Update(unipueBase own)
 	}
 	return std::move(own);
 }
-
-void GameOverScene::Draw(void)
-{
-}

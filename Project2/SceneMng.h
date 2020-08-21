@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include <vector>
+#include <functional>
 #include "common/Vector2.h"
 #include "BaseScene.h"
 #include "PleyErea.h"
@@ -20,9 +21,27 @@ enum class RENSA_DATA
 };
 
 
+enum class DATA_TYPE
+{
+	IMG,
+	EFFECT
+};
+
+enum class DRAW_QUE
+{
+	POS,
+	HANDLE,
+	RATE,
+	RAD,
+	ZODER,
+	ID,
+	TYPE,
+	FLAG
+};
+
 #define lpSceneMng SceneMng::GetInstance()
 
-using DrawQueT = std::tuple<Vector2&, int&, SCREEN_ID>;
+using DrawQueT = std::tuple<Vector2, int, double, double, int, SCREEN_ID, DATA_TYPE,bool>;
 using DrawList = std::vector<DrawQueT>;
 
 
@@ -54,6 +73,13 @@ private:
 	DrawList drawList_;
 	const int screenX;
 	const int screenY;
+
+	std::map<DATA_TYPE, void(SceneMng::*)(DrawQueT&&)> drawFunc_;
+
+	std::map<SCREEN_ID, int> drawScreen_;
+
+	void EffectDraw(DrawQueT&& que);
+	void ImageDraw(DrawQueT&& que);
 
 	void Draw();
 	SceneMng();

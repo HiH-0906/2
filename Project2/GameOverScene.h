@@ -7,7 +7,6 @@ public:
 	GameOverScene();
 	~GameOverScene();
 	unipueBase Update(unipueBase own)override final;
-	void Draw(void)override final;
 private:
 };
 
