@@ -2,10 +2,10 @@
 #include <memory>
 #include <vector>
 #include <functional>
-#include "common/Vector2.h"
+#include "../common/Vector2.h"
 #include "BaseScene.h"
-#include "PleyErea.h"
-#include "State/SCREEN_ID.h"
+#include "../PleyErea.h"
+#include "../State/SCREEN_ID.h"
 
 #define PUYO_RAD 16
 #define PUYO_SIZE (PUYO_RAD*2)

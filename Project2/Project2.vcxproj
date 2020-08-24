@@ -154,10 +154,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="BaseScene.cpp" />
+    <ClCompile Include="ImageMng.cpp" />
+    <ClCompile Include="Scene\BaseScene.cpp" />
     <ClCompile Include="EffectMng.cpp" />
-    <ClCompile Include="GameOverScene.cpp" />
-    <ClCompile Include="GameScene.cpp" />
+    <ClCompile Include="Scene\GameOverScene.cpp" />
+    <ClCompile Include="Scene\GameScene.cpp" />
     <ClCompile Include="Input\Input.cpp" />
     <ClCompile Include="Input\keyState.cpp" />
     <ClCompile Include="main.cpp" />
@@ -168,19 +169,20 @@
     <ClCompile Include="playUnit.cpp" />
     <ClCompile Include="PleyErea.cpp" />
     <ClCompile Include="Puyo\Puyo.cpp" />
-    <ClCompile Include="SceneMng.cpp" />
+    <ClCompile Include="Scene\SceneMng.cpp" />
     <ClCompile Include="State\INPUT_ID.cpp" />
-    <ClCompile Include="TitleScene.cpp" />
+    <ClCompile Include="Scene\TitleScene.cpp" />
     <ClCompile Include="_debug\_DebugConOut.cpp" />
     <ClCompile Include="_debug\_DebugDispOut.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="BaseScene.h" />
+    <ClInclude Include="ImageMng.h" />
+    <ClInclude Include="Scene\BaseScene.h" />
     <ClInclude Include="common\details\Vector2.h" />
     <ClInclude Include="common\Vector2.h" />
     <ClInclude Include="EffectMng.h" />
-    <ClInclude Include="GameOverScene.h" />
-    <ClInclude Include="GameScene.h" />
+    <ClInclude Include="Scene\GameOverScene.h" />
+    <ClInclude Include="Scene\GameScene.h" />
     <ClInclude Include="Input\Input.h" />
     <ClInclude Include="Input\keyState.h" />
     <ClInclude Include="Input\MouseState.h" />
@@ -198,12 +200,12 @@
     <ClInclude Include="PuyoCtl\OzyamaMode.h" />
     <ClInclude Include="PuyoCtl\PuyonMode.h" />
     <ClInclude Include="PuyoCtl\FallMode.h" />
-    <ClInclude Include="SceneMng.h" />
+    <ClInclude Include="Scene\SceneMng.h" />
     <ClInclude Include="State\CON_ID.h" />
     <ClInclude Include="State\INPUT_ID.h" />
     <ClInclude Include="State\PUYO_ID.h" />
     <ClInclude Include="State\SCREEN_ID.h" />
-    <ClInclude Include="TitleScene.h" />
+    <ClInclude Include="Scene\TitleScene.h" />
     <ClInclude Include="_debug\_DebugConOut.h" />
     <ClInclude Include="_debug\_DebugDispOut.h" />
   </ItemGroup>

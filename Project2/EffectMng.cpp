@@ -50,13 +50,13 @@ void EffectMng::SetEffect(std::string name, Vector2 pos, SCREEN_ID id)
 	//effectList_.emplace_front(pair);
 	int handle = PlayEffekseer2DEffect(GetHandle(name));
 	SetPosPlayingEffekseer2DEffect(handle, static_cast<float>(pos.x), static_cast<float>(pos.y), 0);
-	DrawQueT que = { pos,handle ,0.0,0.0,1,id,DATA_TYPE::EFFECT ,true};
+	DrawQueT que = { pos,handle ,0.0,0.0,9999,id,DATA_TYPE::EFFECT ,true};
 	lpSceneMng.AddDrawList(std::move(que));
 }
 
 const int EffectMng::GetHandle(std::string name)
 {
-	effectHandle_.try_emplace(name, LoadEffekseerEffect(("effect/" + name + ".efk").c_str(),8.0f));
+	effectHandle_.try_emplace(name, LoadEffekseerEffect(("effect/" + name + ".efk").c_str(),1.0f));
 
 	return effectHandle_[name];
 }

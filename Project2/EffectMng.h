@@ -3,7 +3,7 @@
 #include <map>
 #include <string>
 #include <EffekseerForDXLib.h>
-#include "SceneMng.h"
+#include "Scene/SceneMng.h"
 #include "common/Vector2.h"
 
 #define lpEffectMng EffectMng::GetInstance()

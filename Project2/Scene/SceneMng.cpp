@@ -3,10 +3,10 @@
 #include "SceneMng.h"
 #include "TitleScene.h"
 #include "GameScene.h"
-#include "_debug/_DebugConOut.h"
-#include "_debug/_DebugDispOut.h"
-#include "State/CON_ID.h"
-#include "EffectMng.h"
+#include "../_debug/_DebugConOut.h"
+#include "../_debug/_DebugDispOut.h"
+#include "../State/CON_ID.h"
+#include "../EffectMng.h"
 
 
 std::unique_ptr<SceneMng, SceneMng::SceneMngDeleter> SceneMng::s_instance(new SceneMng());
@@ -118,9 +118,9 @@ bool SceneMng::SysInit(void)
 	lpEffectMng.Init({ screenX ,screenY });
 	drawFunc_.try_emplace(DATA_TYPE::IMG, &SceneMng::ImageDraw);
 	drawFunc_.try_emplace(DATA_TYPE::EFFECT, &SceneMng::EffectDraw);
-	drawScreen_.try_emplace(SCREEN_ID::BG, MakeScreen(screenX, screenY));
-	drawScreen_.try_emplace(SCREEN_ID::PLAY, MakeScreen(screenX, screenY));
-	drawScreen_.try_emplace(SCREEN_ID::FRONT, MakeScreen(screenX, screenY));
+	drawScreen_.try_emplace(SCREEN_ID::BG, MakeScreen(screenX, screenY,true));
+	drawScreen_.try_emplace(SCREEN_ID::PLAY, MakeScreen(screenX, screenY, true));
+	drawScreen_.try_emplace(SCREEN_ID::FRONT, MakeScreen(screenX, screenY, true));
 	return true;
 }
 

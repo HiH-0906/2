@@ -1,6 +1,6 @@
 #include <utility>
 #include <DxLib.h>
-#include"../SceneMng.h"
+#include"../Scene/SceneMng.h"
 #include"../_debug/_DebugConOut.h"
 #include "Puyo.h"
 

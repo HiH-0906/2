@@ -1,6 +1,6 @@
 #include "playUnit.h"
 #include "PleyErea.h"
-#include "SceneMng.h"
+#include "Scene/SceneMng.h"
 #include "_debug/_DebugConOut.h"
 
 std::map<int, int> playUnit::changeKey_ = {

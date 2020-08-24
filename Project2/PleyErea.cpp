@@ -3,7 +3,8 @@
 #include "_debug/_DebugConOut.h"
 #include "PleyErea.h"
 #include "NextPuyoCtl.h"
-#include "SceneMng.h"
+#include "Scene/SceneMng.h"
+#include "ImageMng.h"
 #include "EffectMng.h"
 #include "Puyo/OzyamaPuyo.h"
 #include "Input/keyState.h"
@@ -20,8 +21,6 @@
 
 
 int PleyErea::allStage_ = 0;
-int PleyErea::WinImage = 0;
-int PleyErea::LoseImage = 0;
 
 PleyErea::PleyErea(Vector2&& size, Vector2&& offset, Vector2&& pos, CON_ID id) :size_(size), stgSize_(STAGE_X, STAGE_Y)
 {
@@ -54,8 +53,8 @@ int PleyErea::UpDate()
 void PleyErea::InstancePuyo(void)
 {
 	auto pairPuyo = nextPuyo_->PickUp();
-	pairPuyo.first->pos({ stgSize_.x / 2 * blockSize_, 0 });
-	pairPuyo.second->pos({ stgSize_.x / 2 * blockSize_,blockSize_ });
+	pairPuyo.first->pos({ stgSize_.x / 2 * blockSize_, -blockSize_ });
+	pairPuyo.second->pos({ stgSize_.x / 2 * blockSize_,0 });
 
 	// ²Ý½ÀÝ½‚µ‚Ä‚¢‚é‚¾‚¯`
 	puyoList_.emplace(puyoList_.begin(), pairPuyo.first);
@@ -68,8 +67,8 @@ void PleyErea::Draw(void)
 	// ‚Õ‚æ‘€ìêŠ•`‰æ
 	SetDrawScreen(puyoScreenID_);
 	ClsDrawScreen();
-	DrawBox(0, 0, (STAGE_X) * (PUYO_SIZE), (STAGE_Y)*PUYO_SIZE, color_, true);
-	DrawBox(PUYO_SIZE, PUYO_SIZE, (STAGE_X - 1) * PUYO_SIZE, (STAGE_Y - 1) * PUYO_SIZE, 0xffffff, false);
+	//DrawBox(0, 0, (STAGE_X) * (PUYO_SIZE), (STAGE_Y)*PUYO_SIZE, color_, true);
+	DrawGraph(0, 0, IMAGE_ID("PUYOBG")[0], true);
 	// ‚Õ‚æ[‚ñŽž‚Ç‚ê‚¾‚¯’¾‚Þ‚©
 	for (auto&& list : puyoList_)
 	{
@@ -93,6 +92,8 @@ void PleyErea::Draw(void)
 
 		list->Draw(cnt);
 	}
+
+	DrawGraph(0, 0, IMAGE_ID("FREAM")[0], true);
 	DrawOzyama();
 	// playErea‘S‘Ì‚Ì•`‰æ
 	SetDrawScreen(screenID_);
@@ -101,13 +102,15 @@ void PleyErea::Draw(void)
 	nextPuyo_->Draw();
 	DrawGraph(offset_.x, offset_.y, puyoScreenID_, true);
 	DrawGraph(offset_.x, offset_.y, NoticeOzyamaScrID, true);
+	Vector2 pos = { 256,256 };
+	pos += pos_;
 	if (mode_ == STAGE_MODE::WIN)
 	{
-		DrawGraph(0, 128, WinImage, true);
+		lpSceneMng.AddDrawList({ pos,IMAGE_ID("WIN")[0],1.0,0.0,0,SCREEN_ID::FRONT ,DATA_TYPE::IMG ,true });
 	}
 	if (mode_ == STAGE_MODE::GAMEOVER)
 	{
-		DrawGraph(0, 128, LoseImage, true);
+		lpSceneMng.AddDrawList({ pos,IMAGE_ID("LOSE")[0],1.0,0.0,0,SCREEN_ID::FRONT ,DATA_TYPE::IMG ,true });
 	}
 	auto tmpPos = pos_ + (size_ / 2);
 	lpSceneMng.AddDrawList({ tmpPos,screenID_,1.0,0.0,0,SCREEN_ID::PLAY ,DATA_TYPE::IMG ,true});
@@ -115,6 +118,7 @@ void PleyErea::Draw(void)
 
 void PleyErea::DrawOzyama(void)
 {
+	auto idBefor = GetDrawScreen();
 	SetDrawScreen(NoticeOzyamaScrID);
 	ClsDrawScreen();
 	if (ozyamaCnt_ <= 0)
@@ -126,6 +130,7 @@ void PleyErea::DrawOzyama(void)
 	{
 		DrawCircle((size * (i % 12) + 8) + blockSize_, (24 - (size * (i / 12))), 8, 0x888888, true);
 	}
+	SetDrawScreen(idBefor);
 }
 
 bool PleyErea::CheckMovePuyo(sharPuyo& puyo)
@@ -226,13 +231,15 @@ bool PleyErea::Init(CON_ID id)
 	inputID_ = id;
 
 	Vector2 pos = { blockSize_ * (stgSize_.x + 2),blockSize_ * 2 };
-	pos += offset_;
+	pos += offset_+ pos_;
 	nextPuyo_ = std::make_unique<NextPuyoCtl>(pos, 3, 2);
 	// ‚Õ‚æ‚Ì²Ý½ÀÝ½
 	InstancePuyo();
 	
-	WinImage = LoadGraph("image/‚â‚Á‚½[.png", true);
-	LoseImage = LoadGraph("image/‚Î‚½‚ñ‚«‚ã[.png", true);
+	lpImageMng.GetID("WIN", "image/‚â‚Á‚½[.png");
+	lpImageMng.GetID("LOSE", "image/‚Î‚½‚ñ‚«‚ã[.png");
+	lpImageMng.GetID("FREAM", "image/‚í‚­.png");
+	lpImageMng.GetID("PUYOBG", "image/puyobg.png");
 
 	return true;
 }
@@ -306,7 +313,7 @@ bool PleyErea::SetErasePuyo(Vector2 vec, PUYO_ID id)
 				puyo->activ(false);
 				auto efPos = offset_ + puyo->pos() + (blockSize_ / 2);
 				efPos += pos_;
-				lpEffectMng.SetEffect("‚Õ‚æ", efPos,SCREEN_ID::PLAY);
+				lpEffectMng.SetEffect("‚³‚­‚ç", efPos,SCREEN_ID::PLAY);
 				playErea_[vec.x][vec.y].reset();
 			}
 		}

@@ -104,9 +104,5 @@ private:
 	friend struct OzyamaMode;
 	friend struct GameOverMode;
 	friend struct WinMode;
-
-	// imageMngì¬—\’è
-	static int WinImage;
-	static int LoseImage;
 };
 

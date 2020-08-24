@@ -1,5 +1,5 @@
 #include "OzyamaPuyo.h"
-#include "../SceneMng.h"
+#include "../Scene/SceneMng.h"
 
 OzyamaPuyo::OzyamaPuyo()
 {
