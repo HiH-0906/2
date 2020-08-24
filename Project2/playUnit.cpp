@@ -121,6 +121,7 @@ void playUnit::RotaPuyo(Vector2 puyo1, Vector2 puyo2, bool rotaRight)
 	auto move = playErea_.blockSize_;
 	int offsetY = (playErea_.puyoList_[targetID_]->pos().y % playErea_.blockSize_ != 0);
 	int tmp = -playErea_.blockSize_;
+	bool vertical = false;
 	if (!rotaRight)
 	{
 		move = -playErea_.blockSize_;
@@ -139,10 +140,12 @@ void playUnit::RotaPuyo(Vector2 puyo1, Vector2 puyo2, bool rotaRight)
 	if (puyo1.x < puyo2.x)
 	{
 		rotaPos = Vector2{ puyo1.x,puyo2.y - move };
+		vertical = true;
 	}
 	if (puyo1.x > puyo2.x)
 	{
 		rotaPos = Vector2{ puyo1.x ,puyo2.y + move };
+		vertical = true;
 	}
 	auto vec = playErea_.ConvertGrid(std::move(rotaPos));
 	if (!playErea_.playErea_[vec.x][vec.y + offsetY])
@@ -152,7 +155,7 @@ void playUnit::RotaPuyo(Vector2 puyo1, Vector2 puyo2, bool rotaRight)
 	else
 	{
 		auto rotaPos2 = rotaPos;
-		if (vec.y >= playErea_.stgSize_.y - 2)
+		if (vec.y >= playErea_.stgSize_.y - 2 || vertical)
 		{
 			rotaPos.y -= abs(tmp);
 			rotaPos2.y -= abs(tmp * 2);

@@ -46,11 +46,9 @@ bool EffectMng::StopAll(void)
 
 void EffectMng::SetEffect(std::string name, Vector2 pos, SCREEN_ID id)
 {
-	//EffectPair pair = { PlayEffekseer2DEffect(GetHandle(name)),id };
-	//effectList_.emplace_front(pair);
 	int handle = PlayEffekseer2DEffect(GetHandle(name));
 	SetPosPlayingEffekseer2DEffect(handle, static_cast<float>(pos.x), static_cast<float>(pos.y), 0);
-	DrawQueT que = { pos,handle ,0.0,0.0,9999,id,DATA_TYPE::EFFECT ,true};
+	DrawQueT que = { pos,handle ,0.0,0.0,50,id,DATA_TYPE::EFFECT ,true};
 	lpSceneMng.AddDrawList(std::move(que));
 }
 
