@@ -41,12 +41,18 @@ public:
 	PleyErea(Vector2&& size, Vector2&& offset,Vector2&& pos, CON_ID id);
 	~PleyErea();
 	int UpDate(void);								// 更新用
-	const Vector2 offset(void);						// ｵﾌｾｯﾄのget	いるっけ…？
-	const int GetScreenID(void)const;				// 描画用ｽｸﾘｰﾝのget
+	const Vector2& offset(void);						// ｵﾌｾｯﾄのget	いるっけ…？
+	const int& GetScreenID(void)const;				// 描画用ｽｸﾘｰﾝのget
 	void ozyamaCnt(int cnt);						// お邪魔ぷよ予約
-	const int playerID(void)const;
+	const int& playerID(void)const;
 	void SetWinner(bool winner);					// trueで自分が勝者
-	const Vector2 pos(void)const;
+	const Vector2& pos(void)const;
+	const CON_ID& inputID(void)const;
+	const int& padNum(void)const;
+
+	void padNum(int& num);
+	void inputID(CON_ID&& id);
+
 private:
 	void InstancePuyo(void);
 	void Draw(void);								// 描画
@@ -63,6 +69,7 @@ private:
 	int puyoScreenID_;								// ぷよ操作場所描画用ｽｸﾘｰﾝ
 	int NoticeOzyamaScrID;							// お邪魔ぷよ予告用ｽｸﾘｰﾝ
 	int playerID_;									// 自分が何番目か
+	int padNum_;									// どのﾊﾟｯﾄﾞを使うか
 
 	const Vector2 stgSize_;							// ぷよぷよﾏｽ目
 	const Vector2 size_;							// playEreaの大きさ
@@ -71,6 +78,7 @@ private:
 
 	Vector2 offset_;								// 描画時ｵﾌｾｯﾄ
 	Vector2 pos_;									// 描画位置
+	float rad_;										// 描画時角度
 
 	std::map<CON_ID,std::shared_ptr<Input*>> input_;					// 入力ｸﾗｽ管理用
 	CON_ID inputID_;									// 操作ｸﾗｽ選択用
@@ -88,6 +96,7 @@ private:
 	int ozyamaCnt_;									// お邪魔ぷよ落下数
 	int ozyamaFallMax_;								// お邪魔ぷよ同時落下最大数
 	int eraseCnt_;									// 今のEraseでいくつぷよ消したか
+
 	static int allStage_;							// 全体でplayEreaがいくつあるかのｶｳﾝﾄ
 
 	STAGE_MODE mode_;								// 現在のﾓｰﾄﾞ

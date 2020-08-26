@@ -38,7 +38,7 @@ PleyErea::~PleyErea()
 
 int PleyErea::UpDate()
 {
-	(*input_[inputID_])->Update(playerID_);
+	(*input_[inputID_])->Update(playerID_, padNum_);
 	int reNum = stageFunc_[mode_](*this);
 	if (reNum == -1)
 	{
@@ -67,7 +67,6 @@ void PleyErea::Draw(void)
 	// Ç’ÇÊëÄçÏèÍèäï`âÊ
 	SetDrawScreen(puyoScreenID_);
 	ClsDrawScreen();
-	//DrawBox(0, 0, (STAGE_X) * (PUYO_SIZE), (STAGE_Y)*PUYO_SIZE, color_, true);
 	DrawGraph(0, 0, IMAGE_ID("PUYOBG")[0], true);
 	// Ç’ÇÊÅ[ÇÒéûÇ«ÇÍÇæÇØíæÇﬁÇ©
 	for (auto&& list : puyoList_)
@@ -102,18 +101,9 @@ void PleyErea::Draw(void)
 	nextPuyo_->Draw();
 	DrawGraph(offset_.x, offset_.y, puyoScreenID_, true);
 	DrawGraph(offset_.x, offset_.y, NoticeOzyamaScrID, true);
-	Vector2 pos = { 256,256 };
-	pos += pos_;
-	if (mode_ == STAGE_MODE::WIN)
-	{
-		lpSceneMng.AddDrawList({ pos,IMAGE_ID("WIN")[0],1.0,0.0,0,SCREEN_ID::FRONT ,DATA_TYPE::IMG ,true });
-	}
-	if (mode_ == STAGE_MODE::GAMEOVER)
-	{
-		lpSceneMng.AddDrawList({ pos,IMAGE_ID("LOSE")[0],1.0,0.0,0,SCREEN_ID::FRONT ,DATA_TYPE::IMG ,true });
-	}
+
 	auto tmpPos = pos_ + (size_ / 2);
-	lpSceneMng.AddDrawList({ tmpPos,screenID_,1.0,0.0,0,SCREEN_ID::PLAY ,DATA_TYPE::IMG ,true});
+	lpSceneMng.AddDrawList({ tmpPos,screenID_,rad_,0.0,0,SCREEN_ID::PLAY ,DATA_TYPE::IMG ,true});
 }
 
 void PleyErea::DrawOzyama(void)
@@ -230,7 +220,7 @@ bool PleyErea::Init(CON_ID id)
 
 	inputID_ = id;
 
-	Vector2 pos = { blockSize_ * (stgSize_.x + 2),blockSize_ * 2 };
+	Vector2 pos = { blockSize_ * (stgSize_.x + 2),blockSize_ * 3 };
 	pos += offset_+ pos_;
 	nextPuyo_ = std::make_unique<NextPuyoCtl>(pos, 3, 2);
 	// Ç’ÇÊÇÃ≤›Ω¿›Ω
@@ -240,6 +230,9 @@ bool PleyErea::Init(CON_ID id)
 	lpImageMng.GetID("LOSE", "image/ÇŒÇΩÇÒÇ´Ç„Å[.png");
 	lpImageMng.GetID("FREAM", "image/ÇÌÇ≠.png");
 	lpImageMng.GetID("PUYOBG", "image/puyobg.png");
+
+	padNum_ = 0;
+	rad_ = 1.0;
 
 	return true;
 }
@@ -322,12 +315,12 @@ bool PleyErea::SetErasePuyo(Vector2 vec, PUYO_ID id)
 	}
 }
 
-const Vector2 PleyErea::offset(void)
+const Vector2& PleyErea::offset(void)
 {
 	return offset_;
 }
 
-const int PleyErea::GetScreenID(void)const
+const int& PleyErea::GetScreenID(void)const
 {
 	return screenID_;
 }
@@ -363,7 +356,7 @@ void PleyErea::FallOzyama()
 	ozyamaCnt_ -= count;
 }
 
-const int PleyErea::playerID(void) const
+const int& PleyErea::playerID(void) const
 {
 	return playerID_;
 }
@@ -376,8 +369,28 @@ void PleyErea::SetWinner(bool winner)
 	}
 }
 
-const Vector2 PleyErea::pos(void) const
+const Vector2& PleyErea::pos(void) const
 {
 	return pos_;
+}
+
+const CON_ID& PleyErea::inputID(void) const
+{
+	return inputID_;
+}
+
+const int& PleyErea::padNum(void) const
+{
+	return padNum_;
+}
+
+void PleyErea::padNum(int& num)
+{
+	padNum_ = num;
+}
+
+void PleyErea::inputID(CON_ID&& id)
+{
+	inputID_ = id;
 }
 

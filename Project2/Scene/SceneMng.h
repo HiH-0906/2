@@ -44,6 +44,8 @@ enum class DRAW_QUE
 using DrawQueT = std::tuple<Vector2, int, double, double, int, SCREEN_ID, DATA_TYPE,bool>;
 using DrawList = std::vector<DrawQueT>;
 
+using PlayEreaVec = std::vector<std::shared_ptr<PleyErea>>;
+
 
 class SceneMng
 {
@@ -54,8 +56,15 @@ public:
 	}
 	void Run();
 	const Vector2 screenSize(void)const;
+
+	const int& fCnt(void)const;
 	bool SysInit(void);
+
 	void AddDrawList(DrawQueT&& que);
+
+	PlayEreaVec& playErea(void);
+	const int playNum(void);
+
 private:
 	struct SceneMngDeleter
 	{
@@ -67,8 +76,10 @@ private:
 
 	unipueBase activeScene_;					// ÕÆ°¸Îß²ÝÀ
 
-	std::map<SCREEN_ID, std::vector<std::pair<int, Vector2>>> DrawMap;
-	std::map<SCREEN_ID, std::vector<int>> EffectMap;
+	std::map<SCREEN_ID, std::vector<std::pair<int, Vector2>>> DrawMap_;
+	std::map<SCREEN_ID, std::vector<int>> EffectMap_;
+
+	PlayEreaVec playErea_;
 
 	DrawList drawList_;
 	const int screenX;
@@ -80,6 +91,8 @@ private:
 
 	void EffectDraw(DrawQueT&& que);
 	void ImageDraw(DrawQueT&& que);
+
+	int fCnt_;
 
 	void Draw();
 	SceneMng();

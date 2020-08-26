@@ -9,6 +9,7 @@ NextPuyoCtl::NextPuyoCtl(Vector2& pos, int haveCount, int drawCount)
 	pos_ = pos;
 	drawCount_ = drawCount;
 	lpImageMng.GetID("nextBG", "image/nextbg.png");
+	lpImageMng.GetID("nextFream", "image/nextFream.png");
 	Add(haveCount);
 }
 
@@ -27,7 +28,8 @@ void NextPuyoCtl::Draw(void)
 	}
 
 	lpSceneMng.AddDrawList({ pos_,screenID_,1.0,0.0,0,SCREEN_ID::PLAY,DATA_TYPE::IMG,true });
-	lpSceneMng.AddDrawList({ pos_,IMAGE_ID("nextBG")[0],1.0,0.0,1,SCREEN_ID::BG,DATA_TYPE::IMG,true });
+	lpSceneMng.AddDrawList({ pos_,IMAGE_ID("nextBG")[0],1.0,0.0,-1,SCREEN_ID::PLAY,DATA_TYPE::IMG,true });
+	lpSceneMng.AddDrawList({ pos_,IMAGE_ID("nextFream")[0],1.0,0.0,-1,SCREEN_ID::PLAY,DATA_TYPE::IMG,true });
 	SetDrawScreen(idBefor);
 }
 

@@ -33,13 +33,13 @@ CON_ID PadState::GetID(void)
 	return CON_ID::PAD;
 }
 
-void PadState::Update(const int& p_id)
+void PadState::Update(const int& p_id, const int& pad_id)
 {
 	// DxLibPower
 	for (auto id : _keyCon[p_id])
 	{
 		_input[id.first].second = _input[id.first].first;
-		_input[id.first].first = (GetJoypadInputState(/*static_cast<int>(p_id)+*/1)& id.second);
+		_input[id.first].first = (GetJoypadInputState(pad_id) & id.second);
 	}
 }
 

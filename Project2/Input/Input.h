@@ -12,11 +12,12 @@ using InputData = std::map<INPUT_ID, std::pair<bool, bool>>;
 using keyPair = std::pair<INPUT_ID, int>;
 using keyData = std::array<keyPair,static_cast<size_t>(INPUT_ID::MAX)>;
 
+
 class Input
 {
 public:
 	Input();
-	virtual void Update(const int& p_id) = 0;					// Update継承元
+	virtual void Update(const int& p_id,const int& pad_id) = 0;					// Update継承元
 	virtual CON_ID GetID(void) = 0;								// ｺﾝﾄﾛｰﾗｰ種別取得用
 	virtual void Setting(void);									// 初期化後個別ｾﾃｨﾝｸﾞ必要な場合のみ継承先に記述
 	bool GetKeyTrg(INPUT_ID key);								// 指定IDのﾄﾘｶﾞｰ判定

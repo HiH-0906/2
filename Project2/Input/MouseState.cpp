@@ -16,7 +16,7 @@ CON_ID MouseState::GetID(void)
 	return CON_ID::MOUSE;
 }
 
-void MouseState::Update(const int& p_id)
+void MouseState::Update(const int& p_id, const int& pad_id)
 {
 	_mouseDataOld = _mouseData;
 	_mouseData = GetMouseInput();

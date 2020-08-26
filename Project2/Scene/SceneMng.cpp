@@ -3,6 +3,8 @@
 #include "SceneMng.h"
 #include "TitleScene.h"
 #include "GameScene.h"
+#include "SelectScene.h"
+#include "../ImageMng.h"
 #include "../_debug/_DebugConOut.h"
 #include "../_debug/_DebugDispOut.h"
 #include "../State/CON_ID.h"
@@ -15,13 +17,14 @@ void SceneMng::Run()
 {
 	_dbgSetup(screenX, screenY, 16);
 
-	activeScene_ = std::make_unique<GameScene>();
+	activeScene_ = std::make_unique<SelectScene>();
 
 	while (!ProcessMessage() && !CheckHitKey(KEY_INPUT_ESCAPE))
 	{
 		activeScene_ = (*activeScene_).Update(std::move(activeScene_));
 		lpEffectMng.Update();
 		Draw();
+		fCnt_++;
 	}
 	DxLib::DxLib_End();
 }
@@ -46,8 +49,13 @@ void SceneMng::Draw()
 
 	SCREEN_ID id,nextId;
 	id = SCREEN_ID::BG;
+
+	for (auto tmpid : SCREEN_ID())
+	{
+		SetDrawScreen(drawScreen_[tmpid]);
+		ClsDrawScreen();
+	}
 	SetDrawScreen(drawScreen_[SCREEN_ID::BG]);
-	ClsDrawScreen();
 	for (auto& que:drawList_)
 	{
 		type = std::get<static_cast<int>(DRAW_QUE::TYPE)>(que);
@@ -106,6 +114,11 @@ void SceneMng::ImageDraw(DrawQueT&& que)
 	que = tmpque;
 }
 
+const int& SceneMng::fCnt(void) const
+{
+	return fCnt_;
+}
+
 bool SceneMng::SysInit(void)
 {
 	ChangeWindowMode(true);
@@ -121,12 +134,26 @@ bool SceneMng::SysInit(void)
 	drawScreen_.try_emplace(SCREEN_ID::BG, MakeScreen(screenX, screenY,true));
 	drawScreen_.try_emplace(SCREEN_ID::PLAY, MakeScreen(screenX, screenY, true));
 	drawScreen_.try_emplace(SCREEN_ID::FRONT, MakeScreen(screenX, screenY, true));
+	fCnt_ = 0;
+	playErea_.emplace_back(std::make_shared<PleyErea>(Vector2{ 512, 768 }, Vector2{ 75,128 }, Vector2{ 0,0 }, CON_ID::KEY));
+	playErea_.emplace_back(std::make_shared<PleyErea>(Vector2{ 512, 768 }, Vector2{ 75,128 }, Vector2{ 512, 0 }, CON_ID::KEY));
+	lpImageMng.GetID("BG", "image/èÙ.png");
 	return true;
 }
 
 void SceneMng::AddDrawList(DrawQueT&& que)
 {
 	drawList_.emplace_back(que);
+}
+
+PlayEreaVec& SceneMng::playErea(void)
+{
+	return playErea_;
+}
+
+const int SceneMng::playNum(void)
+{
+	return playErea_.size();
 }
 
 SceneMng::SceneMng():screenX(1024),screenY(768)

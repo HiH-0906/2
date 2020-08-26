@@ -16,6 +16,11 @@ INPUT_ID operator*(INPUT_ID key)
 	return key;
 }
 
+INPUT_ID operator--(INPUT_ID& key)
+{
+	return (key = static_cast<INPUT_ID>(std::underlying_type<INPUT_ID>::type(key) - 1));
+}
+
 INPUT_ID operator++(INPUT_ID &key)
 {
 	return (key = static_cast<INPUT_ID>(std::underlying_type<INPUT_ID>::type(key) + 1)); 

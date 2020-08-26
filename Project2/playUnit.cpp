@@ -148,6 +148,10 @@ void playUnit::RotaPuyo(Vector2 puyo1, Vector2 puyo2, bool rotaRight)
 		vertical = true;
 	}
 	auto vec = playErea_.ConvertGrid(std::move(rotaPos));
+	if (vec.y < 0)
+	{
+		vec.y = 0;
+	}
 	if (!playErea_.playErea_[vec.x][vec.y + offsetY])
 	{
 		playErea_.puyoList_[targetID_ ^ 1]->pos(std::move(rotaPos));

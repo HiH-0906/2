@@ -4,6 +4,7 @@
 
 TitleScene::TitleScene()
 {
+
 }
 
 TitleScene::~TitleScene()

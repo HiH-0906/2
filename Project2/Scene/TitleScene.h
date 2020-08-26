@@ -1,5 +1,8 @@
 #pragma once
+#include <vector>
+#include <memory>
 #include "BaseScene.h"
+#include "../common/Button.h"
 
 
 class TitleScene :
@@ -9,5 +12,7 @@ public:
 	TitleScene();
 	~TitleScene();
 	virtual unipueBase Update(unipueBase own) override final;
+private:
+	std::vector<sharedButton> buttonList_;							// Œﬁ¿›ä«óùóp
 };
 

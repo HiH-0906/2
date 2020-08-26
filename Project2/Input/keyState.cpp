@@ -32,7 +32,7 @@ CON_ID keyState::GetID(void)
 	return CON_ID::KEY;
 }
 
-void keyState::Update(const int& p_id)
+void keyState::Update(const int& p_id, const int& pad_id)
 {
 	for (auto id : _keyCon[p_id])
 	{

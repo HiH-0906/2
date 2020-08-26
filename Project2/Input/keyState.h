@@ -7,7 +7,7 @@ class keyState :
 {
 public:
 	CON_ID GetID(void)override final;						// ‘½•ªŒp³‚µ‚È‚¢
-	void Update(const int& p_id)override final;
+	void Update(const int& p_id, const int& pad_id)override final;
 private:
 	static std::map<int, keyData> _keyCon;					// ·°ºİÌ¨¸Ş¡‚Ì‚Æ‚±‚ëŒÅ’è
 };
