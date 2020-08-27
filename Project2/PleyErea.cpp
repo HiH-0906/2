@@ -226,8 +226,8 @@ bool PleyErea::Init(CON_ID id)
 	// Ç’ÇÊÇÃ≤›Ω¿›Ω
 	InstancePuyo();
 	
-	lpImageMng.GetID("WIN", "image/Ç‚Ç¡ÇΩÅ[.png");
-	lpImageMng.GetID("LOSE", "image/ÇŒÇΩÇÒÇ´Ç„Å[.png");
+	lpImageMng.GetID("WIN", "image/Win.png");
+	lpImageMng.GetID("LOSE", "image/Lose.png");
 	lpImageMng.GetID("FREAM", "image/ÇÌÇ≠.png");
 	lpImageMng.GetID("PUYOBG", "image/puyobg.png");
 

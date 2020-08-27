@@ -156,6 +156,8 @@
   <ItemGroup>
     <ClCompile Include="common\Button.cpp" />
     <ClCompile Include="ImageMng.cpp" />
+    <ClCompile Include="Scene\Menu\MissedConScene.cpp" />
+    <ClCompile Include="Scene\Menu\MenuScene.cpp" />
     <ClCompile Include="Scene\BaseScene.cpp" />
     <ClCompile Include="EffectMng.cpp" />
     <ClCompile Include="Scene\GameOverScene.cpp" />
@@ -180,6 +182,8 @@
   <ItemGroup>
     <ClInclude Include="common\Button.h" />
     <ClInclude Include="ImageMng.h" />
+    <ClInclude Include="Scene\Menu\MissedConScene.h" />
+    <ClInclude Include="Scene\Menu\MenuScene.h" />
     <ClInclude Include="Scene\BaseScene.h" />
     <ClInclude Include="common\details\Vector2.h" />
     <ClInclude Include="common\Vector2.h" />

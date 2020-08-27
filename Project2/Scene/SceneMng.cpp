@@ -17,7 +17,7 @@ void SceneMng::Run()
 {
 	_dbgSetup(screenX, screenY, 16);
 
-	activeScene_ = std::make_unique<SelectScene>();
+	activeScene_ = std::make_unique<GameScene>();
 
 	while (!ProcessMessage() && !CheckHitKey(KEY_INPUT_ESCAPE))
 	{
@@ -154,6 +154,20 @@ PlayEreaVec& SceneMng::playErea(void)
 const int SceneMng::playNum(void)
 {
 	return playErea_.size();
+}
+
+void SceneMng::DrawPanel(Vector2 pos, Vector2 size, SCREEN_ID id, int num, int color,int oder)
+{
+	int idBuff = GetDrawScreen();
+	int screen;
+	screen = MakeScreen(size.x, size.y, true);
+	SetDrawScreen(screen);
+	ClsDrawScreen();
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, num);
+	DrawBox(0, 0, size.x, size.y, color, true);
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 200);
+	lpSceneMng.AddDrawList({ pos,screen,1.0,0.0,oder,id ,DATA_TYPE::IMG ,true });
+	SetDrawScreen(idBuff);
 }
 
 SceneMng::SceneMng():screenX(1024),screenY(768)

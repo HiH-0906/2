@@ -15,12 +15,18 @@ Button::~Button()
 {
 }
 
-void Button::CheckHitButton(Vector2& pos)
+void Button::Update(Vector2& pos)
+{
+	func_(pos);
+}
+
+bool Button::CheckHitButton(Vector2& pos, bool flag)
 {
 	// ‚ ‚Á‚Ä‚écH
 	if (pos.x > pos_.x && pos.x < (pos_.x + size_.x) && pos.y > pos_.y && pos.y < (pos_.y + size_.y))
 	{
-		func_();
+		return true;
 	}
+	return false;
 }
 
