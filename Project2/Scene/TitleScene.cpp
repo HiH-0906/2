@@ -1,10 +1,9 @@
 #include <DxLib.h>
 #include "TitleScene.h"
-#include "GameScene.h"
+#include "SelectScene.h"
 
 TitleScene::TitleScene()
 {
-	
 }
 
 TitleScene::~TitleScene()
@@ -15,7 +14,7 @@ unipueBase TitleScene::Update(unipueBase own)
 {
 	if (CheckHitKey(KEY_INPUT_SPACE))
 	{
-		return std::make_unique<GameScene>();			// ¼°İØ‚è‘Ö‚¦
+		return std::make_unique<SelectScene>();			// ¼°İØ‚è‘Ö‚¦
 	}
 	return std::move(own);
 }

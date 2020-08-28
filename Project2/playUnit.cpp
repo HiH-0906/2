@@ -47,7 +47,7 @@ bool playUnit::Update(void)
 	}
 	// ‘€ì‚µ‚Ä‚¢‚é‚º‚Á
 	playErea_.puyoList_[targetID_]->playPuyo(true);
-	// ŽŸ‚Ü‚Å‚É‚Í’¼‚· —ŽG‚È‘€ìØ‚è‘Ö‚¦
+	// —ŽG‚È‘€ìØ‚è‘Ö‚¦
 	change_.first = change_.second;
 	change_.second = CheckHitKey(changeKey_[playErea_.playerID()]);
 	if (!change_.first&& change_.second)
@@ -113,6 +113,9 @@ void playUnit::Init(void)
 		{
 			RotaPuyo(playErea_.puyoList_[targetID_]->pos(), playErea_.puyoList_[targetID_ ^ 1]->pos(), false);
 		}
+	});
+	keyFunc_.try_emplace(INPUT_ID::POSE, [&]() {
+		// ‰½‚à‚µ‚È‚¢
 	});
 }
 

@@ -27,7 +27,7 @@ PleyErea::PleyErea(Vector2&& size, Vector2&& offset, Vector2&& pos, CON_ID id) :
 	offset_ = offset;
 	pos_ = pos;
 	Init(id);
-	(*input_[inputID_])->Setting();
+	(*input_[inputID_])->Setting(playerID_, padNum_);
 }
 
 PleyErea::~PleyErea()
@@ -38,8 +38,8 @@ PleyErea::~PleyErea()
 
 int PleyErea::UpDate()
 {
-	(*input_[inputID_])->Update(playerID_, padNum_);
 	int reNum = stageFunc_[mode_](*this);
+	(*input_[inputID_])->Update();
 	if (reNum == -1)
 	{
 		// Ç±Ç±Ç≈πﬁ∞—µ∞ ﬁ∞Ç…à⁄çs
@@ -59,7 +59,6 @@ void PleyErea::InstancePuyo(void)
 	// ≤›Ω¿›ΩÇµÇƒÇ¢ÇÈÇæÇØÅ`
 	puyoList_.emplace(puyoList_.begin(), pairPuyo.first);
 	puyoList_.emplace(puyoList_.begin() + 1, pairPuyo.second);
-
 }
 
 void PleyErea::Draw(void)
@@ -67,7 +66,10 @@ void PleyErea::Draw(void)
 	// Ç’ÇÊëÄçÏèÍèäï`âÊ
 	SetDrawScreen(puyoScreenID_);
 	ClsDrawScreen();
-	DrawGraph(0, 0, IMAGE_ID("PUYOBG")[0], true);
+	Vector2 size = stgSize_;
+	size *= 32;
+	auto bgPos = pos_ + offset_ + (size / 2);
+	lpSceneMng.AddDrawList({ bgPos,IMAGE_ID("PUYOBG")[0],rad_,0.0,-1,SCREEN_ID::PLAY ,DATA_TYPE::IMG ,true });
 	// Ç’ÇÊÅ[ÇÒéûÇ«ÇÍÇæÇØíæÇﬁÇ©
 	for (auto&& list : puyoList_)
 	{
@@ -91,8 +93,11 @@ void PleyErea::Draw(void)
 
 		list->Draw(cnt);
 	}
-
 	DrawGraph(0, 0, IMAGE_ID("FREAM")[0], true);
+	if (puyoList_[0]->playPuyo() || puyoList_[1]->playPuyo())
+	{
+		DrawGost();
+	}
 	DrawOzyama();
 	// playEreaëSëÃÇÃï`âÊ
 	SetDrawScreen(screenID_);
@@ -100,16 +105,16 @@ void PleyErea::Draw(void)
 	
 	nextPuyo_->Draw();
 	DrawGraph(offset_.x, offset_.y, puyoScreenID_, true);
-	DrawGraph(offset_.x, offset_.y, NoticeOzyamaScrID, true);
+	DrawGraph(offset_.x, offset_.y, noticeOzyamaScrID_, true);
 
 	auto tmpPos = pos_ + (size_ / 2);
-	lpSceneMng.AddDrawList({ tmpPos,screenID_,rad_,0.0,0,SCREEN_ID::PLAY ,DATA_TYPE::IMG ,true});
+	lpSceneMng.AddDrawList({ tmpPos,screenID_,rad_,0.0,1,SCREEN_ID::PLAY ,DATA_TYPE::IMG ,true});
 }
 
 void PleyErea::DrawOzyama(void)
 {
 	auto idBefor = GetDrawScreen();
-	SetDrawScreen(NoticeOzyamaScrID);
+	SetDrawScreen(noticeOzyamaScrID_);
 	ClsDrawScreen();
 	if (ozyamaCnt_ <= 0)
 	{
@@ -121,6 +126,38 @@ void PleyErea::DrawOzyama(void)
 		DrawCircle((size * (i % 12) + 8) + blockSize_, (24 - (size * (i / 12))), 8, 0x888888, true);
 	}
 	SetDrawScreen(idBefor);
+}
+
+void PleyErea::DrawGost(void)
+{
+	int idBuff = GetDrawScreen();
+	SetDrawScreen(gostScreen_);
+	ClsDrawScreen();
+
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 200);
+	auto gostListBase_ = playEreaBase_;
+	std::vector<sharPuyo*> gostList;
+	for (int no = 0; no < stgSize_.x; no++)
+	{
+		gostList.emplace_back(&gostListBase_[no * stgSize_.y]);
+	}
+	for (int i = 1; i >= 0; i--)
+	{
+		auto gostPos = (*(puyoList_.begin() + i))->GetGrid(blockSize_);
+		while (!CheckGost(gostPos, gostList))
+		{
+			gostPos.y++;
+		}
+		gostPos *= blockSize_;
+		gostPos += 16;
+		DrawCircle(gostPos.x, gostPos.y, 16, (*(puyoList_.begin() + i))->GetColor(), true);
+	}
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 255);
+	Vector2 size = stgSize_;
+	size *= 32;
+	auto tmpPos = pos_ + offset_ + (size / 2);
+	lpSceneMng.AddDrawList({ tmpPos,gostScreen_,rad_,0.0,0,SCREEN_ID::PLAY ,DATA_TYPE::IMG ,true });
+	SetDrawScreen(idBuff);
 }
 
 bool PleyErea::CheckMovePuyo(sharPuyo& puyo)
@@ -162,6 +199,21 @@ bool PleyErea::CheckMovePuyo(sharPuyo& puyo)
 	return reFlag;
 }
 
+bool PleyErea::CheckGost(Vector2& pos, std::vector<sharPuyo*> gost)
+{
+	// ìÆÇ¢ÇƒÇ¢Ç¢Ç©ÇÃBitæØƒ
+	bool reFlag = false;
+	if (pos.y >= 0)
+	{
+		if (gost[static_cast<size_t>(pos.x)][static_cast<size_t>(pos.y + 1)])
+		{
+			gost[pos.x][pos.y] = std::make_shared<Puyo>(Vector2{ 0,0 }, PUYO_ID::RED);					// idì¸ÇÍÇƒÅ`
+			reFlag = true;
+		}
+	}
+	return reFlag;
+}
+
 bool PleyErea::Init(CON_ID id)
 {
 	// ä÷êîìoò^
@@ -186,8 +238,9 @@ bool PleyErea::Init(CON_ID id)
 	color_ = 0x000066 << (16 * static_cast<int>(playerID_));
 	// ï`âÊêÊΩ∏ÿ∞›çÏê¨
 	screenID_ = MakeScreen(size_.x, size_.y, true);
+	gostScreen_ = MakeScreen(stgSize_.x * PUYO_SIZE, stgSize_.y * PUYO_SIZE, true);
 	puyoScreenID_ = MakeScreen(stgSize_.x * PUYO_SIZE, stgSize_.y * PUYO_SIZE, true);
-	NoticeOzyamaScrID = MakeScreen(stgSize_.x * PUYO_SIZE, PUYO_SIZE, true);
+	noticeOzyamaScrID_ = MakeScreen(stgSize_.x * PUYO_SIZE, PUYO_SIZE, true);
 	// ëÄçÏä÷åW
 	playUnit_ = std::make_unique<playUnit>(*this);
 	// œΩñ⁄ª≤Ωﬁ
@@ -384,9 +437,20 @@ const int& PleyErea::padNum(void) const
 	return padNum_;
 }
 
+bool PleyErea::PlesePose(void)
+{
+	return (*input_[inputID_])->GetKeyTrg(INPUT_ID::POSE);
+}
+
+std::shared_ptr<Input*> PleyErea::GetInput(void)
+{
+	return input_[inputID_];
+}
+
 void PleyErea::padNum(int& num)
 {
 	padNum_ = num;
+	(*input_[inputID_])->SetPadNum(std::move(num));
 }
 
 void PleyErea::inputID(CON_ID&& id)

@@ -11,8 +11,7 @@ public:
 	virtual unipueBase Update(unipueBase own) override final;
 private:
 	std::vector<std::shared_ptr<PleyErea>> playErea_;
-	bool poseFlag_;
 	int playPadNum_;
-	int startCnt_;
+	int startFCnt_;
 };
 

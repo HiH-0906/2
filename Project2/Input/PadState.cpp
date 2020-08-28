@@ -12,6 +12,7 @@ std::map<int, keyData> PadState::_keyCon =
 		keyPair{ INPUT_ID::DOWN,PAD_INPUT_DOWN },
 		keyPair{ INPUT_ID::LROTA,PAD_INPUT_1},
 		keyPair{ INPUT_ID::RROTA,PAD_INPUT_2},
+		keyPair{INPUT_ID::POSE,PAD_INPUT_8}
 		}
 	}
 	,
@@ -24,6 +25,7 @@ std::map<int, keyData> PadState::_keyCon =
 		keyPair{ INPUT_ID::DOWN,PAD_INPUT_DOWN },
 		keyPair{ INPUT_ID::LROTA,PAD_INPUT_1},
 		keyPair{ INPUT_ID::RROTA,PAD_INPUT_2},
+		keyPair{INPUT_ID::POSE,PAD_INPUT_8}
 		}
 	}
 };
@@ -33,18 +35,20 @@ CON_ID PadState::GetID(void)
 	return CON_ID::PAD;
 }
 
-void PadState::Update(const int& p_id, const int& pad_id)
+void PadState::Update(void)
 {
 	// DxLibPower
-	for (auto id : _keyCon[p_id])
+	for (auto id : _keyCon[p_id_])
 	{
 		_input[id.first].second = _input[id.first].first;
-		_input[id.first].first = (GetJoypadInputState(pad_id) & id.second);
+		_input[id.first].first = (GetJoypadInputState(pad_id_) & id.second);
 	}
 }
 
-void PadState::Setting(void)
+void PadState::Setting(const int& p_id, const int& pad_id)
 {
 	SetUseJoypadVibrationFlag(false);
 	SetJoypadDeadZone(DX_INPUT_PAD1, 0.8);
+	p_id_ = p_id;
+	pad_id_ = pad_id;
 }

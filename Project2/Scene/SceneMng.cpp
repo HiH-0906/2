@@ -156,6 +156,7 @@ const int SceneMng::playNum(void)
 	return playErea_.size();
 }
 
+
 void SceneMng::DrawPanel(Vector2 pos, Vector2 size, SCREEN_ID id, int num, int color,int oder)
 {
 	int idBuff = GetDrawScreen();

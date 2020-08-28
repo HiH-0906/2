@@ -16,7 +16,7 @@ CON_ID MouseState::GetID(void)
 	return CON_ID::MOUSE;
 }
 
-void MouseState::Update(const int& p_id, const int& pad_id)
+void MouseState::Update(void)
 {
 	_mouseDataOld = _mouseData;
 	_mouseData = GetMouseInput();
@@ -63,6 +63,7 @@ void MouseState::Update(const int& p_id, const int& pad_id)
 	}
 	_input[INPUT_ID::LROTA].first = GetMouseTrg(MOUSE_INPUT_LEFT);
 	_input[INPUT_ID::RROTA].first = GetMouseTrg(MOUSE_INPUT_RIGHT);
+	_input[INPUT_ID::POSE].first = false;
 	if (GetMouseTrg(MOUSE_INPUT_MIDDLE))
 	{
 		// Œ≤∞Ÿ∏ÿØ∏Ç≈äÓèÄà íuïœçX
@@ -70,10 +71,12 @@ void MouseState::Update(const int& p_id, const int& pad_id)
 	}
 }
 
-void MouseState::Setting(void)
+void MouseState::Setting(const int& p_id, const int& pad_id)
 {
 	_buff = { 0, 0 };
 	_stanPos = { 512,384 };
+	p_id_ = p_id;
+	pad_id_ = pad_id;
 }
 bool MouseState::GetMouseTrg(int id)
 {

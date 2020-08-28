@@ -8,13 +8,17 @@ using ButtonFunc = std::function<bool(Vector2& pos)>;
 class Button
 {
 public:
-	Button();
-	Button(Vector2&& pos, Vector2&& size, ButtonFunc&& func);
+	Button(Vector2&& pos, Vector2&& size);
 	~Button();
-	void Update(Vector2& pos);
-private:
+	bool Update(Vector2& pos,bool flag);
+	void SetButtonFunc(ButtonFunc&& func);
 
+private:
+	void Draw(void);
+	int screen;
 protected:
+	int color;
+
 	// ç¿ïWä÷åW
 	Vector2 pos_;
 	Vector2 size_;
@@ -22,7 +26,7 @@ protected:
 	// Œﬁ¿›âüâ∫éûé¿çsópä÷êî
 	ButtonFunc func_;
 
-	bool CheckHitButton(Vector2& pos, bool flag);
+	bool CheckHitButton(Vector2& pos);
 };
 
 using sharedButton = std::shared_ptr<Button>;

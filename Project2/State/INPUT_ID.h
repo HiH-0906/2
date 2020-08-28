@@ -7,6 +7,7 @@ enum class INPUT_ID
 	DOWN,
 	LROTA,
 	RROTA,
+	POSE,
 	MAX
 };
 

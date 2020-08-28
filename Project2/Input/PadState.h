@@ -7,8 +7,8 @@ class PadState :
 {
 public:
 	CON_ID GetID(void)override final;
-	void Update(const int& p_id, const int& pad_id)override final;
-	void Setting(void)override;
+	void Update(void)override final;
+	void Setting(const int& p_id, const int& pad_id)override;
 private:
 	static std::map<int, keyData> _keyCon;
 };

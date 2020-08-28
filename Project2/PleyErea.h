@@ -49,25 +49,30 @@ public:
 	const Vector2& pos(void)const;
 	const CON_ID& inputID(void)const;
 	const int& padNum(void)const;
-
+	bool PlesePose(void);							// ﾎﾟｰｽﾞ要請関数
+	std::shared_ptr<Input*> GetInput(void);
 	void padNum(int& num);
 	void inputID(CON_ID&& id);
 
+	void Draw(void);								// 描画
 private:
 	void InstancePuyo(void);
-	void Draw(void);								// 描画
 	void DrawOzyama(void);							// お邪魔ぷよ予告の描画
+	void DrawGost(void);
+
 	void DeletePuyo(void);							// 今のぷよを動けなくするのと次のぷよｲﾝｽﾀﾝｽ
 
 	bool SetErasePuyo(Vector2 vec, PUYO_ID id);		// 消せるか判断
 	bool CheckMovePuyo(sharPuyo& puyo);				// 動いていいぷよか判断
+	bool CheckGost(Vector2& pos,std::vector<sharPuyo*> gost);
 	bool Init(CON_ID id);							// 初期化用関数
 
 	Vector2 ConvertGrid(Vector2&& pos);				// posをGridに
 
 	int screenID_;									// 個別描画用ｽｸﾘｰﾝ
 	int puyoScreenID_;								// ぷよ操作場所描画用ｽｸﾘｰﾝ
-	int NoticeOzyamaScrID;							// お邪魔ぷよ予告用ｽｸﾘｰﾝ
+	int gostScreen_;								// ｺﾞｰｽﾄ描画先
+	int noticeOzyamaScrID_;							// お邪魔ぷよ予告用ｽｸﾘｰﾝ
 	int playerID_;									// 自分が何番目か
 	int padNum_;									// どのﾊﾟｯﾄﾞを使うか
 
@@ -81,9 +86,10 @@ private:
 	float rad_;										// 描画時角度
 
 	std::map<CON_ID,std::shared_ptr<Input*>> input_;					// 入力ｸﾗｽ管理用
-	CON_ID inputID_;									// 操作ｸﾗｽ選択用
+	CON_ID inputID_;								// 操作ｸﾗｽ選択用
 
 	std::vector<sharPuyo> puyoList_;				// ぷよ管理用ﾘｽﾄ
+
 	std::vector<sharPuyo*> playErea_;				// 下の奴を二次元配列みたいにｱｸｾｽするとき用
 	std::vector<sharPuyo> playEreaBase_;			// playErea全体のﾃﾞｰﾀ管理用配列
 	std::vector<sharPuyo*> eraseErea_;				// 下の奴を二次元配列みたいにｱｸｾｽするとき用

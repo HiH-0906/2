@@ -46,6 +46,7 @@ public:
     bool activ(void);
     void activ(bool flag);
     void playPuyo(bool flag);
+    bool playPuyo(void);
     int GetColor(void);
 protected:
     static puyoColor colorList_;

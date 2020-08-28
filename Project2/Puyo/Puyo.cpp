@@ -190,6 +190,11 @@ void Puyo::playPuyo(bool flag)
 	playPuyo_ = flag;
 }
 
+bool Puyo::playPuyo(void)
+{
+	return playPuyo_;
+}
+
 int Puyo::GetColor(void)
 {
 	return colorList_[id_];

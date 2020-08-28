@@ -1,12 +1,13 @@
 #pragma once
 #include "../BaseScene.h"
+#include "../../Input/Input.h"
 
 class MenuScene :
 	public BaseScene
 {
 public:
 	MenuScene();
-	MenuScene(unipueBase child, bool draw, bool stop,int screen);
+	MenuScene(unipueBase child, bool draw, bool stop,int screen, std::weak_ptr<Input*> input);
 	virtual ~MenuScene();
 	virtual unipueBase Update(unipueBase own)override;
 protected:
@@ -14,5 +15,7 @@ protected:
 	bool draw_;
 	bool stop_;
 	int screenImage_;
+
+	std::weak_ptr<Input*> input_;
 };
 

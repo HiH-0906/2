@@ -13,6 +13,5 @@ public:
 	~TitleScene();
 	virtual unipueBase Update(unipueBase own) override final;
 private:
-	std::vector<sharedButton> buttonList_;							// ÎŞÀİŠÇ——p
 };
 

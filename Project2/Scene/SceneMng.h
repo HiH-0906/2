@@ -64,7 +64,6 @@ public:
 
 	PlayEreaVec& playErea(void);
 	const int playNum(void);
-
 	void DrawPanel(Vector2 pos, Vector2 size, SCREEN_ID id, int num,int color, int oder);
 	
 private:

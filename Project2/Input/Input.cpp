@@ -8,8 +8,10 @@ Input::Input()
 }
 
 
-void Input::Setting(void)
+void Input::Setting(const int& p_id, const int& pad_id)
 {
+	p_id_ = p_id;
+	pad_id_ = pad_id;
 }
 
 bool Input::GetKeyTrg(INPUT_ID key)
@@ -30,6 +32,11 @@ bool Input::GetKeySty(INPUT_ID key)
 		return false;
 	}
 	return _input[key].first && _input[key].second;
+}
+
+void Input::SetPadNum(int&& num)
+{
+	pad_id_ = num;
 }
 
 void Input::Init()

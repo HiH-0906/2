@@ -60,7 +60,7 @@ bool SelectScene::Setting(void)
 		// Input‚Ì±¯ÌßÃÞ°ÄXV
 		for (auto id : CON_ID())
 		{
-			(*input_[i][id])->Update(i, 0);
+			(*input_[i][id])->Update();
 		}
 		// •Ï‚¦‚â‚·‚¢‚æ‚¤‚É‚¢‚Á‚½‚ñint‚É
 		int tmpid = static_cast<int>(idVec_[i]);
