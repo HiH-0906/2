@@ -8,7 +8,8 @@ Button::Button(Vector2&& pos, Vector2&& size)
 	pos_ = pos;
 	size_ = size;
 	color = 0xffffff;
-	screen = MakeScreen(1024, 512, true);
+	screen = MakeScreen(lpSceneMng.screenSize().x, lpSceneMng.screenSize().y, true);
+	func_ = [](Vector2& pos) {return true; };
 }
 
 Button::~Button()
@@ -41,8 +42,8 @@ void Button::Draw(void)
 	ClsDrawScreen();
 	// âÊëúçÏÇÎÇ§Él
 	DrawBox(pos_.x, pos_.y, pos_.x + size_.x, pos_.y + size_.y, color, true);
-	auto tmppos = pos_ + (size_ / 2);
-	lpSceneMng.AddDrawList({ tmppos,screen ,1.0,0.0,0,SCREEN_ID::PLAY,DATA_TYPE::IMG,true });
+	auto pos = lpSceneMng.screenSize() / 2;
+	lpSceneMng.AddDrawList({ pos,screen ,1.0,0.0,0,SCREEN_ID::PLAY,DATA_TYPE::IMG,true });
 
 	SetDrawScreen(idBuff);
 }

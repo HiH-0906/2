@@ -17,7 +17,7 @@ void SceneMng::Run()
 {
 	_dbgSetup(screenX, screenY, 16);
 
-	activeScene_ = std::make_unique<GameScene>();
+	activeScene_ = std::make_unique<TitleScene>();
 
 	while (!ProcessMessage() && !CheckHitKey(KEY_INPUT_ESCAPE))
 	{
