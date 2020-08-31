@@ -134,7 +134,6 @@ void PleyErea::DrawGost(void)
 	SetDrawScreen(gostScreen_);
 	ClsDrawScreen();
 
-	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 200);
 	auto gostListBase_ = playEreaBase_;
 	std::vector<sharPuyo*> gostList;
 	for (int no = 0; no < stgSize_.x; no++)
@@ -150,9 +149,8 @@ void PleyErea::DrawGost(void)
 		}
 		gostPos *= blockSize_;
 		gostPos += 16;
-		DrawCircle(gostPos.x, gostPos.y, 16, (*(puyoList_.begin() + i))->GetColor(), true);
+		DrawCircle(gostPos.x, gostPos.y, 4, (*(puyoList_.begin() + i))->GetColor(), true);
 	}
-	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 255);
 	Vector2 size = stgSize_;
 	size *= 32;
 	auto tmpPos = pos_ + offset_ + (size / 2);

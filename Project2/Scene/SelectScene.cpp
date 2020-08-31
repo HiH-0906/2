@@ -7,10 +7,11 @@
 #include "../Input/MouseState.h"
 #include "../_debug/_DebugConOut.h"
 
-SelectScene::SelectScene()
+SelectScene::SelectScene(std::vector<std::shared_ptr<PleyErea>>&& playErea)
 {
-	input_.resize(lpSceneMng.playNum());
-	for (int i = 0; i < lpSceneMng.playNum(); i++)
+	playErea_ = playErea;
+	input_.resize(playErea_.size());
+	for (int i = 0; i < playErea_.size(); i++)
 	{
 		input_[i].try_emplace(CON_ID::KEY, std::make_shared<Input*>(new keyState));
 		input_[i].try_emplace(CON_ID::PAD, std::make_shared<Input*>(new PadState));
@@ -37,9 +38,9 @@ unipueBase SelectScene::Update(unipueBase own)
 	if (Setting())
 	{
 		// 操作方法通知
-		lpSceneMng.playErea()[0]->inputID(std::move(idVec_[0]));
-		lpSceneMng.playErea()[1]->inputID(std::move(idVec_[1]));
-		return std::make_unique<GameScene>();
+		playErea_[0]->inputID(std::move(idVec_[0]));
+		playErea_[1]->inputID(std::move(idVec_[1]));
+		return std::make_unique<GameScene>(std::move(playErea_));
 	}
 	// 現在選択中操作方法確認用
 	lpSceneMng.AddDrawList({ {128,128},IMAGE_ID(imageKey_[idVec_[0]])[0],1.0,0.0,0,SCREEN_ID::PLAY,DATA_TYPE::IMG,true });
@@ -50,7 +51,7 @@ unipueBase SelectScene::Update(unipueBase own)
 bool SelectScene::Setting(void)
 {
 	// ﾌﾟﾚｲﾔｰ人数分回す
-	for (int i = 0; i < lpSceneMng.playNum(); i++)
+	for (int i = 0; i < playErea_.size(); i++)
 	{
 		// そのﾌﾟﾚｲﾔｰが決定状態なら更新しない
 		if (start_[i])
@@ -98,9 +99,9 @@ bool SelectScene::Setting(void)
 				if ((GetJoypadInputState(j) & PAD_INPUT_1))
 				{
 					// ほかの人と被ってないか 現状だ二人ﾌﾟﾚｲ想定
-					if (lpSceneMng.playErea()[i ^ 1]->padNum() != j)
+					if (playErea_[i ^ 1]->padNum() != j)
 					{
-						lpSceneMng.playErea()[i]->padNum(j);
+						playErea_[i]->padNum(j);
 						start_[i] = true;
 					}
 					break;

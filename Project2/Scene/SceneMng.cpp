@@ -135,8 +135,6 @@ bool SceneMng::SysInit(void)
 	drawScreen_.try_emplace(SCREEN_ID::PLAY, MakeScreen(screenX, screenY, true));
 	drawScreen_.try_emplace(SCREEN_ID::FRONT, MakeScreen(screenX, screenY, true));
 	fCnt_ = 0;
-	playErea_.emplace_back(std::make_shared<PleyErea>(Vector2{ 512, 768 }, Vector2{ 75,128 }, Vector2{ 0,0 }, CON_ID::KEY));
-	playErea_.emplace_back(std::make_shared<PleyErea>(Vector2{ 512, 768 }, Vector2{ 75,128 }, Vector2{ 512, 0 }, CON_ID::KEY));
 	lpImageMng.GetID("BG", "image/èÙ.png");
 	return true;
 }
@@ -146,15 +144,6 @@ void SceneMng::AddDrawList(DrawQueT&& que)
 	drawList_.emplace_back(que);
 }
 
-PlayEreaVec& SceneMng::playErea(void)
-{
-	return playErea_;
-}
-
-const int SceneMng::playNum(void)
-{
-	return playErea_.size();
-}
 
 
 void SceneMng::DrawPanel(Vector2 pos, Vector2 size, SCREEN_ID id, int num, int color,int oder)

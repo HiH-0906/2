@@ -1,17 +1,26 @@
 #pragma once
 #include <memory>
+#include <string>
+#include <map>
 #include <functional>
 #include "Vector2.h"
 
-using ButtonFunc = std::function<bool(Vector2& pos)>;
+using ButtonFunc = std::function<void(void)>;
+
+
+enum class BUTTON_MOVE
+{
+	NOMAL,
+	SCALING,
+};
 
 class Button
 {
 public:
-	Button(Vector2&& pos, Vector2&& size);
+	Button(Vector2&& pos,float&& rad,float&& rate, std::string&& key);
 	~Button();
 	bool Update(Vector2& pos,bool flag);
-	void SetButtonFunc(ButtonFunc&& func);
+	Vector2& pos(void);
 
 private:
 	void Draw(void);
@@ -19,12 +28,17 @@ private:
 protected:
 	int color;
 
-	// 座標関係
+	// 表示関係
 	Vector2 pos_;
 	Vector2 size_;
+	float rad_;
+	float rate_;
+	std::string key_;
 
-	// ﾎﾞﾀﾝ押下時実行用関数
-	ButtonFunc func_;
+	std::map<BUTTON_MOVE, ButtonFunc> func_;
+	BUTTON_MOVE mode_;
+
+	float addNum_;
 
 	bool CheckHitButton(Vector2& pos);
 };

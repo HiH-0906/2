@@ -3,8 +3,8 @@
 #include <vector>
 #include <functional>
 #include "../common/Vector2.h"
-#include "BaseScene.h"
 #include "../PleyErea.h"
+#include "BaseScene.h"
 #include "../State/SCREEN_ID.h"
 
 #define PUYO_RAD 16
@@ -44,7 +44,6 @@ enum class DRAW_QUE
 using DrawQueT = std::tuple<Vector2, int, double, double, int, SCREEN_ID, DATA_TYPE,bool>;
 using DrawList = std::vector<DrawQueT>;
 
-using PlayEreaVec = std::vector<std::shared_ptr<PleyErea>>;
 
 
 class SceneMng
@@ -62,8 +61,6 @@ public:
 
 	void AddDrawList(DrawQueT&& que);
 
-	PlayEreaVec& playErea(void);
-	const int playNum(void);
 	void DrawPanel(Vector2 pos, Vector2 size, SCREEN_ID id, int num,int color, int oder);
 	
 private:
@@ -80,7 +77,6 @@ private:
 	std::map<SCREEN_ID, std::vector<std::pair<int, Vector2>>> DrawMap_;
 	std::map<SCREEN_ID, std::vector<int>> EffectMap_;
 
-	PlayEreaVec playErea_;
 
 	DrawList drawList_;
 	const int screenX;

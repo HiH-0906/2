@@ -121,3 +121,4 @@ private:
 	friend struct WinMode;
 };
 
+using PlayEreaVec = std::vector<std::shared_ptr<PleyErea>>;

@@ -39,6 +39,14 @@ void Input::SetPadNum(int&& num)
 	pad_id_ = num;
 }
 
+void Input::Reset(void)
+{
+	for (auto id : INPUT_ID())
+	{
+		_input[id] = { false,false };
+	}
+}
+
 void Input::Init()
 {
 	for (auto id : INPUT_ID())

@@ -1,15 +1,28 @@
 #include <DxLib.h>
 #include "Button.h"
 #include "../Scene/SceneMng.h"
+#include "../ImageMng.h"
 
 
-Button::Button(Vector2&& pos, Vector2&& size)
+Button::Button(Vector2&& pos, float&& rad, float&& rate, std::string&& key)
 {
 	pos_ = pos;
-	size_ = size;
-	color = 0xffffff;
+	rad_ = rad;
+	rate_ = rate;
+	addNum_ = 0.003f;
+	key_ = key;
+	GetGraphSize(IMAGE_ID(key)[0], &size_.x, &size_.y);
 	screen = MakeScreen(lpSceneMng.screenSize().x, lpSceneMng.screenSize().y, true);
-	func_ = [](Vector2& pos) {return true; };
+	// ‰½‚à“ü‚ê‚Ä–³‚¢‚Æ‚Ü‚¸‚¢‚Ì‚Å‚Æ‚è‚ ‚¦‚¸
+	func_.try_emplace(BUTTON_MOVE::NOMAL, [&]() {rate_ = 1.0f; addNum_ = 0.003f; });
+	func_.try_emplace(BUTTON_MOVE::SCALING, [&]() {
+		rate_ += addNum_;
+		if (rate_ >= 1.1f || rate_ <= 0.9f)
+		{
+			addNum_ *= -1.0f;
+		}
+	});
+	mode_ = BUTTON_MOVE::NOMAL;
 }
 
 Button::~Button()
@@ -18,20 +31,24 @@ Button::~Button()
 
 bool Button::Update(Vector2& pos, bool flag)
 {
-	color = 0xffffff;
 	bool tmpflag = false;
 	if (CheckHitButton(pos))
 	{
-		color = 0x888888;
-		tmpflag = func_(pos);
+		mode_ = BUTTON_MOVE::SCALING;
+		tmpflag = true;
 	}
+	else
+	{
+		mode_ = BUTTON_MOVE::NOMAL;
+	}
+	func_[mode_]();
 	Draw();
 	return tmpflag;
 }
 
-void Button::SetButtonFunc(ButtonFunc&& func)
+Vector2& Button::pos(void)
 {
-	func_ = func;
+	return pos_;
 }
 
 void Button::Draw(void)
@@ -42,8 +59,7 @@ void Button::Draw(void)
 	ClsDrawScreen();
 	// ‰æ‘œì‚ë‚¤ƒl
 	DrawBox(pos_.x, pos_.y, pos_.x + size_.x, pos_.y + size_.y, color, true);
-	auto pos = lpSceneMng.screenSize() / 2;
-	lpSceneMng.AddDrawList({ pos,screen ,1.0,0.0,0,SCREEN_ID::PLAY,DATA_TYPE::IMG,true });
+	lpSceneMng.AddDrawList({ pos_,IMAGE_ID(key_)[0] ,rate_,rad_,0,SCREEN_ID::PLAY,DATA_TYPE::IMG,true });
 
 	SetDrawScreen(idBuff);
 }
@@ -51,6 +67,7 @@ void Button::Draw(void)
 bool Button::CheckHitButton(Vector2& pos)
 {
 	// ‚ ‚Á‚Ä‚écH
-	return (pos.x > pos_.x && pos.x < (pos_.x + size_.x) && pos.y > pos_.y && pos.y < (pos_.y + size_.y));
+	auto halfSize = size_ / 2;
+	return (pos.x > pos_.x - halfSize.x && pos.x < (pos_.x + halfSize.x) && pos.y > pos_.y - halfSize.y && pos.y < (pos_.y + halfSize.y));
 }
 

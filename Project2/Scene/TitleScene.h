@@ -2,6 +2,7 @@
 #include <vector>
 #include <memory>
 #include "BaseScene.h"
+#include "../PleyErea.h"
 #include "../common/Button.h"
 
 
@@ -14,5 +15,8 @@ public:
 	virtual unipueBase Update(unipueBase own) override final;
 private:
 	std::vector<sharedButton> button_;
+	size_t cursorNum_;
+	static bool close_;
+	PlayEreaVec playErea_;
 };
 

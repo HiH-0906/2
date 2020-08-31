@@ -23,6 +23,7 @@ public:
 	bool GetKeyTrg(INPUT_ID key);								// w’èID‚ÌÄØ¶Ş°”»’è
 	bool GetKeySty(INPUT_ID key);								// w’èID‚Ì‚¨‚µ‚Á‚Ï”»’è
 	virtual void SetPadNum(int&& num);
+	void Reset(void);
 private:
 	void Init(void);											// ‰Šú‰»
 protected:
