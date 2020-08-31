@@ -44,7 +44,7 @@ unipueBase TitleScene::Update(unipueBase own)
 				cursorNum_--;
 				if (cursorNum_ < 0)
 				{
-					cursorNum_ = button_.size() - 1;
+					cursorNum_ = static_cast<int>(button_.size() - 1);
 				}
 			}
 			if ((*playErea_[i]->GetInput())->GetKeyTrg(INPUT_ID::DOWN))
