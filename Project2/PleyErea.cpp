@@ -27,7 +27,10 @@ PleyErea::PleyErea(Vector2&& size, Vector2&& offset, Vector2&& pos, CON_ID id) :
 	offset_ = offset;
 	pos_ = pos;
 	Init(id);
-	(*input_[inputID_])->Setting(playerID_, padNum_);
+	for (auto id:CON_ID())
+	{
+		(*input_[id])->Setting(playerID_, padNum_);
+	}
 }
 
 PleyErea::~PleyErea()
@@ -440,9 +443,9 @@ bool PleyErea::PlesePose(void)
 	return (*input_[inputID_])->GetKeyTrg(INPUT_ID::POSE);
 }
 
-std::shared_ptr<Input*> PleyErea::GetInput(void)
+std::map<CON_ID, std::shared_ptr<Input*>> PleyErea::GetInput(void)
 {
-	return input_[inputID_];
+	return input_;
 }
 
 void PleyErea::padNum(int& num)

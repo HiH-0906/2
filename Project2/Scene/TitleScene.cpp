@@ -9,7 +9,7 @@ bool TitleScene::close_ = true;
 
 TitleScene::TitleScene()
 {
-	playErea_.emplace_back(std::make_shared<PleyErea>(Vector2{ 512, 768 }, Vector2{ 75,128 }, Vector2{ 0,0 }, CON_ID::KEY));
+	playErea_.emplace_back(std::make_shared<PleyErea>(Vector2{ 512, 768 }, Vector2{ 75,128 }, Vector2{ 0,0 }, CON_ID::MOUSE));
 	playErea_.emplace_back(std::make_shared<PleyErea>(Vector2{ 512, 768 }, Vector2{ 75,128 }, Vector2{ 512, 0 }, CON_ID::KEY));
 	lpImageMng.GetID("Title", "image/Title.png");
 	lpImageMng.GetID("start", "image/Title.png");
@@ -34,35 +34,43 @@ unipueBase TitleScene::Update(unipueBase own)
 	lpSceneMng.AddDrawList(DrawQueT{ {512,250},IMAGE_ID("Title")[0],1.0,0.0,0,SCREEN_ID::FRONT,DATA_TYPE::IMG,true });
 	if (!FadeUpdate())
 	{
-	// Ç◊ÇΩèëÇ´ÇæÇüÇüÇüÇüÇüÇü
-		for (int i = 0; i < playErea_.size(); i++)
+		// Ç◊ÇΩèëÇ´ÇæÇüÇüÇüÇüÇüÇü
+		for (size_t i = 0; i < playErea_.size(); i++)
 		{
-			(*playErea_[i]->GetInput())->Update();
+			for (auto id : CON_ID())
+			{
+				(*playErea_[i]->GetInput()[id])->Update();
 
-			if ((*playErea_[i]->GetInput())->GetKeyTrg(INPUT_ID::UP))
-			{
-				cursorNum_--;
-				if (cursorNum_ < 0)
+				if ((*playErea_[i]->GetInput()[id])->GetKeyTrg(INPUT_ID::UP))
 				{
-					cursorNum_ = static_cast<int>(button_.size() - 1);
+					cursorNum_--;
+					if (cursorNum_ < 0)
+					{
+						cursorNum_ = static_cast<int>(button_.size() - 1);
+					}
 				}
-			}
-			if ((*playErea_[i]->GetInput())->GetKeyTrg(INPUT_ID::DOWN))
-			{
-				cursorNum_++;
-				if (cursorNum_ >= button_.size())
+				if ((*playErea_[i]->GetInput()[id])->GetKeyTrg(INPUT_ID::DOWN))
 				{
-					cursorNum_ = 0;
+					cursorNum_++;
+					if (cursorNum_ >= static_cast<int>(button_.size()))
+					{
+						cursorNum_ = 0;
+					}
 				}
-			}
-			for (auto&& button : button_)
-			{
-				if (button->Update(button_[cursorNum_]->pos(), true) && (*playErea_[i]->GetInput())->GetKeyTrg(INPUT_ID::RROTA))
+				for (auto&& button : button_)
 				{
-					return std::make_unique<GameScene>(std::move(playErea_));			// º∞›êÿÇËë÷Ç¶
+					if (button->CheckHitButton(button_[cursorNum_]->pos()) && (*playErea_[i]->GetInput()[id])->GetKeyTrg(INPUT_ID::RROTA))
+					{
+						return std::make_unique<GameScene>(std::move(playErea_));
+					}
 				}
 			}
 		}
+		for (auto&& button : button_)
+		{
+			button->Update(button_[cursorNum_]->pos());
+		}
 	}
+
 	return std::move(own);
 }

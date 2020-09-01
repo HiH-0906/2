@@ -50,7 +50,7 @@ public:
 	const CON_ID& inputID(void)const;
 	const int& padNum(void)const;
 	bool PlesePose(void);							// Îß°½Ş—v¿ŠÖ”
-	std::shared_ptr<Input*> GetInput(void);
+	std::map<CON_ID, std::shared_ptr<Input*>> GetInput(void);
 	void padNum(int& num);
 	void inputID(CON_ID&& id);
 

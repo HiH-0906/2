@@ -21,7 +21,10 @@ GameScene::GameScene(PlayEreaVec&& playErea)
 	lpImageMng.GetID("ƒJƒEƒ“ƒg", "image/start_mes.png", Vector2{ 510,182 }, Vector2{ 1,2 });
 	for (auto erea:playErea_)
 	{
-		(*erea->GetInput())->Reset();
+		for (auto id:CON_ID())
+		{
+			(*erea->GetInput()[id])->Reset();
+		}
 	}
 	for (auto&& erea : playErea_)
 	{
@@ -88,7 +91,7 @@ unipueBase GameScene::Update(unipueBase own)
 				SetDrawScreen(DX_SCREEN_BACK);
 				GetDrawScreenGraph(0, 0, lpSceneMng.screenSize().x, lpSceneMng.screenSize().y, screenImage);
 				lpSceneMng.AddDrawList({ lpSceneMng.screenSize() / 2, screenImage,1.0,0.0,0,SCREEN_ID::PLAY,DATA_TYPE::IMG,true });
-				return std::make_unique<MenuScene>(std::move(own), true, false, screenImage, erea->GetInput());
+				return std::make_unique<MenuScene>(std::move(own), true, false, screenImage, erea->GetInput()[erea->inputID()]);
 			}
 		}
 	}

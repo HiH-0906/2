@@ -14,11 +14,15 @@ public:
 	CON_ID GetID(void)override final;
 	void Update(void)override final;
 	void Setting(const int& p_id, const int& pad_id)override final;
+	void Draw(Vector2&& pos);
 private:
 	bool GetMouseTrg(int id);
+	int cnt_;
+	int rad_;
 	Vector2 _pos;							// Ï³½Pos
 	Vector2 _buff;							// ‚Ç‚ê‚¾‚¯“®‚¢‚½‚©
 	int _mouseData;							// ¸Ø¯¸Å³
 	int _mouseDataOld;						// ¸Ø¯¸µ°ÙÄŞ
 	Vector2 _stanPos;						// Šî€ˆÊ’u ‰Šú’l^‚ñ’†
+	int mouseScreen_;
 };

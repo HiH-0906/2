@@ -3,9 +3,10 @@
 #include <string>
 #include <map>
 #include <functional>
+#include "../Scene/BaseScene.h"
 #include "Vector2.h"
 
-using ButtonFunc = std::function<void(void)>;
+using ButtonMoveFunc = std::function<void(void)>;
 
 
 enum class BUTTON_MOVE
@@ -19,12 +20,11 @@ class Button
 public:
 	Button(Vector2&& pos,float&& rad,float&& rate, std::string&& key);
 	~Button();
-	bool Update(Vector2& pos,bool flag);
+	void Update(Vector2& pos);
 	Vector2& pos(void);
-
+	bool CheckHitButton(Vector2& pos);
 private:
 	void Draw(void);
-	int screen;
 protected:
 	int color;
 
@@ -35,12 +35,11 @@ protected:
 	float rate_;
 	std::string key_;
 
-	std::map<BUTTON_MOVE, ButtonFunc> func_;
+	std::map<BUTTON_MOVE, ButtonMoveFunc> moveFunc_;
+
 	BUTTON_MOVE mode_;
 
 	float addNum_;
-
-	bool CheckHitButton(Vector2& pos);
 };
 
 using sharedButton = std::shared_ptr<Button>;

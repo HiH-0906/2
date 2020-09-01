@@ -19,7 +19,6 @@ public:
 private:
 	bool Setting(void);
 
-	std::vector <std::map<CON_ID, std::shared_ptr<Input*>>> input_;				// “ü—Í¸×½
 	std::vector<CON_ID> idVec_;
 	std::vector<bool> start_;
 
