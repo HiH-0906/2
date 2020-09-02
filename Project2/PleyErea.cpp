@@ -141,7 +141,7 @@ void PleyErea::DrawGost(void)
 	std::vector<sharPuyo*> gostList;
 	for (int no = 0; no < stgSize_.x; no++)
 	{
-		gostList.emplace_back(&gostListBase_[no * stgSize_.y]);
+		gostList.emplace_back(&gostListBase_[(no * stgSize_.y)]);
 	}
 	for (int i = 1; i >= 0; i--)
 	{
@@ -173,19 +173,19 @@ bool PleyErea::CheckMovePuyo(sharPuyo& puyo)
 	int offsetY = (puyo->pos().y % blockSize_ != 0);
 	if (tmpPos.y >= 0)
 	{
-		if (playErea_[static_cast<size_t>(tmpPos.x + 1)][static_cast<size_t>(tmpPos.y + offsetY)])
+		if (playErea_[(tmpPos.x + 1)][(tmpPos.y + offsetY)])
 		{
 			dirpermit.perbit.right = 0;
 		}
-		if (playErea_[static_cast<size_t>(tmpPos.x - 1)][static_cast<size_t>(tmpPos.y + offsetY)])
+		if (playErea_[(tmpPos.x - 1)][(tmpPos.y + offsetY)])
 		{
 			dirpermit.perbit.left = 0;
 		}
-		if (playErea_[static_cast<size_t>(tmpPos.x)][static_cast<size_t>(tmpPos.y - 1)])
+		if (playErea_[tmpPos.x][tmpPos.y - 1])
 		{
 			dirpermit.perbit.up = 0;
 		}
-		if (playErea_[static_cast<size_t>(tmpPos.x)][static_cast<size_t>(tmpPos.y + 1)])
+		if (playErea_[tmpPos.x][tmpPos.y + 1])
 		{
 			// â∫Ç…à⁄ìÆÇ≈Ç´Ç»Ç¢Ç∆Ç¢Ç§Ç±Ç∆ÇÕíÖínÇµÇΩÇ¡ÇøÇ„Å[Ç±Ç∆Ç‚Ç»!!
 			dirpermit.perbit.down = 0;
@@ -265,7 +265,7 @@ bool PleyErea::Init(CON_ID id)
 	for (int y = 0; y < stgSize_.y; y++)
 	{
 		playErea_[0][y] = std::make_shared<Puyo>(Vector2{ 0, blockSize_ * y }, PUYO_ID::WALL);
-		playErea_[stgSize_.x - 1][y] = std::make_shared<Puyo>(Vector2{ (stgSize_.x - 1) * blockSize_,(y) * blockSize_ }, PUYO_ID::WALL);
+		playErea_[(stgSize_.x - 1)][y] = std::make_shared<Puyo>(Vector2{ (stgSize_.x - 1) * blockSize_,(y) * blockSize_ }, PUYO_ID::WALL);
 	}
 	// inputçÏê¨
 	input_.try_emplace(CON_ID::KEY, std::make_shared<Input*>(new keyState()));

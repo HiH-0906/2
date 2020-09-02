@@ -61,7 +61,7 @@ public:
 
 	void AddDrawList(DrawQueT&& que);
 
-	void DrawPanel(Vector2 pos, Vector2 size, SCREEN_ID id, int num,int color, int oder);
+	void DrawPanel(SCREEN_ID id, int num,int color, int oder);
 	
 private:
 	struct SceneMngDeleter
@@ -81,6 +81,8 @@ private:
 	DrawList drawList_;
 	const int screenX;
 	const int screenY;
+
+	int panelScreen_;
 
 	std::map<DATA_TYPE, void(SceneMng::*)(DrawQueT&&)> drawFunc_;
 

@@ -9,12 +9,10 @@ bool TitleScene::close_ = true;
 
 TitleScene::TitleScene()
 {
-	playErea_.emplace_back(std::make_shared<PleyErea>(Vector2{ 512, 768 }, Vector2{ 75,128 }, Vector2{ 0,0 }, CON_ID::MOUSE));
+	playErea_.emplace_back(std::make_shared<PleyErea>(Vector2{ 512, 768 }, Vector2{ 75,128 }, Vector2{ 0,0 }, CON_ID::KEY));
 	playErea_.emplace_back(std::make_shared<PleyErea>(Vector2{ 512, 768 }, Vector2{ 75,128 }, Vector2{ 512, 0 }, CON_ID::KEY));
 	lpImageMng.GetID("Title", "image/Title.png");
-	lpImageMng.GetID("start", "image/Title.png");
-	button_.emplace_back(std::make_shared<Button>(Vector2{ 512,462 }, 0.0f, 1.0f, "start"));
-	button_.emplace_back(std::make_shared<Button>(Vector2{ 512,562 }, 0.0f, 1.0f, "start"));
+	lpImageMng.GetID("Space", "image/space.png");
 	cursorNum_ = 0;
 	FadeInit(close_);
 	if (close_)
@@ -57,18 +55,15 @@ unipueBase TitleScene::Update(unipueBase own)
 						cursorNum_ = 0;
 					}
 				}
-				for (auto&& button : button_)
+				if ((*playErea_[i]->GetInput()[id])->GetKeyTrg(INPUT_ID::RROTA)||CheckHitKey(KEY_INPUT_SPACE))
 				{
-					if (button->CheckHitButton(button_[cursorNum_]->pos()) && (*playErea_[i]->GetInput()[id])->GetKeyTrg(INPUT_ID::RROTA))
-					{
-						return std::make_unique<GameScene>(std::move(playErea_));
-					}
+					return std::make_unique<GameScene>(std::move(playErea_));
 				}
 			}
 		}
-		for (auto&& button : button_)
+		if ((lpSceneMng.fCnt() - startFCnt_) / 45 % 2)
 		{
-			button->Update(button_[cursorNum_]->pos());
+			lpSceneMng.AddDrawList(DrawQueT{ {512,500},IMAGE_ID("Space")[0],1.0,0.0,0,SCREEN_ID::FRONT,DATA_TYPE::IMG,true });
 		}
 	}
 

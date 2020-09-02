@@ -12,7 +12,6 @@ public:
 private:
 	std::vector<std::shared_ptr<PleyErea>> playErea_;
 	int playPadNum_;
-	int startFCnt_;
 	int cntDownNum_;
 	bool overFlag;
 };

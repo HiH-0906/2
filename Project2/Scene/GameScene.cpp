@@ -15,10 +15,10 @@ GameScene::GameScene(PlayEreaVec&& playErea)
 	playErea_ = playErea;
 	srand((unsigned int)time(NULL));
 	playPadNum_ = 0;
-	startFCnt_ = lpSceneMng.fCnt();
 	cntDownNum_ = 0;
 	overFlag = false;
-	lpImageMng.GetID("カウント", "image/start_mes.png", Vector2{ 510,182 }, Vector2{ 1,2 });
+	lpImageMng.GetID("カウント", "image/start_mes.png", Vector2{ 510,142 }, Vector2{ 1,2 });
+	lpImageMng.GetID("巻物", "image/まきもの.png");
 	for (auto erea:playErea_)
 	{
 		for (auto id:CON_ID())
@@ -68,22 +68,18 @@ unipueBase GameScene::Update(unipueBase own)
 		{
 
 			reNum = erea->UpDate();
-			if (!reNum == 0)
+			if (reNum >= 0)
 			{
 				int id = erea->playerID() ^ 1;
 				playErea_[id]->ozyamaCnt(reNum);
 			}
-			if (reNum == -1 && overFlag == false)
+			if (reNum == -1)
 			{
 				overFlag = true;
 			}
-			else if (reNum == -1 && overFlag == true)
+			if (reNum == -2)
 			{
 				return std::make_unique<GameOverScene>();
-			}
-			else
-			{
-				// 何もしない
 			}
 			if (erea->PlesePose())
 			{
@@ -97,11 +93,11 @@ unipueBase GameScene::Update(unipueBase own)
 	}
 	if (cntDownNum_ > 152 && cntDownNum_ < 380)
 	{
-		lpSceneMng.AddDrawList({ lpSceneMng.screenSize() / 2, IMAGE_ID("カウント")[0],1.0,0.0,5,SCREEN_ID::FRONT,DATA_TYPE::IMG,true });
+		lpSceneMng.AddDrawList({ {lpSceneMng.screenSize().x / 2,lpSceneMng.screenSize().y / 3}, IMAGE_ID("カウント")[0],1.0,0.0,5,SCREEN_ID::FRONT,DATA_TYPE::IMG,true });
 	}
-	else if (cntDownNum_ < 152 && cntDownNum_>62)
+	else if (cntDownNum_ <= 152 && cntDownNum_>62)
 	{
-		lpSceneMng.AddDrawList({ lpSceneMng.screenSize() / 2, IMAGE_ID("カウント")[1],1.0,0.0,5,SCREEN_ID::FRONT,DATA_TYPE::IMG,true });
+		lpSceneMng.AddDrawList({ {lpSceneMng.screenSize().x / 2,lpSceneMng.screenSize().y / 3}, IMAGE_ID("カウント")[1],1.0,0.0,5,SCREEN_ID::FRONT,DATA_TYPE::IMG,true });
 	}
 	playErea_[0]->Draw();
 	playErea_[1]->Draw();

@@ -74,7 +74,7 @@ void MouseState::Update(void)
 		// Œ≤∞Ÿ∏ÿØ∏Ç≈äÓèÄà íuïœçX
 		GetMousePoint(&_stanPos.x, &_stanPos.y);
 	}
-	Draw({ mposx, mposy });
+	//Draw({ mposx, mposy });
 	cnt_++;
 }
 
@@ -96,7 +96,7 @@ void MouseState::Draw(Vector2&& pos)
 	auto angle = atan2(tmpPos.y, tmpPos.x);
 
 	auto tmpRenge = tmpPos.x * tmpPos.x + tmpPos.y * tmpPos.y;
-	tmpRenge = sqrt(tmpRenge);
+	tmpRenge = static_cast<int>(sqrt(tmpRenge));
 	auto rad = min(rad_, tmpRenge);
 	rad = min(rad, 16);
 	tmpPos = { static_cast<int>(cos(angle) * rad),static_cast<int>(sin(angle) * rad) };

@@ -135,6 +135,7 @@ bool SceneMng::SysInit(void)
 	drawScreen_.try_emplace(SCREEN_ID::PLAY, MakeScreen(screenX, screenY, true));
 	drawScreen_.try_emplace(SCREEN_ID::FRONT, MakeScreen(screenX, screenY, true));
 	fCnt_ = 0;
+	panelScreen_ = MakeScreen(1024, 768, true);
 	lpImageMng.GetID("BG", "image/èÙ.png");
 	return true;
 }
@@ -146,18 +147,14 @@ void SceneMng::AddDrawList(DrawQueT&& que)
 
 
 
-void SceneMng::DrawPanel(Vector2 pos, Vector2 size, SCREEN_ID id, int num, int color,int oder)
+void SceneMng::DrawPanel(SCREEN_ID id, int num, int color,int oder)
 {
-	int idBuff = GetDrawScreen();
-	int screen;
-	screen = MakeScreen(size.x, size.y, true);
-	SetDrawScreen(screen);
+	SetDrawScreen(panelScreen_);
 	ClsDrawScreen();
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, num);
-	DrawBox(0, 0, size.x, size.y, color, true);
-	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 200);
-	lpSceneMng.AddDrawList({ pos,screen,1.0,0.0,oder,id ,DATA_TYPE::IMG ,true });
-	SetDrawScreen(idBuff);
+	DrawBox(0, 0, 1024, 768, color, true);
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 255);
+	lpSceneMng.AddDrawList({ screenSize() / 2,panelScreen_,1.0,0.0,oder,id ,DATA_TYPE::IMG ,true });
 }
 
 SceneMng::SceneMng():screenX(1024),screenY(768)

@@ -31,7 +31,7 @@ unipueBase MenuScene::Update(unipueBase own)
 	}
 	if (draw_)
 	{
-		lpSceneMng.DrawPanel(lpSceneMng.screenSize() / 2, lpSceneMng.screenSize(), SCREEN_ID::FRONT, 200,0x000000,5);
+		lpSceneMng.DrawPanel(SCREEN_ID::FRONT, 200,0x000000,5);
 		lpSceneMng.AddDrawList({ lpSceneMng.screenSize() / 2, screenImage_,1.0,0.0,0,SCREEN_ID::PLAY,DATA_TYPE::IMG,true });
 	}
 	if ((*input_.lock())->GetKeyTrg(INPUT_ID::POSE))

@@ -23,6 +23,7 @@ private:
 	int fadeScreen_;
 	std::string fadeType_;
 protected:
+	int startFCnt_;
 	void FadeInit(bool close);
 	int FadeUpdate(void);
 };

@@ -12,6 +12,7 @@ BaseScene::BaseScene() :fadeSpeed_(8)
 	fadePos_[1] = { 1024,0 };
 	
 	fadeCount_ = 0;
+	startFCnt_ = lpSceneMng.fCnt();
 }
 
 BaseScene::~BaseScene()
