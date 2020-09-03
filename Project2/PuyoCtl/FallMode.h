@@ -1,5 +1,7 @@
 #pragma once
+#include <DxLib.h>
 #include "../PleyErea.h"
+#include "../SoundMng.h"
 
 struct FallMode
 {
@@ -22,6 +24,7 @@ struct FallMode
 		{
 			// è¡Ç∑ëOÇ…Ç’ÇÊÅ[ÇÒ
 			stage.mode_ = STAGE_MODE::PUYON;
+			PlaySoundMem(lpSoundMng.GetHandle("Ç’Ç…ÇÂÇÒ"), DX_PLAYTYPE_BACK);
 		}
 		for (auto puyo : stage.puyoList_)
 		{

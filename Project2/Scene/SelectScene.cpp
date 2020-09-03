@@ -2,6 +2,7 @@
 #include "SceneMng.h"
 #include "GameScene.h"
 #include "../ImageMng.h"
+#include "../SoundMng.h"
 #include "../Input/keyState.h"
 #include "../Input/PadState.h"
 #include "../Input/MouseState.h"
@@ -131,6 +132,7 @@ bool SelectScene::Setting(void)
 					// ‚Ù‚©‚Ìl‚Æ”í‚Á‚Ä‚È‚¢‚© Œ»ó‚¾‚Æ“ñlÌßÚ²‘z’è
 					if (padNum_[i ^ 1] != j)
 					{
+						PlaySoundMem(lpSoundMng.GetHandle("‘¾ŒÛ"), DX_PLAYTYPE_BACK);
 						padNum_[i] = j;
 						start_[i] = true;
 					}
@@ -151,6 +153,7 @@ bool SelectScene::Setting(void)
 		}
 		if (input_[i]->GetKeyTrg(INPUT_ID::RROTA))
 		{
+			PlaySoundMem(lpSoundMng.GetHandle("‘¾ŒÛ"), DX_PLAYTYPE_BACK);
 			start_[i] = true;
 		}
 	}

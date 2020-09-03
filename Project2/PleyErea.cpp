@@ -120,10 +120,10 @@ void PleyErea::DrawOzyama(void)
 	{
 		return;
 	}
-	int size = blockSize_ / 2;
+	int size = blockSize_;
 	for (int i = 0; i < ozyamaCnt_; i++)
 	{
-		DrawCircle((size * (i % 12) + 8) + blockSize_, (24 - (size * (i / 12))), 8, 0x888888, true);
+		DrawCircle((size * (i % 6) + 16) + blockSize_, (16 - (size * (i / 6))), 16, 0x888888, true);
 	}
 	SetDrawScreen(idBefor);
 }

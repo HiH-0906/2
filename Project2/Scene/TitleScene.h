@@ -17,5 +17,6 @@ private:
 	std::vector<sharedButton> button_;
 	static bool close_;
 	int cnt_;
+	int bgm_;
 };
 

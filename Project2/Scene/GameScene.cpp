@@ -9,6 +9,7 @@
 #include "../State/CON_ID.h"
 #include "../EffectMng.h"
 #include "../ImageMng.h"
+#include "../SoundMng.h"
 
 GameScene::GameScene(PlayEreaVec&& playErea)
 {
@@ -18,6 +19,11 @@ GameScene::GameScene(PlayEreaVec&& playErea)
 	cntDownNum_ = 0;
 	overFlag = false;
 	lpImageMng.GetID("カウント", "image/start_mes.png", Vector2{ 510,142 }, Vector2{ 1,2 });
+	lpSoundMng.SetHandle("ぷにょん");
+	lpSoundMng.SetHandle("泡");
+	lpSoundMng.SetHandle("Game");
+	PlaySoundMem(lpSoundMng.GetHandle("Game"), DX_PLAYTYPE_LOOP);
+	ChangeVolumeSoundMem(0, lpSoundMng.GetHandle("Game"));
 	for (auto&& erea : playErea_)
 	{
 		if (erea->inputID() == CON_ID::PAD)
@@ -36,6 +42,28 @@ unipueBase GameScene::Update(unipueBase own)
 {
 	_dbgStartDraw();
 	cntDownNum_ = FadeUpdate();
+	if (cntDownNum_ > 152 && cntDownNum_ < 380)
+	{
+		lpSceneMng.AddDrawList({ {lpSceneMng.screenSize().x / 2,lpSceneMng.screenSize().y / 3}, IMAGE_ID("カウント")[0],1.0,0.0,5,SCREEN_ID::FRONT,DATA_TYPE::IMG,true });
+	}
+	else if (cntDownNum_ <= 152 && cntDownNum_ > 62)
+	{
+		lpSceneMng.AddDrawList({ {lpSceneMng.screenSize().x / 2,lpSceneMng.screenSize().y / 3}, IMAGE_ID("カウント")[1],1.0,0.0,5,SCREEN_ID::FRONT,DATA_TYPE::IMG,true });
+	}
+	if (cntDownNum_ > 255)
+	{
+		cntDownNum_ -= 510;
+		ChangeVolumeSoundMem(255 - (abs(cntDownNum_)), lpSoundMng.GetHandle("Title"));
+	}
+	else if (cntDownNum_ != 0)
+	{
+		cntDownNum_ -= 255;
+		ChangeVolumeSoundMem((abs(cntDownNum_)), lpSoundMng.GetHandle("Game"));
+	}
+	else
+	{
+		// 何もしない
+	}
 	lpSceneMng.AddDrawList({ {512,384},IMAGE_ID("BG")[0],1.0,0.0,0,SCREEN_ID::BG,DATA_TYPE::IMG,true });
 
 	int reNum = 0;
@@ -71,12 +99,14 @@ unipueBase GameScene::Update(unipueBase own)
 			}
 			if (reNum == -2)
 			{
+				lpSceneMng.DrawPanel(SCREEN_ID::FRONT, 200, 0x000000, 0);
 				if ((lpSceneMng.fCnt() - startFCnt_) / 45 % 2)
 				{
-					lpSceneMng.AddDrawList(DrawQueT{ {512,600},IMAGE_ID("Space")[0],1.0,0.0,0,SCREEN_ID::FRONT,DATA_TYPE::IMG,true });
+					lpSceneMng.AddDrawList(DrawQueT{ {512,600},IMAGE_ID("Space")[0],1.0,0.0,5,SCREEN_ID::FRONT,DATA_TYPE::IMG,true });
 				}
 				if (CheckHitKey(KEY_INPUT_SPACE))
 				{
+					PlaySoundMem(lpSoundMng.GetHandle("太鼓"), DX_PLAYTYPE_BACK);
 					return std::make_unique<TitleScene>();
 				}
 			}
@@ -89,14 +119,6 @@ unipueBase GameScene::Update(unipueBase own)
 				return std::make_unique<MenuScene>(std::move(own), true, false, screenImage, erea->GetInput());
 			}
 		}
-	}
-	if (cntDownNum_ > 152 && cntDownNum_ < 380)
-	{
-		lpSceneMng.AddDrawList({ {lpSceneMng.screenSize().x / 2,lpSceneMng.screenSize().y / 3}, IMAGE_ID("カウント")[0],1.0,0.0,5,SCREEN_ID::FRONT,DATA_TYPE::IMG,true });
-	}
-	else if (cntDownNum_ <= 152 && cntDownNum_>62)
-	{
-		lpSceneMng.AddDrawList({ {lpSceneMng.screenSize().x / 2,lpSceneMng.screenSize().y / 3}, IMAGE_ID("カウント")[1],1.0,0.0,5,SCREEN_ID::FRONT,DATA_TYPE::IMG,true });
 	}
 	playErea_[0]->Draw();
 	playErea_[1]->Draw();

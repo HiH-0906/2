@@ -1,5 +1,7 @@
 #pragma once
+#include <DxLib.h>
 #include "../PleyErea.h"
+#include "../SoundMng.h"
 
 struct EraseMode
 {
@@ -14,6 +16,7 @@ struct EraseMode
 		if (delFlag)
 		{
 			stage.rensaNum_++;
+			PlaySoundMem(lpSoundMng.GetHandle("ñA"), DX_PLAYTYPE_BACK);
 			// è¡Ç∑ìzÇ¢ÇΩÇÃÇ≈è¡Ç∑
 			stage.DeletePuyo();
 			std::for_each(stage.puyoList_.rbegin(), stage.puyoList_.rend(), [&](sharPuyo& puyo) {

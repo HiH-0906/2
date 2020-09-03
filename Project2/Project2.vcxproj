@@ -176,6 +176,7 @@
     <ClCompile Include="Puyo\Puyo.cpp" />
     <ClCompile Include="Scene\SceneMng.cpp" />
     <ClCompile Include="Scene\SelectScene.cpp" />
+    <ClCompile Include="SoundMng.cpp" />
     <ClCompile Include="State\INPUT_ID.cpp" />
     <ClCompile Include="Scene\TitleScene.cpp" />
     <ClCompile Include="_debug\_DebugConOut.cpp" />
@@ -211,6 +212,7 @@
     <ClInclude Include="PuyoCtl\FallMode.h" />
     <ClInclude Include="Scene\SceneMng.h" />
     <ClInclude Include="Scene\SelectScene.h" />
+    <ClInclude Include="SoundMng.h" />
     <ClInclude Include="State\CON_ID.h" />
     <ClInclude Include="State\INPUT_ID.h" />
     <ClInclude Include="State\PUYO_ID.h" />
