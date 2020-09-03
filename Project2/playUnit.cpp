@@ -66,7 +66,7 @@ void playUnit::Init(void)
 	});
 	// Še“ü—Í—pŠÖ”“o˜^ ‚È‚ñ‚©‚Ü‚Æ‚ß‚ê‚»‚¤Š´–žÚ
 	keyFunc_.try_emplace(INPUT_ID::DOWN, [&]() {
-		if ((*playErea_.input_[playErea_.inputID_])->GetKeySty(INPUT_ID::DOWN))
+		if ((*playErea_.input_)->GetKeySty(INPUT_ID::DOWN))
 		{
 			playErea_.puyoList_[0]->SetSoftDrop();
 			playErea_.puyoList_[1]->SetSoftDrop();
@@ -74,7 +74,7 @@ void playUnit::Init(void)
 	});
 	keyFunc_.try_emplace(INPUT_ID::LEFT, [&]() {
 
-		if ((*playErea_.input_[playErea_.inputID_])->GetKeyTrg(INPUT_ID::LEFT))
+		if ((*playErea_.input_)->GetKeyTrg(INPUT_ID::LEFT))
 		{
 			auto vec1 = playErea_.puyoList_[0]->GetGrid(playErea_.blockSize_);
 			auto vec2 = playErea_.puyoList_[1]->GetGrid(playErea_.blockSize_);
@@ -89,7 +89,7 @@ void playUnit::Init(void)
 	});
 	keyFunc_.try_emplace(INPUT_ID::RIGHT, [&]() {
 
-		if ((*playErea_.input_[playErea_.inputID_])->GetKeyTrg(INPUT_ID::RIGHT))
+		if ((*playErea_.input_)->GetKeyTrg(INPUT_ID::RIGHT))
 		{
 			auto vec1 = playErea_.puyoList_[0]->GetGrid(playErea_.blockSize_);
 			auto vec2 = playErea_.puyoList_[1]->GetGrid(playErea_.blockSize_);
@@ -103,13 +103,13 @@ void playUnit::Init(void)
 		}
 	});
 	keyFunc_.try_emplace(INPUT_ID::RROTA, [&]() {
-		if ((*playErea_.input_[playErea_.inputID_])->GetKeyTrg(INPUT_ID::RROTA))
+		if ((*playErea_.input_)->GetKeyTrg(INPUT_ID::RROTA))
 		{
 			RotaPuyo(playErea_.puyoList_[targetID_]->pos(), playErea_.puyoList_[targetID_ ^ 1]->pos(), true);
 		}
 	});
 	keyFunc_.try_emplace(INPUT_ID::LROTA, [&]() {
-		if ((*playErea_.input_[playErea_.inputID_])->GetKeyTrg(INPUT_ID::LROTA))
+		if ((*playErea_.input_)->GetKeyTrg(INPUT_ID::LROTA))
 		{
 			RotaPuyo(playErea_.puyoList_[targetID_]->pos(), playErea_.puyoList_[targetID_ ^ 1]->pos(), false);
 		}

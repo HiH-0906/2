@@ -38,30 +38,25 @@ void MouseState::Update(void)
 	GetMousePoint(&mposx, &mposy);
 	// ‰„X‚Æ‚½‚Ü‚ébuff
 	_buff = _stanPos - Vector2{ mposx,mposy };
-	auto buff = GetMouseWheelRotVol();
-	if (abs(buff))
+	// ‚²‚è‰Ÿ‚µ
+	if (cnt_ % 20 == 0)
 	{
-		cnt_ = 0;
-	}
-	/*if (cnt_ % 30 == 0)
-	{*/
-		// ‚²‚è‰Ÿ‚µ
-		if (/*_buff.x >= rad_*/buff<0)
+		if (_buff.x >= rad_)
 		{
 			_input[INPUT_ID::LEFT].first = true;
 			_input[INPUT_ID::LEFT].second = false;
 		}
-		else if (/*_buff.x <= -rad_*/buff > 0)
+		else if (_buff.x <= -rad_)
 		{
 			_input[INPUT_ID::RIGHT].first = true;
 			_input[INPUT_ID::RIGHT].second = false;
 		}
-		if (_buff.y >= rad_)
-		{
-			_input[INPUT_ID::UP].first = true;
-			_input[INPUT_ID::UP].second = false;
-		}
-	//}
+	}
+	if (_buff.y >= rad_)
+	{
+		_input[INPUT_ID::UP].first = true;
+		_input[INPUT_ID::UP].second = false;
+	}
 	if (_buff.y <= -rad_)
 	{
 		_input[INPUT_ID::DOWN].first = true;
@@ -74,8 +69,8 @@ void MouseState::Update(void)
 		// Î²°Ù¸Ø¯¸‚ÅŠî€ˆÊ’u•ÏX
 		GetMousePoint(&_stanPos.x, &_stanPos.y);
 	}
-	//Draw({ mposx, mposy });
 	cnt_++;
+	Draw({ mposx, mposy });
 }
 
 void MouseState::Setting(const int& p_id, const int& pad_id)

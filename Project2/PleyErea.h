@@ -50,7 +50,7 @@ public:
 	const CON_ID& inputID(void)const;
 	const int& padNum(void)const;
 	bool PlesePose(void);							// ﾎﾟｰｽﾞ要請関数
-	std::map<CON_ID, std::shared_ptr<Input*>> GetInput(void);
+	std::shared_ptr<Input*> GetInput(void);
 	void padNum(int& num);
 	void inputID(CON_ID&& id);
 
@@ -85,7 +85,7 @@ private:
 	Vector2 pos_;									// 描画位置
 	float rad_;										// 描画時角度
 
-	std::map<CON_ID,std::shared_ptr<Input*>> input_;					// 入力ｸﾗｽ管理用
+	std::shared_ptr<Input*>input_;					// 入力ｸﾗｽ管理用
 	CON_ID inputID_;								// 操作ｸﾗｽ選択用
 
 	std::vector<sharPuyo> puyoList_;				// ぷよ管理用ﾘｽﾄ

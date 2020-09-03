@@ -1,5 +1,6 @@
 #include "MenuScene.h"
 #include "../SceneMng.h"
+#include "../../ImageMng.h"
 
 MenuScene::MenuScene()
 {
@@ -16,6 +17,7 @@ MenuScene::MenuScene(unipueBase child, bool draw, bool stop, int screen, std::we
 	stop_ = stop;
 	screenImage_ = screen;
 	input_ = input;
+	lpImageMng.GetID("ˆêŽž’âŽ~", "image/ˆêŽž’âŽ~.png");
 }
 
 MenuScene::~MenuScene()
@@ -31,8 +33,9 @@ unipueBase MenuScene::Update(unipueBase own)
 	}
 	if (draw_)
 	{
-		lpSceneMng.DrawPanel(SCREEN_ID::FRONT, 200,0x000000,5);
-		lpSceneMng.AddDrawList({ lpSceneMng.screenSize() / 2, screenImage_,1.0,0.0,0,SCREEN_ID::PLAY,DATA_TYPE::IMG,true });
+		lpSceneMng.DrawPanel(SCREEN_ID::PLAY, 200,0x000000,5);
+		lpSceneMng.AddDrawList({ lpSceneMng.screenSize() / 2, IMAGE_ID("ˆêŽž’âŽ~")[0],1.0,0.0,0,SCREEN_ID::FRONT,DATA_TYPE::IMG,true });
+		lpSceneMng.AddDrawList({ lpSceneMng.screenSize() / 2, screenImage_,1.0,0.0,0,SCREEN_ID::BG,DATA_TYPE::IMG,true });
 	}
 	if ((*input_.lock())->GetKeyTrg(INPUT_ID::POSE))
 	{

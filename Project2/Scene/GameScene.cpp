@@ -1,7 +1,7 @@
 #include <time.h>
 #include <DxLib.h>
 #include "GameScene.h"
-#include "GameOverScene.h"
+#include "TitleScene.h"
 #include "Menu/MenuScene.h"
 #include "Menu/MissedConScene.h"
 #include "../_debug/_DebugConOut.h"
@@ -18,14 +18,6 @@ GameScene::GameScene(PlayEreaVec&& playErea)
 	cntDownNum_ = 0;
 	overFlag = false;
 	lpImageMng.GetID("ƒJƒEƒ“ƒg", "image/start_mes.png", Vector2{ 510,142 }, Vector2{ 1,2 });
-	lpImageMng.GetID("Šª•¨", "image/‚Ü‚«‚à‚Ì.png");
-	for (auto erea:playErea_)
-	{
-		for (auto id:CON_ID())
-		{
-			(*erea->GetInput()[id])->Reset();
-		}
-	}
 	for (auto&& erea : playErea_)
 	{
 		if (erea->inputID() == CON_ID::PAD)
@@ -43,12 +35,13 @@ GameScene::~GameScene()
 unipueBase GameScene::Update(unipueBase own)
 {
 	_dbgStartDraw();
+	cntDownNum_ = FadeUpdate();
 	lpSceneMng.AddDrawList({ {512,384},IMAGE_ID("BG")[0],1.0,0.0,0,SCREEN_ID::BG,DATA_TYPE::IMG,true });
 
 	int reNum = 0;
 	int fCnt = lpSceneMng.fCnt() - startFCnt_;
 
-	if (fCnt / 60 % 2 && playPadNum_ != 0)
+	if ((fCnt % 60) == 0 && playPadNum_ != 0)
 	{
 		ReSetupJoypad();
 	}
@@ -61,7 +54,6 @@ unipueBase GameScene::Update(unipueBase own)
 		lpSceneMng.AddDrawList({ lpSceneMng.screenSize() / 2, screenImage,1.0,0.0,0,SCREEN_ID::PLAY,DATA_TYPE::IMG,true });
 		return std::make_unique<MissedConScene>(std::move(own), true, false, screenImage, playPadNum_);
 	}
-	cntDownNum_ = FadeUpdate();
 	if (!cntDownNum_)
 	{
 		for (auto&& erea : playErea_)
@@ -79,7 +71,14 @@ unipueBase GameScene::Update(unipueBase own)
 			}
 			if (reNum == -2)
 			{
-				return std::make_unique<GameOverScene>();
+				if ((lpSceneMng.fCnt() - startFCnt_) / 45 % 2)
+				{
+					lpSceneMng.AddDrawList(DrawQueT{ {512,600},IMAGE_ID("Space")[0],1.0,0.0,0,SCREEN_ID::FRONT,DATA_TYPE::IMG,true });
+				}
+				if (CheckHitKey(KEY_INPUT_SPACE))
+				{
+					return std::make_unique<TitleScene>();
+				}
 			}
 			if (erea->PlesePose())
 			{
@@ -87,7 +86,7 @@ unipueBase GameScene::Update(unipueBase own)
 				SetDrawScreen(DX_SCREEN_BACK);
 				GetDrawScreenGraph(0, 0, lpSceneMng.screenSize().x, lpSceneMng.screenSize().y, screenImage);
 				lpSceneMng.AddDrawList({ lpSceneMng.screenSize() / 2, screenImage,1.0,0.0,0,SCREEN_ID::PLAY,DATA_TYPE::IMG,true });
-				return std::make_unique<MenuScene>(std::move(own), true, false, screenImage, erea->GetInput()[erea->inputID()]);
+				return std::make_unique<MenuScene>(std::move(own), true, false, screenImage, erea->GetInput());
 			}
 		}
 	}

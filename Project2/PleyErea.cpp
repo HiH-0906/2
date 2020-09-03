@@ -27,10 +27,7 @@ PleyErea::PleyErea(Vector2&& size, Vector2&& offset, Vector2&& pos, CON_ID id) :
 	offset_ = offset;
 	pos_ = pos;
 	Init(id);
-	for (auto id:CON_ID())
-	{
-		(*input_[id])->Setting(playerID_, padNum_);
-	}
+	(*input_)->Setting(playerID_, padNum_);
 }
 
 PleyErea::~PleyErea()
@@ -42,7 +39,7 @@ PleyErea::~PleyErea()
 int PleyErea::UpDate()
 {
 	int reNum = stageFunc_[mode_](*this);
-	(*input_[inputID_])->Update();
+	(*input_)->Update();
 	if (reNum == -1)
 	{
 		// Ç±Ç±Ç≈πﬁ∞—µ∞ ﬁ∞Ç…à⁄çs
@@ -71,8 +68,8 @@ void PleyErea::Draw(void)
 	ClsDrawScreen();
 	Vector2 size = stgSize_;
 	size *= 32;
-	auto bgPos = pos_ + offset_ + (size / 2);
-	lpSceneMng.AddDrawList({ bgPos,IMAGE_ID("PUYOBG")[0],rad_,0.0,-1,SCREEN_ID::PLAY ,DATA_TYPE::IMG ,true });
+	DrawGraph(0, 0, IMAGE_ID("PUYOBG")[0],true);
+	//lpSceneMng.AddDrawList({ bgPos,IMAGE_ID("PUYOBG")[0],1.0,rad_,-1,SCREEN_ID::PLAY ,DATA_TYPE::IMG ,true });
 	// Ç’ÇÊÅ[ÇÒéûÇ«ÇÍÇæÇØíæÇﬁÇ©
 	for (auto&& list : puyoList_)
 	{
@@ -111,7 +108,7 @@ void PleyErea::Draw(void)
 	DrawGraph(offset_.x, offset_.y, noticeOzyamaScrID_, true);
 
 	auto tmpPos = pos_ + (size_ / 2);
-	lpSceneMng.AddDrawList({ tmpPos,screenID_,rad_,0.0,1,SCREEN_ID::PLAY ,DATA_TYPE::IMG ,true});
+	lpSceneMng.AddDrawList({ tmpPos,screenID_,1.0,rad_,1,SCREEN_ID::PLAY ,DATA_TYPE::IMG ,true});
 }
 
 void PleyErea::DrawOzyama(void)
@@ -157,7 +154,7 @@ void PleyErea::DrawGost(void)
 	Vector2 size = stgSize_;
 	size *= 32;
 	auto tmpPos = pos_ + offset_ + (size / 2);
-	lpSceneMng.AddDrawList({ tmpPos,gostScreen_,rad_,0.0,0,SCREEN_ID::PLAY ,DATA_TYPE::IMG ,true });
+	lpSceneMng.AddDrawList({ tmpPos,gostScreen_,1.0,rad_,0,SCREEN_ID::PLAY ,DATA_TYPE::IMG ,true });
 	SetDrawScreen(idBuff);
 }
 
@@ -268,10 +265,22 @@ bool PleyErea::Init(CON_ID id)
 		playErea_[(stgSize_.x - 1)][y] = std::make_shared<Puyo>(Vector2{ (stgSize_.x - 1) * blockSize_,(y) * blockSize_ }, PUYO_ID::WALL);
 	}
 	// inputçÏê¨
-	input_.try_emplace(CON_ID::KEY, std::make_shared<Input*>(new keyState()));
-	input_.try_emplace(CON_ID::PAD, std::make_shared<Input*>(new PadState()));
-	input_.try_emplace(CON_ID::MOUSE, std::make_shared<Input*>(new MouseState()));
-
+	switch (id)
+	{
+	case CON_ID::KEY:
+		input_ = std::make_shared<Input*>(new keyState());
+		break;
+	case CON_ID::PAD:
+		input_ = std::make_shared<Input*>(new PadState());
+		break;
+	case CON_ID::MOUSE:
+		input_ = std::make_shared<Input*>(new MouseState());
+		break;
+	case CON_ID::MAX:
+		break;
+	default:
+		break;
+	}
 	inputID_ = id;
 
 	Vector2 pos = { blockSize_ * (stgSize_.x + 2),blockSize_ * 3 };
@@ -286,7 +295,7 @@ bool PleyErea::Init(CON_ID id)
 	lpImageMng.GetID("PUYOBG", "image/puyobg.png");
 
 	padNum_ = 0;
-	rad_ = 1.0;
+	rad_ = 0.0f;
 
 	return true;
 }
@@ -440,10 +449,10 @@ const int& PleyErea::padNum(void) const
 
 bool PleyErea::PlesePose(void)
 {
-	return (*input_[inputID_])->GetKeyTrg(INPUT_ID::POSE);
+	return (*input_)->GetKeyTrg(INPUT_ID::POSE);
 }
 
-std::map<CON_ID, std::shared_ptr<Input*>> PleyErea::GetInput(void)
+std::shared_ptr<Input*> PleyErea::GetInput(void)
 {
 	return input_;
 }
@@ -451,7 +460,7 @@ std::map<CON_ID, std::shared_ptr<Input*>> PleyErea::GetInput(void)
 void PleyErea::padNum(int& num)
 {
 	padNum_ = num;
-	(*input_[inputID_])->SetPadNum(std::move(num));
+	(*input_)->SetPadNum(std::move(num));
 }
 
 void PleyErea::inputID(CON_ID&& id)

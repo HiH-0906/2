@@ -149,12 +149,14 @@ void SceneMng::AddDrawList(DrawQueT&& que)
 
 void SceneMng::DrawPanel(SCREEN_ID id, int num, int color,int oder)
 {
+	int idBuff = GetDrawScreen();
 	SetDrawScreen(panelScreen_);
 	ClsDrawScreen();
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, num);
 	DrawBox(0, 0, 1024, 768, color, true);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 255);
 	lpSceneMng.AddDrawList({ screenSize() / 2,panelScreen_,1.0,0.0,oder,id ,DATA_TYPE::IMG ,true });
+	SetDrawScreen(idBuff);
 }
 
 SceneMng::SceneMng():screenX(1024),screenY(768)

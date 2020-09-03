@@ -1,6 +1,7 @@
 #include <DxLib.h>
 #include "../SceneMng.h"
 #include "MissedConScene.h"
+#include "../../ImageMng.h"
 #include "../../_debug/_DebugConOut.h"
 
 MissedConScene::MissedConScene()
@@ -20,6 +21,7 @@ MissedConScene::MissedConScene(unipueBase child, bool draw, bool stop, int scree
 	stop_ = stop;
 	screenImage_ = screen;
 	padNum_ = num;
+	lpImageMng.GetID("çƒê⁄ë±", "image/çƒê⁄ë±.png");
 }
 
 MissedConScene::~MissedConScene()
@@ -35,19 +37,14 @@ unipueBase MissedConScene::Update(unipueBase own)
 	}
 	if (draw_)
 	{
-		lpSceneMng.DrawPanel(SCREEN_ID::FRONT, 200, 0x000000, 5);
-		lpSceneMng.AddDrawList({ lpSceneMng.screenSize() / 2, screenImage_,1.0,0.0,0,SCREEN_ID::PLAY,DATA_TYPE::IMG,true });
+		lpSceneMng.DrawPanel(SCREEN_ID::PLAY, 200, 0x000000, 5);
+		lpSceneMng.AddDrawList({ lpSceneMng.screenSize() / 2, IMAGE_ID("çƒê⁄ë±")[0],1.0,0.0,0,SCREEN_ID::FRONT,DATA_TYPE::IMG,true });
+		lpSceneMng.AddDrawList({ lpSceneMng.screenSize() / 2, screenImage_,1.0,0.0,0,SCREEN_ID::BG,DATA_TYPE::IMG,true });
 	}
 	ReSetupJoypad();
 	if (GetJoypadNum() == padNum_)
 	{
-		for (int i = 1; i <= padNum_; i++)
-		{
-			if (GetJoypadInputState(i) & PAD_INPUT_8)
-			{
-				return std::move(childScene_);
-			}
-		}
+		return std::move(childScene_);
 	}
 	return std::move(own);
 }

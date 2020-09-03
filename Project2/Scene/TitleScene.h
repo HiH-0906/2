@@ -15,8 +15,7 @@ public:
 	virtual unipueBase Update(unipueBase own) override final;
 private:
 	std::vector<sharedButton> button_;
-	int cursorNum_;
 	static bool close_;
-	PlayEreaVec playErea_;
+	int cnt_;
 };
 
