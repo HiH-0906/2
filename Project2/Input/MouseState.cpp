@@ -51,7 +51,7 @@ void MouseState::Update(void)
 			_input[INPUT_ID::RIGHT].first = true;
 			_input[INPUT_ID::RIGHT].second = false;
 		}
-	}
+	} 
 	if (_buff.y >= rad_)
 	{
 		_input[INPUT_ID::UP].first = true;

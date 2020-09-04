@@ -26,6 +26,7 @@ PleyErea::PleyErea(Vector2&& size, Vector2&& offset, Vector2&& pos, CON_ID id) :
 {
 	offset_ = offset;
 	pos_ = pos;
+	lpImageMng.GetID("‚Î‚Â", "image/‚Î‚Â.png");
 	Init(id);
 	(*input_)->Setting(playerID_, padNum_);
 }
@@ -94,6 +95,7 @@ void PleyErea::Draw(void)
 		list->Draw(cnt);
 	}
 	DrawGraph(0, 0, IMAGE_ID("FREAM")[0], true);
+	DrawGraph(128, 32,IMAGE_ID("‚Î‚Â")[0], true);
 	if (puyoList_[0]->playPuyo() || puyoList_[1]->playPuyo())
 	{
 		DrawGost();
@@ -154,7 +156,7 @@ void PleyErea::DrawGost(void)
 	Vector2 size = stgSize_;
 	size *= 32;
 	auto tmpPos = pos_ + offset_ + (size / 2);
-	lpSceneMng.AddDrawList({ tmpPos,gostScreen_,1.0,rad_,0,SCREEN_ID::PLAY ,DATA_TYPE::IMG ,true });
+	lpSceneMng.AddDrawList({ tmpPos,gostScreen_,1.0,rad_,5,SCREEN_ID::PLAY ,DATA_TYPE::IMG ,true });
 	SetDrawScreen(idBuff);
 }
 

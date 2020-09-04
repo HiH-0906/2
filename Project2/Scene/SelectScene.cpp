@@ -8,7 +8,7 @@
 #include "../Input/MouseState.h"
 #include "../_debug/_DebugConOut.h"
 
-SelectScene::SelectScene(void)
+SelectScene::SelectScene()
 {
 	for (int i = 0; i < 2; i++)
 	{
@@ -29,7 +29,8 @@ SelectScene::SelectScene(void)
 	imageKey_[1].try_emplace(CON_ID::KEY, "Ç´Å[2");
 	imageKey_[1].try_emplace(CON_ID::PAD, "ÇœÇ¡Ç«");
 	imageKey_[1].try_emplace(CON_ID::MOUSE, "Ç‹Ç§Ç∑2");
-	for (int i = 0; i < input_.size(); i++)
+	
+	for (size_t i = 0; i < input_.size(); i++)
 	{
 		input_[i] = std::make_unique<keyState>();
 		input_[i]->Setting(i, i);
@@ -53,12 +54,12 @@ unipueBase SelectScene::Update(unipueBase own)
 	{
 		if (game_)
 		{
-			for (int i = 0; i < start_.size(); i++)
+			for (size_t i = 0; i < start_.size(); i++)
 			{
 				if (start_[i])
 				{
-					lpSceneMng.AddDrawList({ { 256 + (512 * i),384 }, IMAGE_ID("èÄîıäÆóπ")[0], 1.0, 0.0, 1, SCREEN_ID::FRONT, DATA_TYPE::IMG, true });
-					lpSceneMng.AddDrawList({ { 256 + (512 * i),384 }, IMAGE_ID("SelectBG")[0], 1.0, 0.0, 1, SCREEN_ID::PLAY, DATA_TYPE::IMG, true });
+					lpSceneMng.AddDrawList({ { static_cast<int>(256 + (512 * i)),384 }, IMAGE_ID("èÄîıäÆóπ")[0], 1.0, 0.0, 1, SCREEN_ID::FRONT, DATA_TYPE::IMG, true });
+					lpSceneMng.AddDrawList({ { static_cast <int>(256 + (512 * i)),384 }, IMAGE_ID("SelectBG")[0], 1.0, 0.0, 1, SCREEN_ID::PLAY, DATA_TYPE::IMG, true });
 				}
 			}
 			// ëÄçÏï˚ñ@í ím
@@ -69,12 +70,12 @@ unipueBase SelectScene::Update(unipueBase own)
 			return std::make_unique<GameScene>(std::move(playErea_));
 		}
 		game_ = Setting();
-		for (int i = 0; i < start_.size(); i++)
+		for (size_t i = 0; i < start_.size(); i++)
 		{
 			if (start_[i])
 			{
-				lpSceneMng.AddDrawList({ { 256 + (512 * i),384 }, IMAGE_ID("èÄîıäÆóπ")[0], 1.0, 0.0, 1, SCREEN_ID::FRONT, DATA_TYPE::IMG, true });
-				lpSceneMng.AddDrawList({ { 256 + (512 * i),384 }, IMAGE_ID("SelectBG")[0], 1.0, 0.0, 1, SCREEN_ID::PLAY, DATA_TYPE::IMG, true });
+				lpSceneMng.AddDrawList({ {static_cast <int> (256 + (512 * i)),384 }, IMAGE_ID("èÄîıäÆóπ")[0], 1.0, 0.0, 1, SCREEN_ID::FRONT, DATA_TYPE::IMG, true });
+				lpSceneMng.AddDrawList({ { static_cast <int>(256 + (512 * i)),384 }, IMAGE_ID("SelectBG")[0], 1.0, 0.0, 1, SCREEN_ID::PLAY, DATA_TYPE::IMG, true });
 			}
 		}
 	}
