@@ -32,11 +32,22 @@ bool NetWork::SetNetWorkMode(NetWorkMode mode)
 	return false;
 }
 
+bool NetWork::GetActive(void)
+{
+	return state_->GetActive();
+}
+
 IPDATA NetWork::GetIP(void)
 {
 	IPDATA myIP;
 	GetMyIPAddress(&myIP);
 	return myIP;
+}
+
+bool NetWork::ConnectHost(IPDATA hostIP)
+{
+
+	return false;
 }
 
 NetWorkMode NetWork::GetMode(void)

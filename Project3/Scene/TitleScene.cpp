@@ -1,4 +1,5 @@
 #include <iostream>
+#include <sstream>
 #include <DxLib.h>
 #include "TitleScene.h"
 #include "../NetWork/NetWork.h"
@@ -29,7 +30,22 @@ TitleScene::TitleScene()
 		}
 		else if (num == "2")
 		{
+			IPDATA hostIP;
 			lpNetWork.SetNetWorkMode(NetWorkMode::GEST);
+			std::string ip;
+			std::cout << "ホストのIPアドレス(IPv4)を入力してください" << std::endl;
+			std::cout << "IPアドレス(IPv4)は<.>で区切ってください" << std::endl;
+			std::cin >> ip;
+			std::replace(ip.begin(), ip.end(), '.', ' ');
+			std::istringstream iss(ip);
+			std::string ip1, ip2, ip3, ip4;
+			iss >> ip1 >> ip2 >> ip3 >> ip4;
+			hostIP.d1 = atoi(ip1.c_str());
+			hostIP.d2 = atoi(ip2.c_str());
+			hostIP.d3 = atoi(ip3.c_str());
+			hostIP.d4 = atoi(ip4.c_str());
+			lpNetWork.ConnectHost(hostIP);
+			TRACE("入力されたIPアドレスは%d.%d.%d.%dです\n", hostIP.d1, hostIP.d2, hostIP.d3, hostIP.d4);
 			loop = false;
 		}
 		else
@@ -56,6 +72,7 @@ TitleScene::TitleScene()
 		TRACE("返り値異常");
 		break;
 	}
+	TRACE("状態は%dです\n", lpNetWork.GetActive());
 }
 
 TitleScene::~TitleScene()

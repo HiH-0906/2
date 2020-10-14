@@ -1,5 +1,6 @@
 #pragma once
 #include "NetWorkState.h"
+
 class GestState :
 	public NetWorkState
 {
@@ -10,5 +11,7 @@ public:
 	{
 		return NetWorkMode::GEST;
 	}
+	bool ConnectHost(IPDATA hostIP)override final;
+private:
 };
 

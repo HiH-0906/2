@@ -15,7 +15,9 @@ public:
 	}
 
 	bool SetNetWorkMode(NetWorkMode mode);
+	bool GetActive(void);
 	IPDATA GetIP(void);
+	bool ConnectHost(IPDATA hostIP);					// 指定されたIPアドレスのホストへ接続しに行く
 	NetWorkMode GetMode(void);
 
 private:

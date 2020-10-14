@@ -10,5 +10,6 @@ public:
 	{
 		return NetWorkMode::HOST;
 	}
+private:
 };
 
