@@ -1,5 +1,6 @@
-﻿  NetWorkState.cpp
+﻿  GestState.cpp
+  HostState.cpp
+  NetWork.cpp
   TitleScene.cpp
   コードを生成中...
-TitleScene.obj : error LNK2019: 未解決の外部シンボル "private: __thiscall NetWork::NetWork(void)" (??0NetWork@@AAE@XZ) が関数 "public: static class NetWork & __cdecl NetWork::GetInstance(void)" (?GetInstance@NetWork@@SAAAV1@XZ) で参照されました。
-C:\Users\homui\Desktop\Project3\Debug\Project3.exe : fatal error LNK1120: 1 件の未解決の外部参照
+  Project3.vcxproj -> C:\Users\homui\Desktop\Project3\Debug\Project3.exe
