@@ -3,6 +3,7 @@
 #include <DxLib.h>
 #include "TitleScene.h"
 #include "../NetWork/NetWork.h"
+#include "../State/INPUT_ID.h"
 #include "../_debug/_DebugConOut.h"
 
 TitleScene::TitleScene()

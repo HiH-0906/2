@@ -25,6 +25,7 @@ struct POS_DATA
 {
 	int x, y;
 };
+using NetFunc = std::function<bool(void)>;
 
 // ネット接続モジュールの基盤 OFFLINE時はこれがインスタンスされる
 class NetWorkState
