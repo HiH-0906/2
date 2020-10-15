@@ -10,6 +10,8 @@ public:
 	{
 		return NetWorkMode::HOST;
 	}
+	void RecvMes(Vector2& pos)override;
 private:
+	bool CheckNetState(void)override;
 };
 

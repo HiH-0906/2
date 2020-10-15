@@ -150,6 +150,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Input\Input.cpp" />
+    <ClCompile Include="Input\PadState.cpp" />
     <ClCompile Include="NetWork\GestState.cpp" />
     <ClCompile Include="NetWork\HostState.cpp" />
     <ClCompile Include="main.cpp" />
@@ -158,12 +160,15 @@
     <ClCompile Include="Scene\BaseScene.cpp" />
     <ClCompile Include="Scene\SceneMng.cpp" />
     <ClCompile Include="Scene\TitleScene.cpp" />
+    <ClCompile Include="State\INPUT_ID.cpp" />
     <ClCompile Include="_debug\_DebugConOut.cpp" />
     <ClCompile Include="_debug\_DebugDispOut.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common\details\Vector2.h" />
     <ClInclude Include="common\Vector2.h" />
+    <ClInclude Include="Input\Input.h" />
+    <ClInclude Include="Input\PadState.h" />
     <ClInclude Include="NetWork\GestState.h" />
     <ClInclude Include="NetWork\HostState.h" />
     <ClInclude Include="NetWork\NetWorkState.h" />
@@ -171,6 +176,9 @@
     <ClInclude Include="Scene\BaseScene.h" />
     <ClInclude Include="Scene\SceneMng.h" />
     <ClInclude Include="Scene\TitleScene.h" />
+    <ClInclude Include="State\CON_ID.h" />
+    <ClInclude Include="State\INPUT_ID.h" />
+    <ClInclude Include="State\SCREEN_ID.h" />
     <ClInclude Include="_debug\_DebugConOut.h" />
     <ClInclude Include="_debug\_DebugDispOut.h" />
   </ItemGroup>

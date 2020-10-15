@@ -16,7 +16,24 @@ bool GestState::ConnectHost(IPDATA hostIP)
 	netHandle_ = ConnectNetWork(hostIP, portNum_);
 	if (netHandle_ >= 0)
 	{
+		active_ = true;
 		return true;
 	}
 	return false;
+}
+
+void GestState::SendMes(POS_DATA data)
+{
+	NetWorkSend(netHandle_, &data, sizeof(POS_DATA));
+}
+
+bool GestState::CheckNetState(void)
+{
+	if (GetLostNetWork() != -1)
+	{
+		// ƒzƒXƒg‚ÉØ’f‚³‚ê‚½‚ç‚±‚Á‚¿‚à•Â‚¶‚é
+		CloseNetWork();
+		return false;
+	}
+	return true;
 }

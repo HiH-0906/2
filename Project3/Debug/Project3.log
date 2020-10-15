@@ -1,2 +1,7 @@
-﻿  TitleScene.cpp
+﻿  GestState.cpp
+  HostState.cpp
+  NetWork.cpp
+  NetWorkState.cpp
+  TitleScene.cpp
+  コードを生成中...
   Project3.vcxproj -> C:\Users\homui\Desktop\2\Project3\Debug\Project3.exe

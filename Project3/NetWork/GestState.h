@@ -12,6 +12,8 @@ public:
 		return NetWorkMode::GEST;
 	}
 	bool ConnectHost(IPDATA hostIP)override final;
+	void SendMes(POS_DATA data)override;
 private:
+	bool CheckNetState(void)override;
 };
 

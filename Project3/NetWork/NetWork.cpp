@@ -7,6 +7,11 @@ std::unique_ptr<NetWork, NetWork::NetWorkDeleter> NetWork::s_Instance(new NetWor
 
 
 
+bool NetWork::UpDate(void)
+{
+	return state_->Update();
+}
+
 bool NetWork::SetNetWorkMode(NetWorkMode mode)
 {
 	switch (mode)
@@ -46,8 +51,7 @@ IPDATA NetWork::GetIP(void)
 
 bool NetWork::ConnectHost(IPDATA hostIP)
 {
-
-	return false;
+	return state_->ConnectHost(hostIP);;
 }
 
 NetWorkMode NetWork::GetMode(void)
@@ -57,6 +61,16 @@ NetWorkMode NetWork::GetMode(void)
 		return NetWorkMode::OFFLINE;
 	}
 	return state_->GetMode();
+}
+
+void NetWork::RecvMes(Vector2& pos)
+{
+	state_->RecvMes(pos);
+}
+
+void NetWork::SendMes(POS_DATA data)
+{
+	state_->SendMes(data);
 }
 
 NetWork::NetWork()

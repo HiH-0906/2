@@ -45,7 +45,7 @@ bool SceneMng::SysInit(void)
 
 
 
-SceneMng::SceneMng():screenX(1024),screenY(768)
+SceneMng::SceneMng():screenX(800),screenY(600)
 {
 	SysInit();
 }
