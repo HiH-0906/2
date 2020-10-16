@@ -1,31 +1,42 @@
 #pragma once
 #include <DxLib.h>
+#include <map>
 #include <functional>
 #include "../common/Vector2.h"
 
 // ネット状態判断用
 enum class NetWorkMode
 {
+	NON,
 	OFFLINE,
 	HOST,
 	GEST,
 	MAX
 };
 
-enum class NET_FUNC
+enum class ACTIVE_STATE
 {
-	CHOICE,
-	GUEST_IP,
-	HOST_IP,
-	ACTIVE,
-	CLOSE,
+	NON,
+	WAIT,
+	INIT,
+	STANBY,
+	PLAY,
+	OFFLINE
 };
 
-struct POS_DATA
+enum class MES_TYPE
 {
-	int x, y;
+	STANBY,
+	GAME_START,
+	POS
 };
-using NetFunc = std::function<bool(void)>;
+
+struct MES_DATA
+{
+	MES_TYPE type;
+	int data[2];
+};
+
 
 // ネット接続モジュールの基盤 OFFLINE時はこれがインスタンスされる
 class NetWorkState
@@ -39,16 +50,16 @@ public:
 		return NetWorkMode::OFFLINE;
 	}
 
-	virtual void SendMes(POS_DATA data);
-	virtual void RecvMes(Vector2& pos);
-	bool GetActive(void);
+	ACTIVE_STATE GetActive(void);
+	int GetNetHandle(void);
 	virtual bool ConnectHost(IPDATA hostIP);						// ホストやオフラインの時は必ずfalse
+	bool SetActive(ACTIVE_STATE state);
 private:
 	virtual bool CheckNetState(void) { return false; };
 protected:
 	void CloseNetWork(void);
 	const int portNum_ = 8086;										// 接続時ポート番号 数字は先生のお気に入りの番号
 	int netHandle_;
-	bool active_;													// 接続開始しているかどうか
+	ACTIVE_STATE active_;													// 接続開始しているかどうか
 };
 

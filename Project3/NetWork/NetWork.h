@@ -6,7 +6,6 @@
 #define lpNetWork NetWork::GetInstance()
 
 
-
 // いつものシングルトンクラス
 class NetWork
 {
@@ -19,15 +18,21 @@ public:
 	bool UpDate(void);
 
 	bool SetNetWorkMode(NetWorkMode mode);
-	bool GetActive(void);
+	ACTIVE_STATE GetActive(void);
 	IPDATA GetIP(void);
 	bool ConnectHost(IPDATA hostIP);					// 指定されたIPアドレスのホストへ接続しに行く
 	NetWorkMode GetMode(void);
 	void RecvMes(Vector2& pos);
-	void SendMes(POS_DATA data);
+	void SendMes(MES_DATA data);
+	void SendStanby(void);
+	void SendStart(void);
 
+	bool GetRevMesType(MES_TYPE type);
+	bool GetRevStanby(void);
 
 private:
+	bool revState_;
+
 	struct NetWorkDeleter
 	{
 		void operator()(NetWork* net)

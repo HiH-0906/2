@@ -3,7 +3,7 @@
 
 NetWorkState::NetWorkState()
 {
-	active_ = false;
+	active_ = ACTIVE_STATE::NON;
 	netHandle_ = -1;
 }
 
@@ -16,28 +16,30 @@ NetWorkState::~NetWorkState()
 {
 }
 
-void NetWorkState::SendMes(POS_DATA data)
-{
-}
-
-void NetWorkState::RecvMes(Vector2& pos)
-{
-	
-}
-
 Vector2 RecvMes(void)
 {
 	return Vector2{};
 }
 
-bool NetWorkState::GetActive(void)
+ACTIVE_STATE NetWorkState::GetActive(void)
 {
 	return active_;
+}
+
+int NetWorkState::GetNetHandle(void)
+{
+	return netHandle_;
 }
 
 bool NetWorkState::ConnectHost(IPDATA hostIP)
 {
 	return false;
+}
+
+bool NetWorkState::SetActive(ACTIVE_STATE state)
+{
+	active_ = state;
+	return true;
 }
 
 void NetWorkState::CloseNetWork(void)

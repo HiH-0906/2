@@ -1,9 +1,10 @@
+#include <iostream>
 #include "GestState.h"
 #include "../_debug/_DebugConOut.h"
 
 GestState::GestState()
 {
-	active_ = false;
+	active_ = ACTIVE_STATE::NON;
 }
 
 GestState::~GestState()
@@ -16,15 +17,11 @@ bool GestState::ConnectHost(IPDATA hostIP)
 	netHandle_ = ConnectNetWork(hostIP, portNum_);
 	if (netHandle_ >= 0)
 	{
-		active_ = true;
+		active_ = ACTIVE_STATE::INIT;
+		std::cout << "‰Šú‰»‚µ‚½‚¢" << std::endl;
 		return true;
 	}
 	return false;
-}
-
-void GestState::SendMes(POS_DATA data)
-{
-	NetWorkSend(netHandle_, &data, sizeof(POS_DATA));
 }
 
 bool GestState::CheckNetState(void)
