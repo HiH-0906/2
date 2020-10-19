@@ -53,9 +53,9 @@ ACTIVE_STATE NetWork::GetActive(void)
 
 IPDATA NetWork::GetIP(void)
 {
-	IPDATA myIP;
-	GetMyIPAddress(&myIP);
-	return myIP;
+	IPDATA myIP[2];
+	GetMyIPAddress(myIP,2);
+	return myIP[0];
 }
 
 bool NetWork::ConnectHost(IPDATA hostIP)

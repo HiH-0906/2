@@ -1,5 +1,7 @@
 #include <iostream>
+#include <fstream>
 #include <sstream>
+#include <algorithm>
 #include <DxLib.h>
 #include "TitleScene.h"
 #include "../NetWork/NetWork.h"
@@ -13,12 +15,15 @@ TitleScene::TitleScene()
 	pos_ = Vector2{};
 	speed_ = 5; 
 	rad_ = 0;
+	ipData_ = {};
 	input_ = std::make_unique<PadState>();
 	state_ = UPDATE_STATE::SET_NET;
 	func_.try_emplace(UPDATE_STATE::SET_NET, &TitleScene::SetNetWork);
 	func_.try_emplace(UPDATE_STATE::HOST_IP, &TitleScene::HostIPInput);
 	func_.try_emplace(UPDATE_STATE::START_INIT, &TitleScene::StartInit);
 	func_.try_emplace(UPDATE_STATE::PLAY, &TitleScene::PlayUpdate);
+	func_.try_emplace(UPDATE_STATE::SELECT_HOST, &TitleScene::SelectHost);
+	func_.try_emplace(UPDATE_STATE::READ_HOST, &TitleScene::ReadHost);
 }
 
 TitleScene::~TitleScene()
@@ -45,7 +50,6 @@ void TitleScene::Draw(void)
 
 bool TitleScene::HostIPInput(void)
 {
-	IPDATA hostIP;
 	state_ = UPDATE_STATE::HOST_IP;
 	std::string ip;
 	std::cout << "ホストのIPアドレス(IPv4)を入力してください" << std::endl;
@@ -58,14 +62,14 @@ bool TitleScene::HostIPInput(void)
 	std::string ip1, ip2, ip3, ip4;
 	ipstr >> ip1 >> ip2 >> ip3 >> ip4;
 
-	hostIP.d1 = atoi(ip1.c_str());
-	hostIP.d2 = atoi(ip2.c_str());
-	hostIP.d3 = atoi(ip3.c_str());
-	hostIP.d4 = atoi(ip4.c_str());
+	ipData_.d1 = atoi(ip1.c_str());
+	ipData_.d2 = atoi(ip2.c_str());
+	ipData_.d3 = atoi(ip3.c_str());
+	ipData_.d4 = atoi(ip4.c_str());
 
-	lpNetWork.ConnectHost(hostIP);
-	TRACE("入力されたIPアドレスは%d.%d.%d.%dです\n", hostIP.d1, hostIP.d2, hostIP.d3, hostIP.d4);
-	
+	lpNetWork.ConnectHost(ipData_);
+	TRACE("入力されたIPアドレスは%d.%d.%d.%dです\n", ipData_.d1, ipData_.d2, ipData_.d3, ipData_.d4);
+	WritFile();
 	state_ = UPDATE_STATE::START_INIT;
 
 	return true;
@@ -126,7 +130,7 @@ bool TitleScene::SetNetWork(void)
 		{
 			lpNetWork.SetNetWorkMode(NetWorkMode::GEST);
 			std::cout << "ゲストです\n" << std::endl;
-			state_ = UPDATE_STATE::HOST_IP;
+			state_ = UPDATE_STATE::SELECT_HOST;
 			loop = false;
 		}
 		else
@@ -160,6 +164,71 @@ bool TitleScene::StartInit(void)
 		}
 	}
 	return false;
+}
+
+bool TitleScene::SelectHost(void)
+{
+	int select;
+	std::cout << "前回接続したホストに接続しますか？" << std::endl;
+	std::cout << "1：前回接続したホストに接続する" << std::endl;
+	std::cout << "2：新たにIPを入力する" << std::endl;
+	std::cin >> select;
+	if (select == 1)
+	{
+		state_ = UPDATE_STATE::READ_HOST;
+	}
+	else if (select == 2)
+	{
+		state_ = UPDATE_STATE::HOST_IP;
+	}
+	else
+	{
+		std::cout << "1または2を入力してください" << std::endl;
+	}
+	return true;
+}
+
+bool TitleScene::ReadHost(void)
+{
+	if(!ReadFile())
+	{
+		std::cout << "ファイルを読み込めませんでした。入力へ移行します。" << std::endl;
+		state_ = UPDATE_STATE::HOST_IP;
+		return false;
+	}
+	lpNetWork.ConnectHost(ipData_);
+	return true;
+}
+
+bool TitleScene::ReadFile(void)
+{
+	std::fstream file("Data/IPData.dat", std::ios::binary | std::ios::in);
+
+	if (!file)
+	{
+		return false;
+	}
+
+	file.read((char*)&ipData_, sizeof(ipData_));
+	TRACE("読み込まれたIPアドレスは%d.%d.%d.%dです\n", ipData_.d1, ipData_.d2, ipData_.d3, ipData_.d4);
+	file.close();
+	return true;
+}
+
+bool TitleScene::WritFile(void)
+{
+	std::fstream file("Data/IPData.dat", std::ios::binary | std::ios::out);
+
+	if(!file)
+	{
+		return false;
+	}
+
+	file.write((char*)&ipData_, sizeof(ipData_));
+
+	file.close();
+
+	return true;
 }
 
 

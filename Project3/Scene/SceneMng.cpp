@@ -40,6 +40,7 @@ bool SceneMng::SysInit(void)
 	{
 		return false;
 	}
+	SetAlwaysRunFlag(TRUE);
 	return true;
 }
 

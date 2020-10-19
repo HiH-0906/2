@@ -32,6 +32,7 @@ bool HostState::CheckNetState(void)
 		// ゲストから切られた場合再接続待ち
 		PreparationListenNetWork(portNum_);
 		active_ = ACTIVE_STATE::WAIT;
+		netHandle_ = -1;
 		std::cout << "切断されました" << std::endl;
 		// ホストから辞めたいときは手動でCloseNetWork呼ぼうネ
 		return false;
