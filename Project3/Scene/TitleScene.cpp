@@ -197,6 +197,7 @@ bool TitleScene::ReadHost(void)
 		return false;
 	}
 	lpNetWork.ConnectHost(ipData_);
+	state_ = UPDATE_STATE::START_INIT;
 	return true;
 }
 
