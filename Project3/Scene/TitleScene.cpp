@@ -46,11 +46,14 @@ TitleScene::TitleScene()
 	bg = MakeScreen(32 * 21, 32 * 17, true);
 	LoadDivGraph("Image/map.png", 12, 4, 3, 32, 32, &image_[0], true);
 	SetDrawScreen(bg);
-	for (int x = 0; x < 21; x++)
+	for (auto tmp : test.tileLayer)
 	{
 		for (int y = 0; y < 17; y++)
 		{
-			DrawGraph(32 * x, 32 * y,test_["Bg"][x * 21 + y * 17]-1, true);
+			for (int x = 0; x < 21; x++)
+			{
+				DrawGraph(32 * x, 32 * y, image_[(test_[tmp.first][x + y * 21] - 1)], true);
+			}
 		}
 	}
 }
