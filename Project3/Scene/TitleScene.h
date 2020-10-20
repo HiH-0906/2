@@ -1,6 +1,9 @@
 #pragma once
 
 #include "BaseScene.h"
+#include <map>
+#include <string>
+#include <vector>
 #include "../Input/PadState.h"
 #include "../common/Vector2.h"
 
@@ -40,6 +43,12 @@ private:
 	// ファイル関連
 	bool ReadFile(void);
 	bool WritFile(void);
+
+	std::map<std::string, std::vector<int>> test_;
+
+	int bg;
+	int image_[12];
+
 
 	UPDATE_STATE state_;
 	int screenSize_X;

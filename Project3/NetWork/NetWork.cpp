@@ -64,7 +64,7 @@ bool NetWork::ConnectHost(IPDATA hostIP)
 	{
 		return false;
 	}
-	return state_->ConnectHost(hostIP);;
+	return state_->ConnectHost(hostIP);
 }
 
 NetWorkMode NetWork::GetMode(void)

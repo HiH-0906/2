@@ -7,6 +7,8 @@
 #include "../NetWork/NetWork.h"
 #include "../State/INPUT_ID.h"
 #include "../_debug/_DebugConOut.h"
+#include "../test/TMXParser-master/include/TMXParser.h"
+#include "../test/TSXParser-master/include/TSXParser.h"
 
 TitleScene::TitleScene()
 {
@@ -24,6 +26,33 @@ TitleScene::TitleScene()
 	func_.try_emplace(UPDATE_STATE::PLAY, &TitleScene::PlayUpdate);
 	func_.try_emplace(UPDATE_STATE::SELECT_HOST, &TitleScene::SelectHost);
 	func_.try_emplace(UPDATE_STATE::READ_HOST, &TitleScene::ReadHost);
+
+
+	// map読み込みテスト
+	TMX::Parser test("mapData/map.tmx");
+
+	for (auto tmp:test.tileLayer)
+	{
+		std::cout << "表示テスト" << std::endl;
+		std::cout << tmp.first << std::endl;
+		std::cout << tmp.second.data.contents << std::endl;
+		std::string teststr;
+		std::stringstream str(tmp.second.data.contents);
+
+		while (std::getline(str, teststr,',')) {
+			test_[tmp.first].push_back(atoi(teststr.c_str()));
+		}
+	}
+	bg = MakeScreen(32 * 21, 32 * 17, true);
+	LoadDivGraph("Image/map.png", 12, 4, 3, 32, 32, &image_[0], true);
+	SetDrawScreen(bg);
+	for (int x = 0; x < 21; x++)
+	{
+		for (int y = 0; y < 17; y++)
+		{
+			DrawGraph(32 * x, 32 * y,test_["Bg"][x * 21 + y * 17]-1, true);
+		}
+	}
 }
 
 TitleScene::~TitleScene()
@@ -45,7 +74,7 @@ unipueBase TitleScene::Update(unipueBase own)
 
 void TitleScene::Draw(void)
 {
-	DrawGraph(pos_.x, pos_.y, Image, true);
+	DrawGraph(0, 0, bg, true);
 }
 
 bool TitleScene::HostIPInput(void)
@@ -151,9 +180,11 @@ bool TitleScene::StartInit(void)
 		}
 		if (lpNetWork.GetActive() == ACTIVE_STATE::STANBY && lpNetWork.GetRevMesType(MES_TYPE::GAME_START))
 		{
+			std::cout << "開始" << std::endl;
 			state_ = UPDATE_STATE::PLAY;
 		}
 	}
+
 	if (lpNetWork.GetMode() == NetWorkMode::GEST)
 	{
 		if (lpNetWork.GetActive() == ACTIVE_STATE::INIT && lpNetWork.GetRevStanby())
@@ -196,8 +227,16 @@ bool TitleScene::ReadHost(void)
 		state_ = UPDATE_STATE::HOST_IP;
 		return false;
 	}
-	lpNetWork.ConnectHost(ipData_);
-	state_ = UPDATE_STATE::START_INIT;
+	if (lpNetWork.ConnectHost(ipData_))
+	{
+		std::cout << "接続完了。" << std::endl;
+		state_ = UPDATE_STATE::START_INIT;
+	}
+	else
+	{
+		std::cout << "前回ホストへ接続できませんでした。入力へ移行します。" << std::endl;
+		state_ = UPDATE_STATE::HOST_IP;
+	}
 	return true;
 }
 

@@ -1,9 +1,11 @@
 #include <time.h>
 #include <DxLib.h>
+#include <iostream>
 #include "SceneMng.h"
 #include "TitleScene.h"
 #include "../_debug/_DebugConOut.h"
 #include "../_debug/_DebugDispOut.h"
+
 
 
 std::unique_ptr<SceneMng, SceneMng::SceneMngDeleter> SceneMng::s_instance_(new SceneMng());
@@ -46,7 +48,7 @@ bool SceneMng::SysInit(void)
 
 
 
-SceneMng::SceneMng():screenX(800),screenY(600)
+SceneMng::SceneMng():screenX(32*21),screenY(32*17)
 {
 	SysInit();
 }
