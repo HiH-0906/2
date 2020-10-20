@@ -1,9 +1,10 @@
 #pragma once
 
-#include "BaseScene.h"
 #include <map>
 #include <string>
 #include <vector>
+#include "BaseScene.h"
+#include "../map/Map.h"
 #include "../Input/PadState.h"
 #include "../common/Vector2.h"
 
@@ -44,11 +45,9 @@ private:
 	bool ReadFile(void);
 	bool WritFile(void);
 
-	std::map<std::string, std::vector<int>> test_;
-
-	int bg;
 	int image_[12];
 
+	std::unique_ptr<Map> mapMng_;
 
 	UPDATE_STATE state_;
 	int screenSize_X;

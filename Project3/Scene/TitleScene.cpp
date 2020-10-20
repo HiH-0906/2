@@ -7,8 +7,7 @@
 #include "../NetWork/NetWork.h"
 #include "../State/INPUT_ID.h"
 #include "../_debug/_DebugConOut.h"
-#include "../test/TMXParser-master/include/TMXParser.h"
-#include "../test/TSXParser-master/include/TSXParser.h"
+
 
 TitleScene::TitleScene()
 {
@@ -27,35 +26,11 @@ TitleScene::TitleScene()
 	func_.try_emplace(UPDATE_STATE::SELECT_HOST, &TitleScene::SelectHost);
 	func_.try_emplace(UPDATE_STATE::READ_HOST, &TitleScene::ReadHost);
 
+	mapMng_ = std::make_unique<Map>();
+	
+	mapMng_->LoadMap();
 
-	// map読み込みテスト
-	TMX::Parser test("mapData/map.tmx");
-
-	for (auto tmp:test.tileLayer)
-	{
-		std::cout << "表示テスト" << std::endl;
-		std::cout << tmp.first << std::endl;
-		std::cout << tmp.second.data.contents << std::endl;
-		std::string teststr;
-		std::stringstream str(tmp.second.data.contents);
-
-		while (std::getline(str, teststr,',')) {
-			test_[tmp.first].push_back(atoi(teststr.c_str()));
-		}
-	}
-	bg = MakeScreen(32 * 21, 32 * 17, true);
 	LoadDivGraph("Image/map.png", 12, 4, 3, 32, 32, &image_[0], true);
-	SetDrawScreen(bg);
-	for (auto tmp : test.tileLayer)
-	{
-		for (int y = 0; y < 17; y++)
-		{
-			for (int x = 0; x < 21; x++)
-			{
-				DrawGraph(32 * x, 32 * y, image_[(test_[tmp.first][x + y * 21] - 1)], true);
-			}
-		}
-	}
 }
 
 TitleScene::~TitleScene()
@@ -77,7 +52,10 @@ unipueBase TitleScene::Update(unipueBase own)
 
 void TitleScene::Draw(void)
 {
-	DrawGraph(0, 0, bg, true);
+	for (int i=0;i<=static_cast<int>(MapLayer::CHAR);i++)
+	{
+		DrawGraph(0, 0, mapMng_->GetDarwMap(static_cast<MapLayer>(i)), true);
+	}
 }
 
 bool TitleScene::HostIPInput(void)
