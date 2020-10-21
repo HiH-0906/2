@@ -3,7 +3,6 @@
 #include <cstdlib>
 #include <iostream>
 #include <sstream>
-//#include "base64.h"
 
 namespace TMX {
 
@@ -48,11 +47,6 @@ namespace TMX {
     std::cout << "Tile Width: " << mapInfo.tileWidth << std::endl;
     mapInfo.tileHeight = std::atoi( root_node->first_attribute( "tileheight" )->value() );
     std::cout << "Tile Height: " << mapInfo.tileHeight << std::endl;
-
-    //if( root_node->first_attribute( "backgroundcolor" )->value() != 0 ) {
-    //  mapInfo.backgroundColor = root_node->first_attribute( "backgroundcolor" )->value();
-    //  std::cout << "Background Color: " << mapInfo.backgroundColor << std::endl;
-    //}
 
     if( root_node->first_node( "properties" ) != 0 ) {
       for( rapidxml::xml_node<>* properties_node = root_node->first_node( "properties" )->first_node( "property" ); properties_node; properties_node = properties_node->next_sibling() ) {

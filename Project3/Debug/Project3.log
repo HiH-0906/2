@@ -1,2 +1,6 @@
-﻿  TitleScene.cpp
+﻿  TmxLoadr.cpp
+C:\Users\homui\Desktop\2\Project3\RapidXml\rapidxml_utils.hpp(40,25): warning C4244: '初期化中': 'std::streamoff' から 'size_t' への変換です。データが失われる可能性があります。
+C:\Users\homui\Desktop\2\Project3\RapidXml\rapidxml_utils.hpp(28): message : クラス テンプレート メンバー関数 'rapidxml::file<char>::file(const char *)' のコンパイル中
+C:\Users\homui\Desktop\2\Project3\TmxLoad\TmxLoadr.cpp(25): message : コンパイル対象の関数 テンプレート インスタンス化 'rapidxml::file<char>::file(const char *)' のリファレンスを確認してください
+C:\Users\homui\Desktop\2\Project3\TmxLoad\TmxLoadr.cpp(25): message : コンパイル対象の クラス テンプレート インスタンス化 'rapidxml::file<char>' のリファレンスを確認してください
   Project3.vcxproj -> C:\Users\homui\Desktop\2\Project3\Debug\Project3.exe

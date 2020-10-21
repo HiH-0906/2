@@ -7,6 +7,7 @@
 #include "../NetWork/NetWork.h"
 #include "../State/INPUT_ID.h"
 #include "../_debug/_DebugConOut.h"
+#include "../TmxLoad/TmxLoadr.h"
 
 
 TitleScene::TitleScene()
@@ -30,6 +31,8 @@ TitleScene::TitleScene()
 	
 	mapMng_->LoadMap();
 
+	Loader::TmxLoadr loader("mapData/map.tmx");
+
 	LoadDivGraph("Image/map.png", 12, 4, 3, 32, 32, &image_[0], true);
 }
 
@@ -52,7 +55,7 @@ unipueBase TitleScene::Update(unipueBase own)
 
 void TitleScene::Draw(void)
 {
-	for (int i=0;i<=static_cast<int>(MapLayer::CHAR);i++)
+	for (int i = 0; i <= static_cast<int>(MapLayer::CHAR); i++)
 	{
 		DrawGraph(0, 0, mapMng_->GetDarwMap(static_cast<MapLayer>(i)), true);
 	}
