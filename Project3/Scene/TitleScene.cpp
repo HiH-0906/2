@@ -31,7 +31,6 @@ TitleScene::TitleScene()
 	
 	mapMng_->LoadMap();
 
-	Loader::TmxLoadr loader("mapData/map.tmx");
 
 	LoadDivGraph("Image/map.png", 12, 4, 3, 32, 32, &image_[0], true);
 }
