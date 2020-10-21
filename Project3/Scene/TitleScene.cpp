@@ -48,7 +48,10 @@ void TitleScene::Init(void)
 
 unipueBase TitleScene::Update(unipueBase own)
 {
-	lpNetWork.UpDate();
+	if (!lpNetWork.UpDate() && lpNetWork.GetMode() != NetWorkMode::OFFLINE)
+	{
+		state_ = UPDATE_STATE::START_INIT;
+	}
 	(this->*func_[state_])();
 	return own;
 }
