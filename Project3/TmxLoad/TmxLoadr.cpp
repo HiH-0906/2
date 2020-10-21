@@ -28,25 +28,13 @@ bool TmxLoadr::Load(const char* filename)
 
 	node = doc.first_node("map");
 
-	//for (rapidxml::xml_attribute<>* itr = node->first_attribute(); itr != nullptr; itr = itr->next_attribute())
-	//{
-	//	std::cout << itr->name() << ":[" << itr->value() << "]" << std::endl;
-	//}
+	node=node->first_node("layer");
 
-	//node = node->first_node("tileset");
-	//std::cout << "tileset" << std::endl;
-	//for (rapidxml::xml_attribute<>* itr = node->first_attribute(); itr != nullptr; itr = itr->next_attribute())
-	//{
-	//	std::cout << itr->name() << ":[" << itr->value() << "]" << std::endl;
-	//}
-
-	for (rapidxml::xml_node<>* chiled = doc.first_node(); chiled != nullptr; chiled = chiled->next_sibling())
+	for (rapidxml::xml_node<>* chiled = node; chiled != nullptr; chiled = chiled->next_sibling())
 	{
-		for (rapidxml::xml_attribute<>* itr = chiled->first_attribute(); itr != nullptr; itr = itr->next_attribute())
-		{
-			std::cout << itr->name() << ":[" << itr->value() << "]" << std::endl;
-		}
+		node = chiled->first_node("data");
+		std::cout << node->value() << std::endl;
 	}
-
+	std::cout << std::endl;
 	return true;
 }
