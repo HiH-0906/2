@@ -5,6 +5,8 @@
 #include "Map.h"
 #include "../Parser/TMXParser-master/include/TMXParser.h"
 #include "../Parser/TSXParser-master/include/TSXParser.h"
+#include "../TmxLoad/TmxLoadr.h"
+#include "../common/ImageMng.h"
 
 Map::Map()
 {
@@ -17,45 +19,48 @@ Map::~Map()
 bool Map::LoadMap(void)
 {
 	// mapData読み込み
-	TMX::Parser test("mapData/map.tmx");
+
+	Loader::TmxLoadr loadr("mapData/map.tmx");
+
 	int id = 0;
 
-	int image[12];
-
-	LoadDivGraph("Image/map.png", 12, 4, 3, 32, 32, image, true);
-
-	for (auto tmp : test.tileLayer)
+	for (auto tmp : loadr.GetmapStr())
 	{
 		// 取り出されるstrng保存用一時変数
 		std::string mapstr;
 		// streamに変換
-		std::stringstream str(tmp.second.data.contents);
+		std::stringstream str(tmp.data);
 		// MapInfoの情報をもとに描画用スクリーン作成
-		drawLayer_[tmp.first] = MakeScreen(test.mapInfo.width * test.mapInfo.tileWidth, test.mapInfo.height * test.mapInfo.tileHeight, true);
+		drawLayer_[tmp.name] = MakeScreen(21 * 32, 17 * 32, true);
 		// アクセスしやすいようにenumClassに対応したstrを保存
-		mapKey_[static_cast<MapLayer>(id)] = tmp.first;
+		mapKey_[static_cast<MapLayer>(id)] = tmp.name;
 		id++;
 		// stringをintに
 		while (std::getline(str, mapstr, ',')) {
-			mapData_[tmp.first].push_back(atoi(mapstr.c_str()));
+			mapData_[tmp.name].push_back(atoi(mapstr.c_str())-1);
 		}
 	}
+	// マップ作成に必要なデータの取得
+	auto info = loadr.GetMapInfo();
 	// 描画スクリーンへの書き出し
 	for (auto id : mapKey_)
 	{
 		SetDrawScreen(drawLayer_[id.second]);
-		for (unsigned int y = 0; y < test.mapInfo.height; y++)
+		for (unsigned int y = 0; y < info.mapSize.y; y++)
 		{
-			for (unsigned int x = 0; x < test.mapInfo.width; x++)
+			for (unsigned int x = 0; x < info.mapSize.x; x++)
 			{
-				DrawGraph(x * test.mapInfo.tileWidth, y * test.mapInfo.tileHeight, image[mapData_[id.second][x + y * test.mapInfo.width] - 1], true);
+				if (mapData_[id.second][x + y * info.mapSize.x] >= 0)
+				{
+					DrawGraph(x * info.chipSize.x, y * info.chipSize.y, lpImageMng.GetID(loadr.GetMapKey())[mapData_[id.second][x + y * info.mapSize.x]], true);
+				}
 			}
 		}
 	}
 	return true;
 }
 
-int& Map::GetDarwMap(MapLayer layer)
+const int& Map::GetDarwMap(MapLayer layer)
 {
 	// 書き出されているスクリーン呼び出し
 	return drawLayer_[mapKey_[layer]];

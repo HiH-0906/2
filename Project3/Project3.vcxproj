@@ -152,6 +152,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="common\ImageMng.cpp" />
     <ClCompile Include="Input\Input.cpp" />
     <ClCompile Include="Input\PadState.cpp" />
     <ClCompile Include="map\Map.cpp" />
@@ -172,6 +173,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common\details\Vector2.h" />
+    <ClInclude Include="common\ImageMng.h" />
     <ClInclude Include="common\Vector2.h" />
     <ClInclude Include="Input\Input.h" />
     <ClInclude Include="Input\PadState.h" />

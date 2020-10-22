@@ -31,8 +31,6 @@ TitleScene::TitleScene()
 	
 	mapMng_->LoadMap();
 
-
-	LoadDivGraph("Image/map.png", 12, 4, 3, 32, 32, &image_[0], true);
 }
 
 TitleScene::~TitleScene()
