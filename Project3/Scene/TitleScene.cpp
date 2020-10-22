@@ -7,9 +7,9 @@
 #include "../NetWork/NetWork.h"
 #include "../State/INPUT_ID.h"
 #include "../_debug/_DebugConOut.h"
-#include "../TmxLoad/TmxLoadr.h"
+#include "../TmxLoader/TmxLoader.h"
 
-
+// 現状とりあえず出ぶち込まれている感満載
 TitleScene::TitleScene()
 {
 	screenSize_X = 0;
@@ -28,8 +28,6 @@ TitleScene::TitleScene()
 	func_.try_emplace(UPDATE_STATE::READ_HOST, &TitleScene::ReadHost);
 
 	mapMng_ = std::make_unique<Map>();
-	
-	mapMng_->LoadMap();
 
 }
 
@@ -61,6 +59,7 @@ void TitleScene::Draw(void)
 	}
 }
 
+// ゲスト専用 ホストのIPアドレス入力させる関数 入力されたホストのIPアドレスで接続できない場合再入力
 bool TitleScene::HostIPInput(void)
 {
 	state_ = UPDATE_STATE::HOST_IP;
@@ -80,14 +79,21 @@ bool TitleScene::HostIPInput(void)
 	ipData_.d3 = atoi(ip3.c_str());
 	ipData_.d4 = atoi(ip4.c_str());
 
-	lpNetWork.ConnectHost(ipData_);
 	TRACE("入力されたIPアドレスは%d.%d.%d.%dです\n", ipData_.d1, ipData_.d2, ipData_.d3, ipData_.d4);
+
+	if (!lpNetWork.ConnectHost(ipData_))
+	{
+		std::cout << "ホストに接続できませんでした。もう一度入力してください。" << std::endl;
+		return true;
+	}
+	
 	WritFile();
 	state_ = UPDATE_STATE::START_INIT;
 
 	return true;
 }
 
+// 共用 ゲーム本編
 bool TitleScene::PlayUpdate(void)
 {
 	input_->Update();
@@ -112,7 +118,7 @@ bool TitleScene::PlayUpdate(void)
 
 	return false;
 }
-
+// 共用 ネット使うかどうか、ホストかゲストか選択
 bool TitleScene::SetNetWork(void)
 {
 	auto ip = lpNetWork.GetIP();
@@ -129,6 +135,7 @@ bool TitleScene::SetNetWork(void)
 			lpNetWork.SetNetWorkMode(NetWorkMode::OFFLINE);
 			
 			std::cout << "オフラインです\n" << std::endl;
+			mapMng_->LoadMap();
 			state_ = UPDATE_STATE::PLAY;
 			loop = false;
 		}
@@ -154,12 +161,14 @@ bool TitleScene::SetNetWork(void)
 	return true;
 }
 
+// 共用 初期化してメッセージ飛ばす ホスト、ゲスト分けてもよかったけど大した量でもないし、ステート増えるしで分けなくていいかなって
 bool TitleScene::StartInit(void)
 {
 	if (lpNetWork.GetMode() == NetWorkMode::HOST)
 	{
 		if (lpNetWork.GetActive() == ACTIVE_STATE::INIT)
 		{
+			mapMng_->LoadMap();
 			lpNetWork.SendStanby();
 		}
 		if (lpNetWork.GetActive() == ACTIVE_STATE::STANBY && lpNetWork.GetRevMesType(MES_TYPE::GAME_START))
@@ -173,6 +182,7 @@ bool TitleScene::StartInit(void)
 	{
 		if (lpNetWork.GetActive() == ACTIVE_STATE::INIT && lpNetWork.GetRevStanby())
 		{
+			mapMng_->LoadMap();
 			state_ = UPDATE_STATE::PLAY;
 			std::cout << "開始" << std::endl;
 			lpNetWork.SendStart();
@@ -181,6 +191,7 @@ bool TitleScene::StartInit(void)
 	return false;
 }
 
+// ゲスト専用 前回入力したホストに接続するか新たに入力するかの選択
 bool TitleScene::SelectHost(void)
 {
 	int select;
@@ -203,6 +214,7 @@ bool TitleScene::SelectHost(void)
 	return true;
 }
 
+// ゲスト専用 ファイルからのホストの読み込み ファイルがなかった場合、読み込んだIPアドレスで接続できなかった場合入力へ移行
 bool TitleScene::ReadHost(void)
 {
 	if(!ReadFile())
@@ -223,7 +235,7 @@ bool TitleScene::ReadHost(void)
 	}
 	return true;
 }
-
+// ファイルからの読み込み
 bool TitleScene::ReadFile(void)
 {
 	std::fstream file("Data/IPData.dat", std::ios::binary | std::ios::in);
@@ -238,7 +250,7 @@ bool TitleScene::ReadFile(void)
 	file.close();
 	return true;
 }
-
+// ファイルへの書き込み
 bool TitleScene::WritFile(void)
 {
 	std::fstream file("Data/IPData.dat", std::ios::binary | std::ios::out);

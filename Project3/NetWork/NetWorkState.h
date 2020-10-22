@@ -60,6 +60,6 @@ protected:
 	void CloseNetWork(void);
 	const int portNum_ = 8086;										// 接続時ポート番号 数字は先生のお気に入りの番号
 	int netHandle_;
-	ACTIVE_STATE active_;													// 接続開始しているかどうか
+	ACTIVE_STATE active_;											// 接続開始しているかどうか
 };
 

@@ -165,7 +165,7 @@
     <ClCompile Include="Scene\SceneMng.cpp" />
     <ClCompile Include="Scene\TitleScene.cpp" />
     <ClCompile Include="State\INPUT_ID.cpp" />
-    <ClCompile Include="TmxLoad\TmxLoadr.cpp" />
+    <ClCompile Include="TmxLoader\TmxLoader.cpp" />
     <ClCompile Include="_debug\_DebugConOut.cpp" />
     <ClCompile Include="_debug\_DebugDispOut.cpp" />
   </ItemGroup>
@@ -190,7 +190,7 @@
     <ClInclude Include="State\CON_ID.h" />
     <ClInclude Include="State\INPUT_ID.h" />
     <ClInclude Include="State\SCREEN_ID.h" />
-    <ClInclude Include="TmxLoad\TmxLoadr.h" />
+    <ClInclude Include="TmxLoader\TmxLoader.h" />
     <ClInclude Include="_debug\_DebugConOut.h" />
     <ClInclude Include="_debug\_DebugDispOut.h" />
   </ItemGroup>

@@ -1,31 +1,31 @@
 #include <iostream>
-#include "TmxLoadr.h"
+#include "TmxLoader.h"
 #include "../RapidXml/rapidxml.hpp"
 #include "../RapidXml/rapidxml_utils.hpp"
 #include "../common/ImageMng.h"
 
 
-Loader::TmxLoadr::TmxLoadr()
+Loader::TmxLoader::TmxLoader()
 {
 	VersionMap();
 }
 
-Loader::TmxLoadr::TmxLoadr(const char* filename)
+Loader::TmxLoader::TmxLoader(const char* filename)
 {
 	VersionMap();
 	TmxLoad(filename);
 }
 
-Loader::TmxLoadr::~TmxLoadr()
+Loader::TmxLoader::~TmxLoader()
 {
 }
 // 対応しているバージョンの登録
-void Loader::TmxLoadr::VersionMap(void)
+void Loader::TmxLoader::VersionMap(void)
 {
 	version_["1.4.2"] = 1;
 }
 // Tmxファイルをロード
-bool Loader::TmxLoadr::TmxLoad(std::string filename)
+bool Loader::TmxLoader::TmxLoad(std::string filename)
 {
 	// Tmx関連準備
 	rapidxml::file<> file(filename.c_str());
@@ -80,13 +80,11 @@ bool Loader::TmxLoadr::TmxLoad(std::string filename)
 	return TsxLoad(pass + source);
 }
 
-bool Loader::TmxLoadr::TsxLoad(std::string filename)
+bool Loader::TmxLoader::TsxLoad(std::string filename)
 {
 	// 準備
 	rapidxml::file<> file(filename.c_str());
 	doc_.parse<0>(file.data());
-
-	orign_node_ = doc_.first_node("tileset");
 
 	// Tmxで確認してるけど一応確認
 	if (version_.count(orign_node_->first_attribute("tiledversion")->value()) == 0)
@@ -101,6 +99,7 @@ bool Loader::TmxLoadr::TsxLoad(std::string filename)
 		return false;
 	}
 
+	orign_node_ = doc_.first_node("tileset");
 	// マップ関連 べた書き 特に省略もできないんじゃないかな感 やれるならstringを打たなくていいようにしたい
 	info_.chipSize.x = std::atoi(orign_node_->first_attribute("tilewidth")->value());
 	info_.chipSize.y = std::atoi(orign_node_->first_attribute("tileheight")->value());
@@ -116,14 +115,14 @@ bool Loader::TmxLoadr::TsxLoad(std::string filename)
 	std::string source = node->first_attribute("source")->value();
 
 	// これ最初の/までだけどTsxファイルがもう一階層下に行ったら駄目なのでは疑惑
-	std::string pass = source.substr(source.find_first_of("/Image") + 1, source.length());
+	std::string pass = source.substr(source.find("Image"));
 
 	lpImageMng.GetID(info_.key, pass, { info_.chipSize.x,info_.chipSize.y }, { info_.columnsNum,info_.lineNum });
 
 	return true;
 }
 
-int Loader::TmxLoadr::GetLayerSize(void)
+int Loader::TmxLoader::GetLayerSize(void)
 {
 	if (orign_node_ == nullptr)
 	{
@@ -132,17 +131,17 @@ int Loader::TmxLoadr::GetLayerSize(void)
 	return (std::atoi(orign_node_->first_attribute("nextlayerid")->value()) - 1);
 }
 
-const mapStr Loader::TmxLoadr::GetmapStr(void)
+const mapStr Loader::TmxLoader::GetmapStr(void)
 {
 	return mapStr_;
 }
 
-const std::string Loader::TmxLoadr::GetMapKey(void)
+const std::string Loader::TmxLoader::GetMapKey(void)
 {
 	return info_.key;
 }
 
-const mapInfo Loader::TmxLoadr::GetMapInfo(void)
+const mapInfo Loader::TmxLoader::GetMapInfo(void)
 {
 	return info_;
 }

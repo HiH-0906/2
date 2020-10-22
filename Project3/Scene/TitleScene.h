@@ -34,22 +34,20 @@ private:
 
 	std::map<UPDATE_STATE, TitleFuncT> func_;
 	// ステートパターンにぶち込まれる予定関数
-	bool HostIPInput(void);
-	bool PlayUpdate(void);
-	bool SetNetWork(void);
-	bool StartInit(void);
-	bool SelectHost(void);
-	bool ReadHost(void);
+	bool HostIPInput(void);						// IPアドレスの入力
+	bool PlayUpdate(void);						// ゲーム本編 最終的になくなると思う
+	bool SetNetWork(void);						// ホスト、ゲスト、オフラインの選択
+	bool StartInit(void);						// 初期化
+	bool SelectHost(void);						// IPアドレスを入力するか読み込むか
+	bool ReadHost(void);						// IPアドレス読み込み
 
 	// ファイル関連
 	bool ReadFile(void);
 	bool WritFile(void);
 
-	int image_[12];
+	std::unique_ptr<Map> mapMng_;				// Map関係大体持ってるクラス
 
-	std::unique_ptr<Map> mapMng_;
-
-	UPDATE_STATE state_;
+	UPDATE_STATE state_;						// Update管理用変数 タイトルシーンではなくなる予定
 	int screenSize_X;
 	int screenSize_Y;
 	int Image;

@@ -2,7 +2,7 @@
 #include <map>
 #include <string>
 #include <vector>
-#include "../TmxLoad/TmxLoadr.h"
+#include "../TmxLoader/TmxLoader.h"
 
 enum class MapLayer
 {

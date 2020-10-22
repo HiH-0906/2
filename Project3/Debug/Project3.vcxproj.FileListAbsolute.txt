@@ -1,4 +1,0 @@
-C:\Users\homui\Desktop\Project3\Debug\Project3.exe
-C:\Users\homui\Desktop\Project3\Debug\Project3.pdb
-C:\Users\homui\Desktop\2\Project3\Debug\Project3.exe
-C:\Users\homui\Desktop\2\Project3\Debug\Project3.pdb

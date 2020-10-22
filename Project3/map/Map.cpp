@@ -16,12 +16,12 @@ Map::~Map()
 bool Map::LoadMap(void)
 {
 	// mapData“Ç‚Ýž‚Ý
-	Loader::TmxLoadr loadr("mapData/map.tmx");
+	Loader::TmxLoader* loadr = new Loader::TmxLoader("mapData/map.tmx");
 
-	info_ = loadr.GetMapInfo();
+	info_ = loadr->GetMapInfo();
 	int id = 0;
 
-	for (auto tmp : loadr.GetmapStr())
+	for (auto tmp : loadr->GetmapStr())
 	{
 		// Žæ‚èo‚³‚ê‚éstrng•Û‘¶—pˆêŽž•Ï”
 		std::string mapstr;
@@ -49,11 +49,12 @@ bool Map::LoadMap(void)
 			{
 				if (mapData_[id.second][x + y * info_.mapSize.x] >= 0)
 				{
-					DrawGraph(x * info_.chipSize.x, y * info_.chipSize.y, lpImageMng.GetID(loadr.GetMapKey())[mapData_[id.second][x + y * info_.mapSize.x]], true);
+					DrawGraph(x * info_.chipSize.x, y * info_.chipSize.y, lpImageMng.GetID(loadr->GetMapKey())[mapData_[id.second][x + y * info_.mapSize.x]], true);
 				}
 			}
 		}
 	}
+	delete loadr;
 	return true;
 }
 

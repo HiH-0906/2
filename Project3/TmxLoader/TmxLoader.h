@@ -6,12 +6,14 @@
 #include "../common/Vector2.h"
 #include "../RapidXml/rapidxml.hpp"
 
+// データ格納構造体
 struct Layer
 {
 	std::string name;
 	std::string data;
 };
 
+// マップ作成時必要情報構造体
 struct mapInfo
 {
 	Vector2 mapSize = Vector2{};
@@ -21,21 +23,21 @@ struct mapInfo
 	int lineNum = 0;
 	std::string key = std::string{};
 };
-
+// そんな長くないけどusingしとくか感
 using mapStr = std::vector<Layer>;
 
 namespace Loader
 {
-	class TmxLoadr
+	class TmxLoader
 	{
 	public:
-		TmxLoadr();
-		TmxLoadr(const char* filename);
+		TmxLoader();
+		TmxLoader(const char* filename);
 		bool TmxLoad(std::string filename);			// Tmxファイルロード用 内部でTsxLoadを呼んでいる
 		const mapStr GetmapStr(void);				// ロードしてきたstringを渡す奴
 		const std::string GetMapKey(void);			// Tsxロード時作成されたImageへアクセスするためのキー
 		const mapInfo GetMapInfo(void);				// マップ作成時に必要な情報セット
-		~TmxLoadr();
+		~TmxLoader();
 	private:
 		void VersionMap(void);						// 対応バージョン格納するためだけの奴
 		int  GetLayerSize(void);					// レイヤーの最大数獲得するだけの奴

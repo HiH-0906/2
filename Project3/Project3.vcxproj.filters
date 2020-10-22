@@ -57,10 +57,10 @@
     <ClCompile Include="map\Map.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="TmxLoad\TmxLoadr.cpp">
+    <ClCompile Include="common\ImageMng.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="common\ImageMng.cpp">
+    <ClCompile Include="TmxLoader\TmxLoader.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -128,10 +128,10 @@
     <ClInclude Include="RapidXml\rapidxml.hpp">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="TmxLoad\TmxLoadr.h">
+    <ClInclude Include="common\ImageMng.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="common\ImageMng.h">
+    <ClInclude Include="TmxLoader\TmxLoader.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>
