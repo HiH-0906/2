@@ -3,8 +3,6 @@
 #include <sstream>
 #include <DxLib.h>
 #include "Map.h"
-#include "../Parser/TMXParser-master/include/TMXParser.h"
-#include "../Parser/TSXParser-master/include/TSXParser.h"
 #include "../TmxLoad/TmxLoadr.h"
 #include "../common/ImageMng.h"
 
@@ -46,9 +44,9 @@ bool Map::LoadMap(void)
 	for (auto id : mapKey_)
 	{
 		SetDrawScreen(drawLayer_[id.second]);
-		for (unsigned int y = 0; y < info.mapSize.y; y++)
+		for (int y = 0; y < info.mapSize.y; y++)
 		{
-			for (unsigned int x = 0; x < info.mapSize.x; x++)
+			for (int x = 0; x < info.mapSize.x; x++)
 			{
 				if (mapData_[id.second][x + y * info.mapSize.x] >= 0)
 				{
