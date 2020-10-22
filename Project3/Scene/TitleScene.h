@@ -18,6 +18,7 @@ enum class UPDATE_STATE
 	PLAY,
 };
 
+// 現状ネットを試す場になっている 是非もナイネ
 class TitleScene :
 	public BaseScene
 {
@@ -48,6 +49,8 @@ private:
 	std::unique_ptr<Map> mapMng_;				// Map関係大体持ってるクラス
 
 	UPDATE_STATE state_;						// Update管理用変数 タイトルシーンではなくなる予定
+
+	// 見りゃわかる系 一部タイトルで持つのこれ…？ってのがあるけどいずれなくなるでしょう現状TitleSceneしかないので是非もナイネ
 	int screenSize_X;
 	int screenSize_Y;
 	int Image;
