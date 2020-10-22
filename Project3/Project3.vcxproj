@@ -164,8 +164,8 @@
     <ClCompile Include="Scene\SceneMng.cpp" />
     <ClCompile Include="Scene\TitleScene.cpp" />
     <ClCompile Include="State\INPUT_ID.cpp" />
-    <ClCompile Include="test\TMXParser-master\src\TMXParser.cpp" />
-    <ClCompile Include="test\TSXParser-master\src\TSXParser.cpp" />
+    <ClCompile Include="Parser\TMXParser-master\src\TMXParser.cpp" />
+    <ClCompile Include="Parser\TSXParser-master\src\TSXParser.cpp" />
     <ClCompile Include="TmxLoad\TmxLoadr.cpp" />
     <ClCompile Include="_debug\_DebugConOut.cpp" />
     <ClCompile Include="_debug\_DebugDispOut.cpp" />
@@ -190,23 +190,23 @@
     <ClInclude Include="State\CON_ID.h" />
     <ClInclude Include="State\INPUT_ID.h" />
     <ClInclude Include="State\SCREEN_ID.h" />
-    <ClInclude Include="test\TMXParser-master\include\rapidxml\rapidxml.hpp" />
-    <ClInclude Include="test\TMXParser-master\include\rapidxml\rapidxml_iterators.hpp" />
-    <ClInclude Include="test\TMXParser-master\include\rapidxml\rapidxml_print.hpp" />
-    <ClInclude Include="test\TMXParser-master\include\rapidxml\rapidxml_utils.hpp" />
-    <ClInclude Include="test\TMXParser-master\include\TMXParser.h" />
-    <ClInclude Include="test\TSXParser-master\include\rapidxml\rapidxml.hpp" />
-    <ClInclude Include="test\TSXParser-master\include\rapidxml\rapidxml_iterators.hpp" />
-    <ClInclude Include="test\TSXParser-master\include\rapidxml\rapidxml_print.hpp" />
-    <ClInclude Include="test\TSXParser-master\include\rapidxml\rapidxml_utils.hpp" />
-    <ClInclude Include="test\TSXParser-master\include\TSXParser.h" />
+    <ClInclude Include="Parser\TMXParser-master\include\rapidxml\rapidxml.hpp" />
+    <ClInclude Include="Parser\TMXParser-master\include\rapidxml\rapidxml_iterators.hpp" />
+    <ClInclude Include="Parser\TMXParser-master\include\rapidxml\rapidxml_print.hpp" />
+    <ClInclude Include="Parser\TMXParser-master\include\rapidxml\rapidxml_utils.hpp" />
+    <ClInclude Include="Parser\TMXParser-master\include\TMXParser.h" />
+    <ClInclude Include="Parser\TSXParser-master\include\rapidxml\rapidxml.hpp" />
+    <ClInclude Include="Parser\TSXParser-master\include\rapidxml\rapidxml_iterators.hpp" />
+    <ClInclude Include="Parser\TSXParser-master\include\rapidxml\rapidxml_print.hpp" />
+    <ClInclude Include="Parser\TSXParser-master\include\rapidxml\rapidxml_utils.hpp" />
+    <ClInclude Include="Parser\TSXParser-master\include\TSXParser.h" />
     <ClInclude Include="TmxLoad\TmxLoadr.h" />
     <ClInclude Include="_debug\_DebugConOut.h" />
     <ClInclude Include="_debug\_DebugDispOut.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="test\TMXParser-master\include\rapidxml\manual.html" />
-    <None Include="test\TSXParser-master\include\rapidxml\manual.html" />
+    <None Include="Parser\TMXParser-master\include\rapidxml\manual.html" />
+    <None Include="Parser\TSXParser-master\include\rapidxml\manual.html" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

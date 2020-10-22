@@ -3,8 +3,8 @@
 #include <sstream>
 #include <DxLib.h>
 #include "Map.h"
-#include "../test/TMXParser-master/include/TMXParser.h"
-#include "../test/TSXParser-master/include/TSXParser.h"
+#include "../Parser/TMXParser-master/include/TMXParser.h"
+#include "../Parser/TSXParser-master/include/TSXParser.h"
 
 Map::Map()
 {

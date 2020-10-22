@@ -54,16 +54,16 @@
     <ClCompile Include="State\INPUT_ID.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="test\TMXParser-master\src\TMXParser.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="test\TSXParser-master\src\TSXParser.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="map\Map.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="TmxLoad\TmxLoadr.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Parser\TMXParser-master\src\TMXParser.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Parser\TSXParser-master\src\TSXParser.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -116,36 +116,6 @@
     <ClInclude Include="State\SCREEN_ID.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="test\TMXParser-master\include\rapidxml\rapidxml.hpp">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="test\TMXParser-master\include\rapidxml\rapidxml_iterators.hpp">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="test\TMXParser-master\include\rapidxml\rapidxml_print.hpp">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="test\TMXParser-master\include\rapidxml\rapidxml_utils.hpp">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="test\TMXParser-master\include\TMXParser.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="test\TSXParser-master\include\rapidxml\rapidxml.hpp">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="test\TSXParser-master\include\rapidxml\rapidxml_iterators.hpp">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="test\TSXParser-master\include\rapidxml\rapidxml_print.hpp">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="test\TSXParser-master\include\rapidxml\rapidxml_utils.hpp">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="test\TSXParser-master\include\TSXParser.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="map\Map.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
@@ -164,9 +134,39 @@
     <ClInclude Include="TmxLoad\TmxLoadr.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="Parser\TMXParser-master\include\rapidxml\rapidxml.hpp">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Parser\TMXParser-master\include\rapidxml\rapidxml_iterators.hpp">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Parser\TMXParser-master\include\rapidxml\rapidxml_print.hpp">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Parser\TMXParser-master\include\rapidxml\rapidxml_utils.hpp">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Parser\TMXParser-master\include\TMXParser.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Parser\TSXParser-master\include\rapidxml\rapidxml.hpp">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Parser\TSXParser-master\include\rapidxml\rapidxml_iterators.hpp">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Parser\TSXParser-master\include\rapidxml\rapidxml_print.hpp">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Parser\TSXParser-master\include\rapidxml\rapidxml_utils.hpp">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Parser\TSXParser-master\include\TSXParser.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="test\TMXParser-master\include\rapidxml\manual.html" />
-    <None Include="test\TSXParser-master\include\rapidxml\manual.html" />
+    <None Include="Parser\TMXParser-master\include\rapidxml\manual.html" />
+    <None Include="Parser\TSXParser-master\include\rapidxml\manual.html" />
   </ItemGroup>
 </Project>
