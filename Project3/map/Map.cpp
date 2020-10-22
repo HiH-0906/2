@@ -3,7 +3,6 @@
 #include <sstream>
 #include <DxLib.h>
 #include "Map.h"
-#include "../TmxLoad/TmxLoadr.h"
 #include "../common/ImageMng.h"
 
 Map::Map()
@@ -17,9 +16,9 @@ Map::~Map()
 bool Map::LoadMap(void)
 {
 	// mapData読み込み
-
 	Loader::TmxLoadr loadr("mapData/map.tmx");
 
+	info_ = loadr.GetMapInfo();
 	int id = 0;
 
 	for (auto tmp : loadr.GetmapStr())
@@ -29,7 +28,7 @@ bool Map::LoadMap(void)
 		// streamに変換
 		std::stringstream str(tmp.data);
 		// MapInfoの情報をもとに描画用スクリーン作成
-		drawLayer_[tmp.name] = MakeScreen(21 * 32, 17 * 32, true);
+		drawLayer_[tmp.name] = MakeScreen(info_.mapSize.x * info_.chipSize.x, info_.mapSize.x * info_.chipSize.y, true);
 		// アクセスしやすいようにenumClassに対応したstrを保存
 		mapKey_[static_cast<MapLayer>(id)] = tmp.name;
 		id++;
@@ -39,18 +38,18 @@ bool Map::LoadMap(void)
 		}
 	}
 	// マップ作成に必要なデータの取得
-	auto info = loadr.GetMapInfo();
+
 	// 描画スクリーンへの書き出し
 	for (auto id : mapKey_)
 	{
 		SetDrawScreen(drawLayer_[id.second]);
-		for (int y = 0; y < info.mapSize.y; y++)
+		for (int y = 0; y < info_.mapSize.y; y++)
 		{
-			for (int x = 0; x < info.mapSize.x; x++)
+			for (int x = 0; x < info_.mapSize.x; x++)
 			{
-				if (mapData_[id.second][x + y * info.mapSize.x] >= 0)
+				if (mapData_[id.second][x + y * info_.mapSize.x] >= 0)
 				{
-					DrawGraph(x * info.chipSize.x, y * info.chipSize.y, lpImageMng.GetID(loadr.GetMapKey())[mapData_[id.second][x + y * info.mapSize.x]], true);
+					DrawGraph(x * info_.chipSize.x, y * info_.chipSize.y, lpImageMng.GetID(loadr.GetMapKey())[mapData_[id.second][x + y * info_.mapSize.x]], true);
 				}
 			}
 		}
@@ -68,5 +67,20 @@ std::vector<int>& Map::GetMapData(MapLayer layer)
 {
 	// Mapデータ取得
 	return mapData_[mapKey_[layer]];
+}
+// 指定されたlayerを書き換え
+void Map::ReDrawMap(MapLayer layer)
+{
+	SetDrawScreen(drawLayer_[mapKey_[layer]]);
+	for (int y = 0; y < info_.mapSize.y; y++)
+	{
+		for (int x = 0; x < info_.mapSize.x; x++)
+		{
+			if (mapData_[mapKey_[layer]][x + y * info_.mapSize.x] >= 0)
+			{
+				DrawGraph(x * info_.chipSize.x, y * info_.chipSize.y, lpImageMng.GetID(info_.key)[mapData_[mapKey_[layer]][x + y * info_.mapSize.x]], true);
+			}
+		}
+	}
 }
 

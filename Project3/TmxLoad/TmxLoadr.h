@@ -14,12 +14,12 @@ struct Layer
 
 struct mapInfo
 {
-	Vector2 mapSize;
-	Vector2 chipSize;
-	int allNum;
-	int columnsNum;
-	int lineNum;
-	std::string key;
+	Vector2 mapSize = Vector2{};
+	Vector2 chipSize = Vector2{};
+	int allNum = 0;
+	int columnsNum = 0;
+	int lineNum = 0;
+	std::string key = std::string{};
 };
 
 using mapStr = std::vector<Layer>;
@@ -31,21 +31,22 @@ namespace Loader
 	public:
 		TmxLoadr();
 		TmxLoadr(const char* filename);
-		bool TmxLoad(std::string filename);
-		bool TsxLoad(std::string filename);
-		int  GetLayerSize(void);
-		mapStr GetmapStr(void);
-		const std::string GetMapKey(void);
-		const mapInfo GetMapInfo(void);
+		bool TmxLoad(std::string filename);			// Tmxファイルロード用 内部でTsxLoadを呼んでいる
+		const mapStr GetmapStr(void);				// ロードしてきたstringを渡す奴
+		const std::string GetMapKey(void);			// Tsxロード時作成されたImageへアクセスするためのキー
+		const mapInfo GetMapInfo(void);				// マップ作成時に必要な情報セット
 		~TmxLoadr();
 	private:
 		void VersionMap(void);						// 対応バージョン格納するためだけの奴
-		rapidxml::xml_document<> doc_;
-		rapidxml::xml_node<>* orign_node_;
+		int  GetLayerSize(void);					// レイヤーの最大数獲得するだけの奴
+		bool TsxLoad(std::string filename);			// Tsxファイルをロード TmxLoadから呼び出される
 
-		std::map<std::string, int> version_;
-		mapStr mapStr_;
-		mapInfo info_;
+		rapidxml::xml_document<> doc_;
+		rapidxml::xml_node<>* orign_node_;			// 一番最初のノード 基本的にここからアクセスする
+
+		std::map<std::string, int> version_;		// 今後別バージョンに対応した際こいつに対応したバージョンをキーにして適当な値を入れ入れとけば対応してるかどうか確認するときに楽
+		mapStr mapStr_;								// 読み込んだstringの保存場所
+		mapInfo info_;								// 読み込んだマップ作製用情報を使いやすい形に変え格納したもの
 	};
 }
 

@@ -116,7 +116,7 @@ bool TitleScene::PlayUpdate(void)
 bool TitleScene::SetNetWork(void)
 {
 	auto ip = lpNetWork.GetIP();
-	TRACE("自分のIPアドレスは%d.%d.%d.%dです\n", ip.d1, ip.d2, ip.d3, ip.d4);
+	TRACE("自分のローカルIPアドレスは%d.%d.%d.%dです\n", ip.d1, ip.d2, ip.d3, ip.d4);
 	bool loop = true;
 	do
 	{
