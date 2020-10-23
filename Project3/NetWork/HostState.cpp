@@ -1,6 +1,7 @@
 #include <iostream>
 #include <DxLib.h>
 #include "HostState.h"
+#include "NetWork.h"
 #include "../_debug/_DebugConOut.h"
 
 HostState::HostState()
@@ -34,6 +35,15 @@ bool HostState::CheckNetState(void)
 		active_ = ACTIVE_STATE::WAIT;
 		netHandle_ = -1;
 		std::cout << "切断されました" << std::endl;
+		auto ipVec = lpNetWork.GetIP();
+		for (auto ip : ipVec)
+		{
+			if (ip.d1 != 0)
+			{
+				std::string mes = ip.d1 == 192 ? "グローバル" : "ローカル";
+				TRACE("自分の%sIPアドレスは%d.%d.%d.%dです\n", mes.c_str(), ip.d1, ip.d2, ip.d3, ip.d4);
+			}
+		}
 		// ホストから辞めたいときは手動でCloseNetWork呼ぼうネ
 		return false;
 	}
