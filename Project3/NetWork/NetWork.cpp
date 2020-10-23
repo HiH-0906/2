@@ -106,12 +106,8 @@ void NetWork::RecvMes(Vector2& pos)
 		{
 			
 			revTmx_[mes.data[0]] = mes.data[1];
-			if (revTmx_[mes.data[0]] == '\n')
-			{
-				revTmx_[mes.data[0]] = 10;
-			}
 			TRACE("%c", mes.data[1]);
-			if (mes.data[0] + 1 == revTmx_.size())
+			/*if (mes.data[0] + 1 == revTmx_.size())
 			{
 				std::fstream file("Capture/test.tmx", std::ios::out);
 
@@ -124,11 +120,42 @@ void NetWork::RecvMes(Vector2& pos)
 					file << tmp;
 				}
 				file.close();
-			}
+			}*/
 
 		}
 		if (mes.type == MES_TYPE::STANBY)
 		{
+			std::fstream file("Capture/test.tmx", std::ios::out);
+
+			if (!file)
+			{
+				return;
+			}
+			for (auto tmp : revTmx_)
+			{
+				std::fstream file("Capture/test.tmx", std::ios::out);
+
+				if (!file)
+				{
+					return;
+				}
+				for (auto tmp : revTmx_)
+				{
+					if (tmp != 0)
+					{
+						if (tmp == '\n')
+						{
+							file << std::endl;
+						}
+						else
+						{
+							file << tmp;
+						}
+					}
+				}
+				file.close();
+			}
+			file.close();
 			std::cout << "スタンバイMES受信" << std::endl;
 			revState_ = true;
 		}
