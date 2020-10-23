@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include <DxLib.h>
+#include <vector>
 #include <array>
 #include "NetWorkState.h"
 

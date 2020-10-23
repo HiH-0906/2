@@ -105,7 +105,7 @@ void NetWork::RecvMes(Vector2& pos)
 		if (mes.type == MES_TYPE::TMX_DATA)
 		{
 			revTmx_[mes.data[0]] = mes.data[1];
-			TRACE("%c", revTmx_[mes.data[0]])
+			TRACE("%c", mes.data[1])
 			cntRev_++;
 			if (cntRev_ == revSize_)
 			{
@@ -117,12 +117,16 @@ void NetWork::RecvMes(Vector2& pos)
 				}
 				for (auto tmp: revTmx_)
 				{
-
 					file.write((char*)&tmp, sizeof(tmp));
 				}
 				file.close();
 			}
 
+		}
+		if (mes.type == MES_TYPE::STANBY)
+		{
+			std::cout << "スタンバイMES受信" << std::endl;
+			revState_ = true;
 		}
 	}
 }
@@ -181,17 +185,19 @@ bool NetWork::SendTmxData(std::string filename)
 		return false;
 	}
 
-	char tmp = str.get();
+	int tmp = str.get();
+	std::vector<int> test;
+	std::vector<char> test2;
 	int i = 0;
 	while (tmp != EOF)
 	{
+		test.emplace_back(tmp);
+		test2.emplace_back(tmp);
 		MES_DATA mes = { MES_TYPE::TMX_DATA,i,tmp };
 		lpNetWork.SendMes(mes);
 		i++;
 		tmp = str.get();
 	}
-	MES_DATA mes = { MES_TYPE::TMX_DATA,i,INT_MAX };
-	lpNetWork.SendMes(mes);
 	return true;
 }
 
@@ -220,32 +226,13 @@ bool NetWork::GetRevMesType(MES_TYPE type)
 
 bool NetWork::GetRevStanby(void)
 {
-	if (!state_)
-	{
-		return false;
-	}
-	auto handle = state_->GetNetHandle();
-	if (handle == -1)
-	{
-		return false;
-	}
-	if (GetNetWorkDataLength(handle) >= sizeof(MES_DATA))
-	{
-		MES_DATA mes;
-		NetWorkRecv(handle, &mes, sizeof(MES_DATA));
-		if (mes.type ==MES_TYPE::STANBY)
-		{
-			std::cout << "スタンバイMES受信" << std::endl;
-			revState_ = true;
-		}
-	}
 	return revState_;
 }
 
 NetWork::NetWork()
 {
 	state_ = nullptr;
-	revState_ = true;
+	revState_ = false;
 	cntRev_ = 0;
 }
 
