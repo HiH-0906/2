@@ -3,6 +3,7 @@
 #include "../RapidXml/rapidxml.hpp"
 #include "../RapidXml/rapidxml_utils.hpp"
 #include "../common/ImageMng.h"
+#include "../NetWork/NetWork.h"
 
 
 Loader::TmxLoader::TmxLoader()
@@ -145,3 +146,5 @@ const mapInfo Loader::TmxLoader::GetMapInfo(void)
 {
 	return info_;
 }
+
+

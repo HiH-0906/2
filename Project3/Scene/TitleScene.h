@@ -46,6 +46,8 @@ private:
 	bool ReadFile(void);
 	bool WritFile(void);
 
+	bool SendNetWorkMes(std::string filename);
+
 	std::unique_ptr<Map> mapMng_;				// Map関係大体持ってるクラス
 
 	UPDATE_STATE state_;						// Update管理用変数 タイトルシーンではなくなる予定

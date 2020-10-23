@@ -121,8 +121,15 @@ bool TitleScene::PlayUpdate(void)
 // 共用 ネット使うかどうか、ホストかゲストか選択
 bool TitleScene::SetNetWork(void)
 {
-	auto ip = lpNetWork.GetIP();
-	TRACE("自分のローカルIPアドレスは%d.%d.%d.%dです\n", ip.d1, ip.d2, ip.d3, ip.d4);
+	auto ipVec = lpNetWork.GetIP();
+	for (auto ip : ipVec)
+	{
+		if (ip.d1 != 0)
+		{
+			std::string mes = ip.d1 == 192 ? "グローバル" : "ローカル";
+			TRACE("自分の%sIPアドレスは%d.%d.%d.%dです\n", mes.c_str(), ip.d1, ip.d2, ip.d3, ip.d4);
+		}
+	}
 	bool loop = true;
 	do
 	{
@@ -164,12 +171,17 @@ bool TitleScene::SetNetWork(void)
 // 共用 初期化してメッセージ飛ばす ホスト、ゲスト分けてもよかったけど大した量でもないし、ステート増えるしで分けなくていいかなって
 bool TitleScene::StartInit(void)
 {
+
 	if (lpNetWork.GetMode() == NetWorkMode::HOST)
 	{
 		if (lpNetWork.GetActive() == ACTIVE_STATE::INIT)
 		{
 			mapMng_->LoadMap();
-			lpNetWork.SendStanby();
+			SendNetWorkMes("mapData/map.tmx");
+			if (lpNetWork.SendTmxData("mapData/map.tmx"))
+			{
+				lpNetWork.SendStanby();
+			}
 		}
 		if (lpNetWork.GetActive() == ACTIVE_STATE::STANBY && lpNetWork.GetRevMesType(MES_TYPE::GAME_START))
 		{
@@ -180,6 +192,8 @@ bool TitleScene::StartInit(void)
 
 	if (lpNetWork.GetMode() == NetWorkMode::GEST)
 	{
+		auto pos = Vector2{};
+		lpNetWork.RecvMes(pos);
 		if (lpNetWork.GetActive() == ACTIVE_STATE::INIT && lpNetWork.GetRevStanby())
 		{
 			mapMng_->LoadMap();
@@ -267,4 +281,11 @@ bool TitleScene::WritFile(void)
 	return true;
 }
 
-
+bool TitleScene::SendNetWorkMes(std::string filename)
+{
+	std::ifstream tmxstr(filename.c_str());
+	tmxstr.seekg(0, std::ios::end);
+	MES_DATA data = { MES_TYPE::TMX_SIZE,static_cast<int>(tmxstr.tellg()) };
+	lpNetWork.SendMes(data);
+	return true;
+}

@@ -1,10 +1,13 @@
 #pragma once
 #include <memory>
 #include <DxLib.h>
+#include <array>
 #include "NetWorkState.h"
 
 #define lpNetWork NetWork::GetInstance()
 
+using revTmx = std::vector<char>;
+using IParray = std::array<IPDATA, 5>;
 
 // いつものシングルトンクラス
 class NetWork
@@ -19,19 +22,25 @@ public:
 
 	bool SetNetWorkMode(NetWorkMode mode);
 	ACTIVE_STATE GetActive(void);
-	IPDATA GetIP(void);
+	IParray GetIP(void);
 	bool ConnectHost(IPDATA hostIP);					// 指定されたIPアドレスのホストへ接続しに行く
 	NetWorkMode GetMode(void);
 	void RecvMes(Vector2& pos);
 	void SendMes(MES_DATA data);
 	void SendStanby(void);
 	void SendStart(void);
+	bool SendTmxData(std::string filename);
 
 	bool GetRevMesType(MES_TYPE type);
 	bool GetRevStanby(void);
 
 private:
 	bool revState_;
+	revTmx revTmx_;
+	int revSize_;
+	int cntRev_;
+
+	IParray ipdata_;
 
 	struct NetWorkDeleter
 	{

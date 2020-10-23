@@ -48,7 +48,7 @@ bool SceneMng::SysInit(void)
 
 
 
-SceneMng::SceneMng():screenX(32*21),screenY(32*17)
+SceneMng::SceneMng() :screenX(32 * 21), screenY(32 * 17)
 {
 	SysInit();
 }

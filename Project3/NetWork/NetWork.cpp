@@ -1,4 +1,6 @@
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include "NetWork.h"
 #include "HostState.h"
 #include "GestState.h"
@@ -51,11 +53,10 @@ ACTIVE_STATE NetWork::GetActive(void)
 	return state_->GetActive();
 }
 
-IPDATA NetWork::GetIP(void)
+IParray NetWork::GetIP(void)
 {
-	IPDATA myIP[2];
-	GetMyIPAddress(myIP,2);
-	return myIP[0];
+	GetMyIPAddress(&ipdata_[0],ipdata_.size());
+	return ipdata_;
 }
 
 bool NetWork::ConnectHost(IPDATA hostIP)
@@ -91,9 +92,37 @@ void NetWork::RecvMes(Vector2& pos)
 	{
 		MES_DATA mes;
 		NetWorkRecv(handle, &mes, sizeof(MES_DATA));
+		if (mes.type == MES_TYPE::TMX_SIZE)
+		{
+			TRACE("TMXのデータｻｲｽﾞは%dです。\n", mes.data[0]);
+			revSize_ = mes.data[0];
+			revTmx_.resize(mes.data[0]);
+		}
 		if (mes.type == MES_TYPE::POS)
 		{
 			pos = { mes.data[0],mes.data[1] };
+		}
+		if (mes.type == MES_TYPE::TMX_DATA)
+		{
+			revTmx_[mes.data[0]] = mes.data[1];
+			TRACE("%c", revTmx_[mes.data[0]])
+			cntRev_++;
+			if (cntRev_ == revSize_)
+			{
+				std::fstream file("test.tmx", std::ios::out);
+
+				if (!file)
+				{
+					return;
+				}
+				for (auto tmp: revTmx_)
+				{
+
+					file.write((char*)&tmp, sizeof(tmp));
+				}
+				file.close();
+			}
+
 		}
 	}
 }
@@ -142,6 +171,28 @@ void NetWork::SendStart(void)
 	}
 	MES_DATA tmpMes = { MES_TYPE::GAME_START,{0,0} };
 	NetWorkSend(handle, &tmpMes, sizeof(MES_DATA));
+}
+
+bool NetWork::SendTmxData(std::string filename)
+{
+	std::ifstream str(filename.c_str());
+	if (!str)
+	{
+		return false;
+	}
+
+	char tmp = str.get();
+	int i = 0;
+	while (tmp != EOF)
+	{
+		MES_DATA mes = { MES_TYPE::TMX_DATA,i,tmp };
+		lpNetWork.SendMes(mes);
+		i++;
+		tmp = str.get();
+	}
+	MES_DATA mes = { MES_TYPE::TMX_DATA,i,INT_MAX };
+	lpNetWork.SendMes(mes);
+	return true;
 }
 
 bool NetWork::GetRevMesType(MES_TYPE type)
@@ -195,6 +246,7 @@ NetWork::NetWork()
 {
 	state_ = nullptr;
 	revState_ = true;
+	cntRev_ = 0;
 }
 
 NetWork::~NetWork()

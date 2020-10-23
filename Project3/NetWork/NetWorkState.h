@@ -28,6 +28,8 @@ enum class MES_TYPE
 {
 	STANBY,
 	GAME_START,
+	TMX_SIZE,
+	TMX_DATA,
 	POS
 };
 
