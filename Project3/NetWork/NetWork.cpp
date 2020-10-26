@@ -121,19 +121,16 @@ void NetWork::RecvMes(Vector2& pos)
 				{
 					return;
 				}
-				for (auto tmp : revTmx_)
+				if (tmp != 0)
 				{
-					if (tmp != 0)
+					auto cha = (reinterpret_cast<char*>(&tmp));
+					for (int i = 0; i < 4; i++)
 					{
-						auto cha = (reinterpret_cast<char*>(&tmp));
-						for (int i = 0; i < 4; i++)
+						if (cha[i] == 0)
 						{
-							if (cha[i] == EOF)
-							{
-								continue;
-							}
-							file << cha[i];
+							continue;
 						}
+						file << cha[i];
 					}
 				}
 			}
