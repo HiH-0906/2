@@ -96,12 +96,16 @@ void NetWork::RecvMes(Vector2& pos)
 		{
 			TRACE("TMXのデータｻｲｽﾞは%dです。\n", mes.data[0]);
 			revSize_ = mes.data[0];
-			revTmx_.resize(mes.data[0]);
+			revTmx_.resize(mes.data[0] / sizeof(int));
 		}
 		if (mes.type == MES_TYPE::TMX_DATA)
 		{
 			revTmx_[mes.data[0]] = mes.data[1];
-			auto tmp = reinterpret_cast<char*>(mes.data[1]);
+			auto tmp = reinterpret_cast<char*>(&mes.data[1]);
+			std::cout << tmp[0];
+			std::cout << tmp[1];
+			std::cout << tmp[2];
+			std::cout << tmp[3];
 		}
 		if (mes.type == MES_TYPE::STANBY)
 		{
@@ -121,12 +125,18 @@ void NetWork::RecvMes(Vector2& pos)
 				{
 					if (tmp != 0)
 					{
-						file << reinterpret_cast<char*>(tmp);
+						auto cha = (reinterpret_cast<char*>(&tmp));
+						for (int i = 0; i < 4; i++)
+						{
+							if (cha[i] == EOF)
+							{
+								continue;
+							}
+							file << cha[i];
+						}
 					}
 				}
-				file.close();
 			}
-			file.close();
 			std::cout << "スタンバイMES受信" << std::endl;
 			revState_ = true;
 		}
@@ -187,19 +197,18 @@ bool NetWork::SendTmxData(std::string filename)
 		return false;
 	}
 	char num[4];
-	auto tmp = str.readsome(num, sizeof(num));
 	int i = 0;
 
-	while (tmp == 4)
+	while (!str.eof())
 	{
-
-		MES_DATA mes = { MES_TYPE::TMX_DATA,i,reinterpret_cast<int>(num) };
+		for (int i = 0; i < 4; i++)
+		{
+			num[i] = str.get();
+		}
+		MES_DATA mes = { MES_TYPE::TMX_DATA,i,*(reinterpret_cast<int*>(&num[0])) };
 		lpNetWork.SendMes(mes);
 		i++;
-		tmp = str.readsome(num, sizeof(num));
 	}
-	MES_DATA mes = { MES_TYPE::TMX_DATA,i,reinterpret_cast<int>(num) };
-	lpNetWork.SendMes(mes);
 	return true;
 }
 

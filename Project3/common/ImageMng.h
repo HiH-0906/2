@@ -26,7 +26,6 @@ public:
 private:
 	ImgMap imgMap_;
 
-
 	ImageMng();
 	~ImageMng();
 	struct ImageMngDeleter
