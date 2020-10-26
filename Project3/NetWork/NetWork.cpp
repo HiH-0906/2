@@ -84,7 +84,7 @@ void NetWork::RecvMes(Vector2& pos)
 		return;
 	}
 	auto handle = state_->GetNetHandle();
-	if (handle==-1)
+	if (handle == -1)
 	{
 		return;
 	}
@@ -98,34 +98,14 @@ void NetWork::RecvMes(Vector2& pos)
 			revSize_ = mes.data[0];
 			revTmx_.resize(mes.data[0]);
 		}
-		if (mes.type == MES_TYPE::POS)
-		{
-			pos = { mes.data[0],mes.data[1] };
-		}
 		if (mes.type == MES_TYPE::TMX_DATA)
 		{
-			
 			revTmx_[mes.data[0]] = mes.data[1];
-			TRACE("%c", mes.data[1]);
-			/*if (mes.data[0] + 1 == revTmx_.size())
-			{
-				std::fstream file("Capture/test.tmx", std::ios::out);
-
-				if (!file)
-				{
-					return;
-				}
-				for (auto tmp: revTmx_)
-				{
-					file << tmp;
-				}
-				file.close();
-			}*/
-
+			auto tmp = reinterpret_cast<char*>(mes.data[1]);
 		}
 		if (mes.type == MES_TYPE::STANBY)
 		{
-			std::fstream file("Capture/test.tmx", std::ios::out);
+			std::ofstream file("Capture/test.tmx", std::ios::out);
 
 			if (!file)
 			{
@@ -133,8 +113,6 @@ void NetWork::RecvMes(Vector2& pos)
 			}
 			for (auto tmp : revTmx_)
 			{
-				std::fstream file("Capture/test.tmx", std::ios::out);
-
 				if (!file)
 				{
 					return;
@@ -143,14 +121,7 @@ void NetWork::RecvMes(Vector2& pos)
 				{
 					if (tmp != 0)
 					{
-						if (tmp == '\n')
-						{
-							file << std::endl;
-						}
-						else
-						{
-							file << tmp;
-						}
+						file << reinterpret_cast<char*>(tmp);
 					}
 				}
 				file.close();
@@ -215,16 +186,20 @@ bool NetWork::SendTmxData(std::string filename)
 	{
 		return false;
 	}
-
-	int tmp = str.get();
+	char num[4];
+	auto tmp = str.readsome(num, sizeof(num));
 	int i = 0;
-	while (tmp != EOF)
+
+	while (tmp == 4)
 	{
-		MES_DATA mes = { MES_TYPE::TMX_DATA,i,tmp };
+
+		MES_DATA mes = { MES_TYPE::TMX_DATA,i,reinterpret_cast<int>(num) };
 		lpNetWork.SendMes(mes);
 		i++;
-		tmp = str.get();
+		tmp = str.readsome(num, sizeof(num));
 	}
+	MES_DATA mes = { MES_TYPE::TMX_DATA,i,reinterpret_cast<int>(num) };
+	lpNetWork.SendMes(mes);
 	return true;
 }
 

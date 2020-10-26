@@ -33,6 +33,7 @@ enum class MES_TYPE
 	POS
 };
 
+
 struct MES_DATA
 {
 	MES_TYPE type;
