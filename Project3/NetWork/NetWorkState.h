@@ -34,19 +34,19 @@ enum class MES_TYPE
 };
 
 
-struct MES_DATA
-{
-	MES_TYPE type;
-	int data[2];
-};
-
-//struct TMP_MES
+//struct MES_DATA
 //{
-//	unsigned char type : 5;
-//	unsigned char : 0;
-//	unsigned char ch[3];
+//	MES_TYPE type;
 //	int data[2];
 //};
+
+struct MES_DATA
+{
+	unsigned int type : 5;
+	unsigned int id : 16;
+	unsigned int : 0;
+	int data[2];
+};
 
 // ネット接続モジュールの基盤 OFFLINE時はこれがインスタンスされる
 class NetWorkState

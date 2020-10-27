@@ -92,22 +92,28 @@ void NetWork::RecvMes(Vector2& pos)
 	{
 		MES_DATA mes;
 		NetWorkRecv(handle, &mes, sizeof(MES_DATA));
-		if (mes.type == MES_TYPE::TMX_SIZE)
+		if (static_cast<MES_TYPE>(mes.type) == MES_TYPE::TMX_SIZE)
 		{
 			TRACE("TMXのデータｻｲｽﾞは%dです。\n", mes.data[0]);
 			revSize_ = mes.data[0];
 			revTmx_.resize(mes.data[0] / sizeof(int));
 		}
-		if (mes.type == MES_TYPE::TMX_DATA)
+		if (static_cast<MES_TYPE>(mes.type) == MES_TYPE::TMX_DATA)
 		{
-			revTmx_[mes.data[0]] = mes.data[1];
-			auto tmp = reinterpret_cast<char*>(&mes.data[1]);
+			revTmx_[mes.id] = mes.data[0];
+			revTmx_[mes.id + 1] = mes.data[1];
+			auto tmp = reinterpret_cast<char*>(&mes.data[0]);
 			std::cout << tmp[0];
 			std::cout << tmp[1];
 			std::cout << tmp[2];
 			std::cout << tmp[3];
+			auto tmp2 = reinterpret_cast<char*>(&mes.data[1]);
+			std::cout << tmp2[0];
+			std::cout << tmp2[1];
+			std::cout << tmp2[2];
+			std::cout << tmp2[3];
 		}
-		if (mes.type == MES_TYPE::STANBY)
+		if (static_cast<MES_TYPE>(mes.type) == MES_TYPE::STANBY)
 		{
 			std::ofstream file("Capture/test.tmx", std::ios::out);
 
@@ -165,7 +171,7 @@ void NetWork::SendStanby(void)
 	{
 		return;
 	}
-	MES_DATA tmpMes = { MES_TYPE::STANBY,{0,0} };
+	MES_DATA tmpMes = { static_cast<unsigned int>(MES_TYPE::STANBY),{},{0,0} };
 	NetWorkSend(handle, &tmpMes, sizeof(MES_DATA));
 	std::cout << "GUESTからのスタートメッセージ待ちです" << std::endl;
 	state_->SetActive(ACTIVE_STATE::STANBY);
@@ -182,7 +188,7 @@ void NetWork::SendStart(void)
 	{
 		return;
 	}
-	MES_DATA tmpMes = { MES_TYPE::GAME_START,{0,0} };
+	MES_DATA tmpMes = { static_cast<unsigned int>(MES_TYPE::GAME_START),{},{0,0} };
 	NetWorkSend(handle, &tmpMes, sizeof(MES_DATA));
 }
 
@@ -194,6 +200,8 @@ bool NetWork::SendTmxData(std::string filename)
 		return false;
 	}
 	char num[4];
+	char num2[4];
+	char tmp1, tmp2;
 	int i = 0;
 
 	while (!str.eof())
@@ -202,9 +210,13 @@ bool NetWork::SendTmxData(std::string filename)
 		{
 			num[i] = str.get();
 		}
-		MES_DATA mes = { MES_TYPE::TMX_DATA,i,*(reinterpret_cast<int*>(&num[0])) };
+		for (int i = 0; i < 4; i++)
+		{
+			num2[i] = str.get();
+		}
+		MES_DATA mes = { static_cast<unsigned int>(MES_TYPE::TMX_DATA),i,*(reinterpret_cast<int*>(&num[0])),*(reinterpret_cast<int*>(&num2[0])) };
 		lpNetWork.SendMes(mes);
-		i++;
+		i += 2;
 	}
 	return true;
 }
@@ -224,7 +236,7 @@ bool NetWork::GetRevMesType(MES_TYPE type)
 	{
 		MES_DATA mes;
 		NetWorkRecv(handle, &mes, sizeof(MES_DATA));
-		if (mes.type == type)
+		if (static_cast<MES_TYPE>(mes.type) == type)
 		{
 			return true;
 		}
