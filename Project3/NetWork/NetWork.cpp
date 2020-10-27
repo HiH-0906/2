@@ -1,9 +1,11 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <chrono>
 #include "NetWork.h"
 #include "HostState.h"
 #include "GestState.h"
+#include "../TmxLoader/TmxLoader.h"
 #include "../_debug/_DebugConOut.h"
 
 std::unique_ptr<NetWork, NetWork::NetWorkDeleter> NetWork::s_Instance(new NetWork);
@@ -188,24 +190,36 @@ void NetWork::SendStart(void)
 
 bool NetWork::SendTmxData(std::string filename)
 {
-	std::ifstream str(filename.c_str());
+	/*std::ifstream str(filename.c_str());
 	if (!str)
 	{
 		return false;
-	}
+	}*/
+	Loader::TmxLoader* loader = new Loader::TmxLoader(filename.c_str());
 	char num[4];
-	int i = 0;
+	int id = 0;
 
-	while (!str.eof())
+	for (auto layer:loader->GetmapStr())
 	{
-		for (int i = 0; i < 4; i++)
+		std::stringstream str(layer.data.c_str());
+		while (!str.eof())
 		{
-			num[i] = str.get();
+			for (int i = 0; i < 4; i++)
+			{
+				num[i] = str.get();
+			}
+			
+			std::cout << num[0];
+			std::cout << num[1];
+			std::cout << num[2];
+			std::cout << num[3];
+			//std::cout << "‘—M:" << id << std::endl;
+			MES_DATA mes = { MES_TYPE::TMX_DATA,id,*(reinterpret_cast<int*>(&num[0])) };
+			lpNetWork.SendMes(mes);
+			id++;
 		}
-		MES_DATA mes = { MES_TYPE::TMX_DATA,i,*(reinterpret_cast<int*>(&num[0])) };
-		lpNetWork.SendMes(mes);
-		i++;
 	}
+	delete loader;
 	return true;
 }
 
