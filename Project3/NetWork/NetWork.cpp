@@ -202,6 +202,8 @@ bool NetWork::SendTmxData(std::string filename)
 	for (auto layer:loader->GetmapStr())
 	{
 		std::stringstream str(layer.data.c_str());
+		str.get();
+		str.get();
 		while (!str.eof())
 		{
 			for (int i = 0; i < 4; i++)
