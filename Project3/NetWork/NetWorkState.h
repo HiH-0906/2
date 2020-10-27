@@ -40,6 +40,13 @@ struct MES_DATA
 	int data[2];
 };
 
+//struct TMP_MES
+//{
+//	unsigned char type : 5;
+//	unsigned char : 0;
+//	unsigned char ch[3];
+//	int data[2];
+//};
 
 // ネット接続モジュールの基盤 OFFLINE時はこれがインスタンスされる
 class NetWorkState
