@@ -4,6 +4,7 @@
 #include "NetWork.h"
 #include "HostState.h"
 #include "GestState.h"
+#include "../TmxLoader/TmxLoader.h"
 #include "../_debug/_DebugConOut.h"
 
 std::unique_ptr<NetWork, NetWork::NetWorkDeleter> NetWork::s_Instance(new NetWork);
@@ -194,29 +195,34 @@ void NetWork::SendStart(void)
 
 bool NetWork::SendTmxData(std::string filename)
 {
-	std::ifstream str(filename.c_str());
-	if (!str)
+	Loader::TmxLoader* loader = new Loader::TmxLoader(filename.c_str());
+	for (auto data:loader->GetmapStr())
 	{
-		return false;
-	}
-	char num[4];
-	char num2[4];
-	char tmp1, tmp2;
-	int i = 0;
+		std::stringstream str(data.data);
+		
 
-	while (!str.eof())
-	{
-		for (int i = 0; i < 4; i++)
+		if (!str)
 		{
-			num[i] = str.get();
+			return false;
 		}
-		for (int i = 0; i < 4; i++)
+		char num[4];
+		char num2[4];
+		int i = 0;
+
+		while (!str.eof())
 		{
-			num2[i] = str.get();
+			for (int i = 0; i < 4; i++)
+			{
+				num[i] = str.get();
+			}
+			for (int i = 0; i < 4; i++)
+			{
+				num2[i] = str.get();
+			}
+			MES_DATA mes = { static_cast<unsigned int>(MES_TYPE::TMX_DATA),i,*(reinterpret_cast<int*>(&num[0])),*(reinterpret_cast<int*>(&num2[0])) };
+			lpNetWork.SendMes(mes);
+			i += 2;
 		}
-		MES_DATA mes = { static_cast<unsigned int>(MES_TYPE::TMX_DATA),i,*(reinterpret_cast<int*>(&num[0])),*(reinterpret_cast<int*>(&num2[0])) };
-		lpNetWork.SendMes(mes);
-		i += 2;
 	}
 	return true;
 }

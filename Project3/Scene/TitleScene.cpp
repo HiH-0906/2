@@ -176,15 +176,20 @@ bool TitleScene::StartInit(void)
 	{
 		if (lpNetWork.GetActive() == ACTIVE_STATE::INIT)
 		{
+			start_ = std::chrono::system_clock::now();
 			mapMng_->LoadMap();
 			SendNetWorkMes("mapData/map.tmx");
 			if (lpNetWork.SendTmxData("mapData/map.tmx"))
 			{
 				lpNetWork.SendStanby();
+				
 			}
 		}
 		if (lpNetWork.GetActive() == ACTIVE_STATE::STANBY && lpNetWork.GetRevMesType(MES_TYPE::GAME_START))
 		{
+			end_ = std::chrono::system_clock::now();
+			auto time = std::chrono::duration_cast<std::chrono::milliseconds>(end_ - start_).count();
+			std::cout << "送信開始から開始までのの経過時間：" << time << std::endl;
 			std::cout << "開始" << std::endl;
 			state_ = UPDATE_STATE::PLAY;
 		}
