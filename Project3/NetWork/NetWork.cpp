@@ -196,32 +196,28 @@ void NetWork::SendStart(void)
 bool NetWork::SendTmxData(std::string filename)
 {
 	Loader::TmxLoader* loader = new Loader::TmxLoader(filename.c_str());
+	int cnt = 0;
 	for (auto data:loader->GetmapStr())
 	{
-		std::stringstream str(data.data);
+		auto datavec = split(data.data);
 		
-
-		if (!str)
-		{
-			return false;
-		}
 		char num[4];
 		char num2[4];
-		int i = 0;
-
-		while (!str.eof())
+		for (int i = 0; i < datavec.size(); i++)
 		{
-			for (int i = 0; i < 4; i++)
+			for (int sendCnt = 0; sendCnt < 4 && i < datavec.size(); sendCnt++)
 			{
-				num[i] = str.get();
+				num[sendCnt] = *datavec[i].c_str();
+				i++;
 			}
-			for (int i = 0; i < 4; i++)
+			for (int sendCnt = 0; sendCnt < 4 && i < datavec.size(); sendCnt++)
 			{
-				num2[i] = str.get();
+				num2[sendCnt] = *datavec[i].c_str();
+				i++;
 			}
-			MES_DATA mes = { static_cast<unsigned int>(MES_TYPE::TMX_DATA),i,*(reinterpret_cast<int*>(&num[0])),*(reinterpret_cast<int*>(&num2[0])) };
+			MES_DATA mes = { static_cast<unsigned int>(MES_TYPE::TMX_DATA),cnt,*(reinterpret_cast<int*>(&num)),*(reinterpret_cast<int*>(&num2)) };
 			lpNetWork.SendMes(mes);
-			i += 2;
+			cnt += 2;
 		}
 	}
 	return true;
@@ -258,11 +254,18 @@ bool NetWork::GetRevStanby(void)
 std::vector<std::string> NetWork::split(const std::string& src, const char* delim)
 {
 	std::vector<std::string> vec;
-	std::string::size_type len = src.length();
+	auto len = src.length();
 
-	for (std::string::size_type i = 0, n; i < len; i = n + 1) {
+	for (std::string::size_type i = 0, n = 0; i < len; i = n + 1)
+	{
+		if (src[i] == '\r' || src[i] == '\n')
+		{
+			n++;
+			continue;
+		}
 		n = src.find_first_of(delim, i);
-		if (n == std::string::npos) {
+		if (n == std::string::npos) 
+		{
 			n = len;
 		}
 		vec.push_back(src.substr(i, n - i));
