@@ -3,6 +3,7 @@
 #include <DxLib.h>
 #include <vector>
 #include <array>
+#include <string>
 #include "NetWorkState.h"
 
 #define lpNetWork NetWork::GetInstance()
@@ -54,6 +55,8 @@ private:
 
 	// ネットワーク関係本体
 	std::unique_ptr<NetWorkState> state_;
+
+	std::vector<std::string> split(const std::string& src, const char* delim = ",");
 
 	NetWork();
 	~NetWork();

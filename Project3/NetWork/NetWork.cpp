@@ -255,6 +255,22 @@ bool NetWork::GetRevStanby(void)
 	return revState_;
 }
 
+std::vector<std::string> NetWork::split(const std::string& src, const char* delim)
+{
+	std::vector<std::string> vec;
+	std::string::size_type len = src.length();
+
+	for (std::string::size_type i = 0, n; i < len; i = n + 1) {
+		n = src.find_first_of(delim, i);
+		if (n == std::string::npos) {
+			n = len;
+		}
+		vec.push_back(src.substr(i, n - i));
+	}
+
+	return vec;
+}
+
 NetWork::NetWork()
 {
 	state_ = nullptr;
