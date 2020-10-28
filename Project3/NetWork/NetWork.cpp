@@ -197,29 +197,38 @@ bool NetWork::SendTmxData(std::string filename)
 {
 	Loader::TmxLoader* loader = new Loader::TmxLoader(filename.c_str());
 	int cnt = 0;
-	for (auto data:loader->GetmapStr())
-	{
-		auto datavec = split(data.data);
+	unsigned int num = 0;
+	unsigned int num2 = 0;
+	/*for (auto data:loader->GetmapStr())
+	{*/
+		auto datavec = split(loader->GetmapStr()[0].data+ loader->GetmapStr()[1].data+ loader->GetmapStr()[2].data+ loader->GetmapStr()[3].data);
+		int i = 0;
 		
-		char num[4];
-		char num2[4];
-		for (int i = 0; i < datavec.size(); i++)
+		while (i < datavec.size())
 		{
+			num = 0;
+			num2 = 0;
 			for (int sendCnt = 0; sendCnt < 4 && i < datavec.size(); sendCnt++)
 			{
-				num[sendCnt] = *datavec[i].c_str();
+				auto tmp = atoi(datavec[i].c_str());
+				tmp = tmp << 8 * (3 - sendCnt);
+				num += tmp;
 				i++;
 			}
 			for (int sendCnt = 0; sendCnt < 4 && i < datavec.size(); sendCnt++)
 			{
-				num2[sendCnt] = *datavec[i].c_str();
+				auto tmp = atoi(datavec[i].c_str());
+				tmp = tmp << 8 * (3 - sendCnt);
+				num2 += tmp;
 				i++;
 			}
 			MES_DATA mes = { static_cast<unsigned int>(MES_TYPE::TMX_DATA),cnt,*(reinterpret_cast<int*>(&num)),*(reinterpret_cast<int*>(&num2)) };
 			lpNetWork.SendMes(mes);
 			cnt += 2;
 		}
-	}
+
+	//}
+	std::cout << "‘—M‰ñ”‚Í" << cnt / 2 << std::endl;
 	return true;
 }
 
