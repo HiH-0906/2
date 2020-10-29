@@ -7,7 +7,7 @@
 
 #define lpNetWork NetWork::GetInstance()
 
-using revTmx = std::vector<int>;
+using revTmx = std::vector<sendData>;
 using IParray = std::array<IPDATA, 5>;
 
 // いつものシングルトンクラス

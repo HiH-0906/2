@@ -44,8 +44,8 @@ struct MES_DATA
 
 union sendData
 {
-	char cdata[8];
-	int daata[2];
+	unsigned char cdata[8];
+	unsigned int idata[2];
 	long long ldata;
 };
 

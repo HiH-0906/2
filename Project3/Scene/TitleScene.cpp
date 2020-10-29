@@ -111,10 +111,10 @@ bool TitleScene::PlayUpdate(void)
 	moveTest(input_->GetKeySty(INPUT_ID::UP), { 0,-speed_ });
 	moveTest(input_->GetKeySty(INPUT_ID::DOWN), { 0,speed_ });
 
-	MES_DATA mes = { MES_TYPE::POS,{pos_.x,pos_.y} };
+	//MES_DATA mes = { MES_TYPE::POS,{pos_.x,pos_.y} };
 
-	lpNetWork.SendMes(mes);
-	lpNetWork.RecvMes(pos_);
+	/*lpNetWork.SendMes(mes);
+	lpNetWork.RecvMes(pos_);*/
 
 	return false;
 }
@@ -285,7 +285,7 @@ bool TitleScene::SendNetWorkMes(std::string filename)
 {
 	std::ifstream tmxstr(filename.c_str());
 	tmxstr.seekg(0, std::ios::end);
-	MES_DATA data = { MES_TYPE::TMX_SIZE,0,0,{0,tmxstr.tellg()} };
+	MES_DATA data = { MES_TYPE::TMX_SIZE,0,0,{tmxstr.tellg(),0} };
 	lpNetWork.SendMes(data);
 	return true;
 }

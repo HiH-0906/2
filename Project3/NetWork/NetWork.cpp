@@ -96,46 +96,67 @@ void NetWork::RecvMes(Vector2& pos)
 		{
 			TRACE("TMXのデータｻｲｽﾞは%dです。\n", mes.data[0]);
 			revSize_ = mes.data[0];
-			revTmx_.resize(mes.data[0] / sizeof(int));
+			revTmx_.resize(mes.data[0]);
 		}
 		if (mes.type == MES_TYPE::TMX_DATA)
 		{
-			revTmx_[mes.data[0]] = mes.data[1];
-			auto tmp = reinterpret_cast<char*>(&mes.data[1]);
-			std::cout << tmp[0];
-			std::cout << tmp[1];
-			std::cout << tmp[2];
-			std::cout << tmp[3];
+			sendData data;
+			data.idata[0] = mes.data[0];
+			data.idata[1] = mes.data[1];
+			revTmx_[mes.id] = data;
 		}
 		if (mes.type == MES_TYPE::STANBY)
 		{
+			std::ifstream tmx("mapData/tmp.tmx");
 			std::ofstream file("Capture/test.tmx", std::ios::out);
+			std::string str;
+			int cnt = 0;
+			unsigned int mask = 15;
 
 			if (!file)
 			{
 				return;
 			}
-			for (auto tmp : revTmx_)
+			bool test = true;
+			while (test)
 			{
-				if (!file)
+				std::getline(tmx, str);
+				if (str.find("data encoding") == std::string::npos)
 				{
-					return;
+					file << str;
+					file << std::endl;
 				}
-				if (tmp != 0)
+				else
 				{
-					auto cha = (reinterpret_cast<char*>(&tmp));
-					for (int i = 0; i < 4; i++)
+					file << str;
+					file << std::endl;
+					while (cnt < (21 * 17))
 					{
-						if (cha[i] == 0)
+						auto num = revTmx_[cnt % 16 / 2].cdata[cnt % 8] >> (4 * (cnt % 2));
+						if (cnt % 2 == 0)
 						{
-							continue;
+							num &= mask;
 						}
-						file << cha[i];
+						cnt++;
+						file << num;
+						if (cnt % (21 * 17) == 0)
+						{
+							file << std::endl;
+						}
+						else if (cnt % 21 != 0)
+						{
+							file << ",";
+						}
+						else
+						{
+							file << ",";
+							file << std::endl;
+						}
 					}
 				}
 			}
-			std::cout << "スタンバイMES受信" << std::endl;
 			revState_ = true;
+			std::cout << "スタンバイMES受信" << std::endl;
 		}
 	}
 }
@@ -191,13 +212,33 @@ bool NetWork::SendTmxData(std::string filename)
 	std::stringstream lineData;
 	std::ifstream ifp(filename.c_str());
 	std::string str;
+	std::string num;
+	sendData sdata = {0};
 	int cnt = 0;
+	int id = 0;
 
-	auto SetLineData = [&](std::string str)
+	auto SetLineData = [&](std::string& str)
 	{
 		std::getline(ifp, str);
-		lineData.clear();
+		lineData.str(""); // バッファをクリアする。
+		lineData.clear(std::stringstream::goodbit);
 		lineData << str;
+	};
+
+	auto ChengeInt = [&](std::string str)
+	{
+		int num;
+		std::stringstream tmp(str);
+		tmp >> num;
+		return num;
+	};
+
+	auto SendData = [&]()
+	{
+		MES_DATA send = { MES_TYPE::TMX_DATA,id,0,sdata.idata[0],sdata.idata[1] };
+		SendMes(send);
+		sdata = { 0 };
+		id++;
 	};
 
 	if (!ifp)
@@ -210,22 +251,34 @@ bool NetWork::SendTmxData(std::string filename)
 		if (str.find("data encoding") != std::string::npos)
 		{
 			SetLineData(str);
-			do
+			while (str.find("</data>") == std::string::npos)
 			{
-				if (true)
+				
+				std::getline(lineData, num, ',');
+				if (num.size() != 0)
+				{
+					auto tmp = ChengeInt(num);
+					tmp <<= 4 * (cnt % 2);
+					sdata.cdata[cnt % 16 / 2] += tmp;
+					cnt++;
+					if (cnt % 16 == 0)
+					{
+						SendData();
+					}
+				}
+				if (lineData.eof())
 				{
 					SetLineData(str);
 				}
-				if (cnt % 21 == 0)
-				{
-				}
-
-				cnt++;
-				std::getline(ifp, str);
-			} while (str.find("</data>") == std::string::npos);
+			}
 		}
-		return true;
 	}
+	if (cnt % 16 != 0)
+	{
+		SendData();
+	}
+	std::cout << id << std::endl;
+	return true;
 }
 
 bool NetWork::GetRevMesType(MES_TYPE type)
