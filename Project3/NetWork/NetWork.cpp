@@ -104,6 +104,11 @@ void NetWork::RecvMes(Vector2& pos)
 			data.idata[0] = mes.data[0];
 			data.idata[1] = mes.data[1];
 			revTmx_[mes.id] = data;
+			if (mes.id==22)
+			{
+				auto taichi = 20;
+			}
+			std::cout << mes.id << std::endl;
 		}
 		if (mes.type == MES_TYPE::STANBY)
 		{
@@ -117,9 +122,15 @@ void NetWork::RecvMes(Vector2& pos)
 			{
 				return;
 			}
-			bool test = true;
-			while (test)
+			int test = 0;
+			int ttt;
+			int num;
+			while (test < 4)
 			{
+				if (test==3)
+				{
+					auto taichi = 20;
+				}
 				std::getline(tmx, str);
 				if (str.find("data encoding") == std::string::npos)
 				{
@@ -130,30 +141,52 @@ void NetWork::RecvMes(Vector2& pos)
 				{
 					file << str;
 					file << std::endl;
-					while (cnt < (21 * 17))
+					while (true)
 					{
-						auto num = revTmx_[cnt % 16 / 2].cdata[cnt % 8] >> (4 * (cnt % 2));
+						auto test = cnt / 16;
+						if (test==21)
+						{
+							int nujnjj = 0;
+						}
+						ttt = cnt % 16 / 2;
+						num = revTmx_[cnt / 16].cdata[cnt % 16 / 2] >> (4 * (cnt % 2));
+						
 						if (cnt % 2 == 0)
 						{
 							num &= mask;
 						}
-						cnt++;
+						std::cout << num;
 						file << num;
+						cnt++;
 						if (cnt % (21 * 17) == 0)
 						{
 							file << std::endl;
+							std::cout << std::endl;
+							break;
 						}
-						else if (cnt % 21 != 0)
+
+						if (cnt % 21 != 0)
 						{
 							file << ",";
+							std::cout << ",";
 						}
 						else
 						{
 							file << ",";
+							std::cout << ",";
+							std::cout << std::endl;
 							file << std::endl;
 						}
+
 					}
+					test++;
 				}
+			}
+			for (int i = 0; i < 3; i++)
+			{
+				std::getline(tmx, str);
+				file << str;
+				file << std::endl;
 			}
 			revState_ = true;
 			std::cout << "スタンバイMES受信" << std::endl;

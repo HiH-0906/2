@@ -46,7 +46,6 @@ union sendData
 {
 	unsigned char cdata[8];
 	unsigned int idata[2];
-	long long ldata;
 };
 
 
