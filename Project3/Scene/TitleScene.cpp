@@ -285,7 +285,7 @@ bool TitleScene::SendNetWorkMes(std::string filename)
 {
 	std::ifstream tmxstr(filename.c_str());
 	tmxstr.seekg(0, std::ios::end);
-	MES_DATA data = { MES_TYPE::TMX_SIZE,tmxstr.tellg() };
+	MES_DATA data = { MES_TYPE::TMX_SIZE,0,0,{0,tmxstr.tellg()} };
 	lpNetWork.SendMes(data);
 	return true;
 }

@@ -165,7 +165,7 @@ void NetWork::SendStanby(void)
 	{
 		return;
 	}
-	MES_DATA tmpMes = { MES_TYPE::STANBY,{0,0} };
+	MES_DATA tmpMes = { MES_TYPE::STANBY,0,0,{0,0} };
 	NetWorkSend(handle, &tmpMes, sizeof(MES_DATA));
 	std::cout << "GUESTからのスタートメッセージ待ちです" << std::endl;
 	state_->SetActive(ACTIVE_STATE::STANBY);
@@ -182,31 +182,50 @@ void NetWork::SendStart(void)
 	{
 		return;
 	}
-	MES_DATA tmpMes = { MES_TYPE::GAME_START,{0,0} };
+	MES_DATA tmpMes = { MES_TYPE::GAME_START,0,0,{0,0} };
 	NetWorkSend(handle, &tmpMes, sizeof(MES_DATA));
 }
 
 bool NetWork::SendTmxData(std::string filename)
 {
-	std::ifstream str(filename.c_str());
-	if (!str)
+	std::stringstream lineData;
+	std::ifstream ifp(filename.c_str());
+	std::string str;
+	int cnt = 0;
+
+	auto SetLineData = [&](std::string str)
+	{
+		std::getline(ifp, str);
+		lineData.clear();
+		lineData << str;
+	};
+
+	if (!ifp)
 	{
 		return false;
 	}
-	char num[4];
-	int i = 0;
-
-	while (!str.eof())
+	while (!ifp.eof())
 	{
-		for (int i = 0; i < 4; i++)
+		std::getline(ifp, str);
+		if (str.find("data encoding") != std::string::npos)
 		{
-			num[i] = str.get();
+			SetLineData(str);
+			do
+			{
+				if (true)
+				{
+					SetLineData(str);
+				}
+				if (cnt % 21 == 0)
+				{
+				}
+
+				cnt++;
+				std::getline(ifp, str);
+			} while (str.find("</data>") == std::string::npos);
 		}
-		MES_DATA mes = { MES_TYPE::TMX_DATA,i,*(reinterpret_cast<int*>(&num[0])) };
-		lpNetWork.SendMes(mes);
-		i++;
+		return true;
 	}
-	return true;
 }
 
 bool NetWork::GetRevMesType(MES_TYPE type)

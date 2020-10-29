@@ -24,7 +24,7 @@ enum class ACTIVE_STATE
 	OFFLINE
 };
 
-enum class MES_TYPE
+enum class MES_TYPE:unsigned char
 {
 	STANBY,
 	GAME_START,
@@ -37,16 +37,18 @@ enum class MES_TYPE
 struct MES_DATA
 {
 	MES_TYPE type;
+	unsigned short id;
+	unsigned char cdata;
 	int data[2];
 };
 
-//struct TMP_MES
-//{
-//	unsigned char type : 5;
-//	unsigned char : 0;
-//	unsigned char ch[3];
-//	int data[2];
-//};
+union sendData
+{
+	char cdata[8];
+	int daata[2];
+	long long ldata;
+};
+
 
 // ネット接続モジュールの基盤 OFFLINE時はこれがインスタンスされる
 class NetWorkState
