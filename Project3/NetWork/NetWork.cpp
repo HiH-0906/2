@@ -123,14 +123,8 @@ void NetWork::RecvMes(Vector2& pos)
 				return;
 			}
 			int test = 0;
-			int ttt;
-			int num;
 			while (test < 4)
 			{
-				if (test==3)
-				{
-					auto taichi = 20;
-				}
 				std::getline(tmx, str);
 				if (str.find("data encoding") == std::string::npos)
 				{
@@ -143,13 +137,7 @@ void NetWork::RecvMes(Vector2& pos)
 					file << std::endl;
 					while (true)
 					{
-						auto test = cnt / 16;
-						if (test==21)
-						{
-							int nujnjj = 0;
-						}
-						ttt = cnt % 16 / 2;
-						num = revTmx_[cnt / 16].cdata[cnt % 16 / 2] >> (4 * (cnt % 2));
+						auto num = revTmx_[cnt / 16].cdata[cnt % 16 / 2] >> (4 * (cnt % 2));
 						
 						if (cnt % 2 == 0)
 						{

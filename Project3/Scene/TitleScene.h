@@ -3,6 +3,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <chrono>
 #include "BaseScene.h"
 #include "../map/Map.h"
 #include "../Input/PadState.h"
@@ -61,5 +62,8 @@ private:
 	float rad_;
 	IPDATA ipData_;
 	std::unique_ptr<Input> input_;
+
+	std::chrono::system_clock::time_point strat_;
+	std::chrono::system_clock::time_point end_;
 };
 
