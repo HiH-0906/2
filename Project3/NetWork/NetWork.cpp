@@ -97,6 +97,7 @@ void NetWork::RecvMes(Vector2& pos)
 			TRACE("TMXのデータｻｲｽﾞは%dです。\n", mes.data[0]);
 			revSize_ = mes.data[0];
 			revTmx_.resize(mes.data[0]);
+			strat_ = std::chrono::system_clock::now();
 		}
 		if (mes.type == MES_TYPE::TMX_DATA)
 		{
@@ -112,16 +113,40 @@ void NetWork::RecvMes(Vector2& pos)
 		}
 		if (mes.type == MES_TYPE::STANBY)
 		{
+			end_ = std::chrono::system_clock::now();
+			std::cout << "受信時間" << std::chrono::duration_cast<std::chrono::milliseconds>(end_ - strat_).count() << std::endl;
 			std::ifstream tmx("mapData/tmp.tmx");
 			std::ofstream file("Capture/test.tmx", std::ios::out);
 			std::string str;
 			int cnt = 0;
-			unsigned int mask = 15;
 
 			if (!file)
 			{
 				return;
 			}
+			/*while (!tmx.eof())
+			{
+				do
+				{
+					std::getline(tmx, str);
+					if (tmx.eof())
+					{
+						break;
+					}
+					file << str;
+					file << std::endl;
+				} while (str.find("data encoding") == std::string::npos);
+				if (!tmx.eof())
+				{
+					for (int chcnt=0;)
+					{
+						for ()
+						{
+
+						}
+					}
+				}
+			}*/
 			int test = 0;
 			while (test < 4)
 			{
@@ -137,12 +162,7 @@ void NetWork::RecvMes(Vector2& pos)
 					file << std::endl;
 					while (true)
 					{
-						auto num = revTmx_[cnt / 16].cdata[cnt % 16 / 2] >> (4 * (cnt % 2));
-						
-						if (cnt % 2 == 0)
-						{
-							num &= mask;
-						}
+						auto num = revTmx_[cnt / 16].cdata[cnt % 16 / 2] >> (4 * (cnt % 2)) & 0x0f;
 						std::cout << num;
 						file << num;
 						cnt++;
@@ -230,6 +250,7 @@ void NetWork::SendStart(void)
 
 bool NetWork::SendTmxData(std::string filename)
 {
+	
 	std::stringstream lineData;
 	std::ifstream ifp(filename.c_str());
 	std::string str;
@@ -237,7 +258,7 @@ bool NetWork::SendTmxData(std::string filename)
 	sendData sdata = {0};
 	int cnt = 0;
 	int id = 0;
-
+	strat_ = std::chrono::system_clock::now();
 	auto SetLineData = [&](std::string& str)
 	{
 		std::getline(ifp, str);
@@ -280,7 +301,7 @@ bool NetWork::SendTmxData(std::string filename)
 				{
 					auto tmp = ChengeInt(num);
 					tmp <<= 4 * (cnt % 2);
-					sdata.cdata[cnt % 16 / 2] += tmp;
+					sdata.cdata[cnt % 16 / 2] |= tmp;
 					cnt++;
 					if (cnt % 16 == 0)
 					{

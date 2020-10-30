@@ -1,8 +1,11 @@
 #pragma once
 #include <memory>
-#include <DxLib.h>
+#include <thread>
+#include <mutex>
 #include <vector>
 #include <array>
+#include <chrono>
+#include <DxLib.h>
 #include "NetWorkState.h"
 
 #define lpNetWork NetWork::GetInstance()
@@ -54,6 +57,14 @@ private:
 
 	// ネットワーク関係本体
 	std::unique_ptr<NetWorkState> state_;
+
+
+	std::chrono::system_clock::time_point strat_;
+	std::chrono::system_clock::time_point end_;
+
+	std::thread updatae_;
+	std::mutex mesMtx_;
+	std::mutex stMtx_;
 
 	NetWork();
 	~NetWork();

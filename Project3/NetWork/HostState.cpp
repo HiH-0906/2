@@ -28,7 +28,7 @@ bool HostState::CheckNetState(void)
 		StopListenNetWork();
 	}
 
-	if (GetLostNetWork()!=-1)
+	if (GetLostNetWork() != -1)
 	{
 		// ƒQƒXƒg‚©‚çØ‚ç‚ê‚½ê‡ÄÚ‘±‘Ò‚¿
 		PreparationListenNetWork(portNum_);

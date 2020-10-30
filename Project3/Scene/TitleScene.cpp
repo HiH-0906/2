@@ -111,11 +111,6 @@ bool TitleScene::PlayUpdate(void)
 	moveTest(input_->GetKeySty(INPUT_ID::UP), { 0,-speed_ });
 	moveTest(input_->GetKeySty(INPUT_ID::DOWN), { 0,speed_ });
 
-	//MES_DATA mes = { MES_TYPE::POS,{pos_.x,pos_.y} };
-
-	/*lpNetWork.SendMes(mes);
-	lpNetWork.RecvMes(pos_);*/
-
 	return false;
 }
 // 共用 ネット使うかどうか、ホストかゲストか選択
