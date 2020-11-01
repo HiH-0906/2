@@ -43,10 +43,6 @@ void TitleScene::Init(void)
 
 unipueBase TitleScene::Update(unipueBase own)
 {
-	if (!lpNetWork.UpDate() && lpNetWork.GetMode() != NetWorkMode::OFFLINE)
-	{
-		state_ = UPDATE_STATE::START_INIT;
-	}
 	(this->*func_[state_])();
 	return own;
 }
@@ -178,7 +174,7 @@ bool TitleScene::StartInit(void)
 				lpNetWork.SendStanby();
 			}
 		}
-		if (lpNetWork.GetActive() == ACTIVE_STATE::STANBY && lpNetWork.GetRevMesType(MES_TYPE::GAME_START))
+		if (lpNetWork.GetActive() == ACTIVE_STATE::STANBY && lpNetWork.GetGameStart())
 		{
 			std::cout << "ŠJŽn" << std::endl;
 			state_ = UPDATE_STATE::PLAY;
@@ -188,7 +184,6 @@ bool TitleScene::StartInit(void)
 	if (lpNetWork.GetMode() == NetWorkMode::GEST)
 	{
 		auto pos = Vector2{};
-		lpNetWork.RecvMes(pos);
 		if (lpNetWork.GetActive() == ACTIVE_STATE::INIT && lpNetWork.GetRevStanby())
 		{
 			mapMng_->LoadMap();
@@ -280,7 +275,7 @@ bool TitleScene::SendNetWorkMes(std::string filename)
 {
 	std::ifstream tmxstr(filename.c_str());
 	tmxstr.seekg(0, std::ios::end);
-	MES_DATA data = { MES_TYPE::TMX_SIZE,0,0,{/*tmxstr.tellg()*/90,0} };
+	MES_DATA data = { MES_TYPE::TMX_SIZE,0,0,{90,0} };
 	lpNetWork.SendMes(data);
 	return true;
 }

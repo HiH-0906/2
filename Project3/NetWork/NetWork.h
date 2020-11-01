@@ -4,6 +4,7 @@
 #include <mutex>
 #include <vector>
 #include <array>
+#include <list>
 #include <chrono>
 #include <DxLib.h>
 #include "NetWorkState.h"
@@ -22,24 +23,27 @@ public:
 		return *s_Instance;
 	}
 
-	bool UpDate(void);
+	void UpDate(void);
+	void RunUpdate(void);
 
 	bool SetNetWorkMode(NetWorkMode mode);
 	ACTIVE_STATE GetActive(void);
 	IParray GetIP(void);
 	bool ConnectHost(IPDATA hostIP);					// 指定されたIPアドレスのホストへ接続しに行く
 	NetWorkMode GetMode(void);
-	void RecvMes(Vector2& pos);
 	void SendMes(MES_DATA data);
 	void SendStanby(void);
 	void SendStart(void);
 	bool SendTmxData(std::string filename);
 
-	bool GetRevMesType(MES_TYPE type);
 	bool GetRevStanby(void);
+	bool GetGameStart(void);
+
+	MES_DATA PickUpMes(void);
 
 private:
 	bool revState_;
+	bool gameStart_;
 	revTmx revTmx_;
 	int revSize_;
 	int cntRev_;
@@ -65,6 +69,8 @@ private:
 	std::thread updatae_;
 	std::mutex mesMtx_;
 	std::mutex stMtx_;
+
+	std::list<MES_DATA> mesList_;
 
 	NetWork();
 	~NetWork();
