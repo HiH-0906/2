@@ -12,6 +12,7 @@ public:
 	void Init(void)override;
 	GameScene();
 	~GameScene();
+
 private:
 	std::unique_ptr<Map> mapMng_;				// MapŠÖŒW‘å‘Ì‚Á‚Ä‚éƒNƒ‰ƒX
 };
