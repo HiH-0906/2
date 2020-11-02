@@ -18,6 +18,8 @@ public:
 	}
 	void Run();
 
+	Vector2 GetScreenSize(void);
+
 	bool SysInit(void);
 	
 private:
@@ -29,7 +31,7 @@ private:
 		}
 	};
 
-	unipueBase activeScene_;					// ÕÆ°¸Îß²ÝÀ
+	uniqueBase activeScene_;					// ÕÆ°¸Îß²ÝÀ
 
 	std::map<SCREEN_ID, std::vector<std::pair<int, Vector2>>> DrawMap_;
 

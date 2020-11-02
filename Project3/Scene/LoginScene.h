@@ -19,19 +19,19 @@ enum class UPDATE_STATE
 };
 
 // 現状ネットを試す場になっている 是非もナイネ
-class TitleScene :
+class LoginScene :
 	public BaseScene
 {
 public:
-	TitleScene();
-	~TitleScene();
+	LoginScene();
+	~LoginScene();
 	void Init(void)override final;
-	unipueBase Update(unipueBase own)override final;
-	void Draw(void)override final;
+	uniqueBase Update(uniqueBase own)override final;
+	void DrawOwnScene(void)override final;
 private:
 
 	// ステートパターンで管理したい感
-	using TitleFuncT = bool(TitleScene::*)();
+	using TitleFuncT = bool(LoginScene::*)();
 
 	std::map<UPDATE_STATE, TitleFuncT> func_;
 	// ステートパターンにぶち込まれる予定関数
@@ -48,7 +48,6 @@ private:
 
 	bool SendNetWorkMes(std::string filename);
 
-	std::unique_ptr<Map> mapMng_;				// Map関係大体持ってるクラス
 
 	UPDATE_STATE state_;						// Update管理用変数 タイトルシーンではなくなる予定
 
@@ -57,8 +56,6 @@ private:
 	int screenSize_Y;
 	int Image;
 	Vector2 pos_;
-	int speed_;
-	float rad_;
 	IPDATA ipData_;
 	std::unique_ptr<Input> input_;
 };

@@ -153,6 +153,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="common\ImageMng.cpp" />
+    <ClCompile Include="Scene\CrossOver.cpp" />
+    <ClCompile Include="Scene\GameScene.cpp" />
     <ClCompile Include="Input\Input.cpp" />
     <ClCompile Include="Input\PadState.cpp" />
     <ClCompile Include="map\Map.cpp" />
@@ -163,9 +165,10 @@
     <ClCompile Include="NetWork\NetWork.cpp" />
     <ClCompile Include="Scene\BaseScene.cpp" />
     <ClCompile Include="Scene\SceneMng.cpp" />
-    <ClCompile Include="Scene\TitleScene.cpp" />
+    <ClCompile Include="Scene\LoginScene.cpp" />
     <ClCompile Include="State\INPUT_ID.cpp" />
     <ClCompile Include="TmxLoader\TmxLoader.cpp" />
+    <ClCompile Include="Scene\Transition.cpp" />
     <ClCompile Include="_debug\_DebugConOut.cpp" />
     <ClCompile Include="_debug\_DebugDispOut.cpp" />
   </ItemGroup>
@@ -173,6 +176,8 @@
     <ClInclude Include="common\details\Vector2.h" />
     <ClInclude Include="common\ImageMng.h" />
     <ClInclude Include="common\Vector2.h" />
+    <ClInclude Include="Scene\CrossOver.h" />
+    <ClInclude Include="Scene\GameScene.h" />
     <ClInclude Include="Input\Input.h" />
     <ClInclude Include="Input\PadState.h" />
     <ClInclude Include="map\Map.h" />
@@ -186,11 +191,12 @@
     <ClInclude Include="RapidXml\rapidxml_utils.hpp" />
     <ClInclude Include="Scene\BaseScene.h" />
     <ClInclude Include="Scene\SceneMng.h" />
-    <ClInclude Include="Scene\TitleScene.h" />
+    <ClInclude Include="Scene\LoginScene.h" />
     <ClInclude Include="State\CON_ID.h" />
     <ClInclude Include="State\INPUT_ID.h" />
     <ClInclude Include="State\SCREEN_ID.h" />
     <ClInclude Include="TmxLoader\TmxLoader.h" />
+    <ClInclude Include="Scene\Transition.h" />
     <ClInclude Include="_debug\_DebugConOut.h" />
     <ClInclude Include="_debug\_DebugDispOut.h" />
   </ItemGroup>

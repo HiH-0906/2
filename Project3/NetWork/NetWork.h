@@ -66,7 +66,7 @@ private:
 	std::chrono::system_clock::time_point strat_;
 	std::chrono::system_clock::time_point end_;
 
-	std::thread updatae_;
+	std::thread update_;
 	std::mutex mesMtx_;
 	std::mutex stMtx_;
 
