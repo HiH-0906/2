@@ -12,7 +12,7 @@ std::unique_ptr<NetWork, NetWork::NetWorkDeleter> NetWork::s_Instance(new NetWor
 
 void NetWork::UpDate(void)
 {
-	while (ProcessMessage() == 0)
+	while (!ProcessMessage())
 	{
 		if (!state_)
 		{
@@ -58,7 +58,7 @@ void NetWork::UpDate(void)
 				std::string str;
 				int cnt = 0;
 
-				auto writtem = [&]()
+				auto writTmxTmp = [&]()
 				{
 					do
 					{
@@ -79,16 +79,7 @@ void NetWork::UpDate(void)
 				}
 				while (!tmx.eof())
 				{
-					do
-					{
-						std::getline(tmx, str);
-						if (tmx.eof())
-						{
-							break;
-						}
-						file << str;
-						file << std::endl;
-					} while (str.find("data encoding") == std::string::npos);
+					writTmxTmp();
 					if (!tmx.eof())
 					{
 						while (cnt < (21 * 17 * 4))
@@ -110,7 +101,7 @@ void NetWork::UpDate(void)
 									{
 										file << std::endl;
 										std::cout << std::endl;
-										if (writtem())
+										if (writTmxTmp())
 										{
 											revState_ = true;
 											bitcnt = 16;
@@ -143,12 +134,16 @@ void NetWork::UpDate(void)
 			}
 		}
 	}
+	if (state_)
+	{
+		CloseNetWork(state_->GetNetHandle());
+	}
 }
 
 void NetWork::RunUpdate(void)
 {
-	updatae_ = std::thread(&NetWork::UpDate, this);
-	updatae_.detach();
+	update_ = std::thread(&NetWork::UpDate, this);
+	update_.detach();
 }
 
 bool NetWork::SetNetWorkMode(NetWorkMode mode)
@@ -366,4 +361,8 @@ NetWork::NetWork()
 
 NetWork::~NetWork()
 {
+	if (update_.joinable())
+	{
+		update_.join();
+	}
 }

@@ -5,18 +5,19 @@
 #include "Map.h"
 #include "../common/ImageMng.h"
 
-Map::Map()
+Map::Map(std::string str)
 {
+	LoadMap(str);
 }
 
 Map::~Map()
 {
 }
 
-bool Map::LoadMap(void)
+bool Map::LoadMap(std::string str)
 {
 	// mapData“Ç‚Ýž‚Ý
-	Loader::TmxLoader* loadr = new Loader::TmxLoader("mapData/map.tmx");
+	Loader::TmxLoader* loadr = new Loader::TmxLoader(str.c_str());
 
 	info_ = loadr->GetMapInfo();
 	int id = 0;

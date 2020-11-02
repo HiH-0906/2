@@ -15,7 +15,10 @@ public:
 	BaseScene();
 	virtual ~BaseScene();
 	virtual unipueBase Update(unipueBase own) = 0;			// Ç«ÇÃº∞›Ç…Ç‡Ç†ÇÈÇÃÇ≈èÉêàâºëz
-	virtual void Draw(void) = 0;
+	virtual void Draw(void);
+	virtual void DrawOwnScene(void) = 0;
 	virtual void Init(void) = 0;
+protected:
+	int drawScreen_;
 };
 

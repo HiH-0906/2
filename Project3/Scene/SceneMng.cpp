@@ -2,7 +2,7 @@
 #include <DxLib.h>
 #include <iostream>
 #include "SceneMng.h"
-#include "TitleScene.h"
+#include "LoginScene.h"
 #include "../_debug/_DebugConOut.h"
 #include "../_debug/_DebugDispOut.h"
 
@@ -14,7 +14,7 @@ void SceneMng::Run()
 {
 	_dbgSetup(screenX, screenY, 16);
 
-	activeScene_ = std::make_unique<TitleScene>();
+	activeScene_ = std::make_unique<LoginScene>();
 	activeScene_->Init();
 	while (!ProcessMessage() && !CheckHitKey(KEY_INPUT_ESCAPE))
 	{
@@ -22,6 +22,11 @@ void SceneMng::Run()
 		Draw();
 	}
 	DxLib::DxLib_End();
+}
+
+Vector2 SceneMng::GetScreenSize(void)
+{
+	return { screenX,screenY };
 }
 
 void SceneMng::Draw()

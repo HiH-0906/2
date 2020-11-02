@@ -18,6 +18,8 @@ public:
 	}
 	void Run();
 
+	Vector2 GetScreenSize(void);
+
 	bool SysInit(void);
 	
 private:
