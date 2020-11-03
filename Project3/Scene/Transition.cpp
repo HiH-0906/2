@@ -13,6 +13,3 @@ uniqueBase Transition::Update(uniqueBase own)
 	return uniqueBase();
 }
 
-void Transition::Draw(void)
-{
-}
