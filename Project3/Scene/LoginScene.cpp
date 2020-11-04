@@ -261,5 +261,8 @@ bool LoginScene::SendNetWorkMes(std::string filename)
 	tmxstr.seekg(0, std::ios::end);
 	MES_H data = { MES_TYPE::TMX_SIZE,0,0,sizeof(TMX_SIZE) };
 	lpNetWork.SendMes(data);
+	int sendsize = 1000;
+	TMX_SIZE sizedata = { 1,90,tmxstr.tellg() };
+	lpNetWork.SendTmxSize(sizedata);
 	return true;
 }

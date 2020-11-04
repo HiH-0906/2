@@ -12,6 +12,7 @@ std::unique_ptr<NetWork, NetWork::NetWorkDeleter> NetWork::s_Instance(new NetWor
 
 void NetWork::UpDate(void)
 {
+	int cnt = 0;
 	while (!ProcessMessage())
 	{
 		if (!state_)
@@ -31,6 +32,7 @@ void NetWork::UpDate(void)
 		{
 			MES_H mes;
 			NetWorkRecv(handle, &mes, sizeof(MES_H));
+			auto taichi = GetNetWorkDataLength(handle);
 			while (GetNetWorkDataLength(handle) < mes.length)
 			{
 				// データ部受信待機
@@ -47,13 +49,13 @@ void NetWork::UpDate(void)
 			if (mes.type == MES_TYPE::TMX_DATA)
 			{
 				sendData data;
-				int cnt = 0;
+				
 				while (cnt < tmxSizeData_.size)
 				{
 					NetWorkRecv(handle, &data, sizeof(sendData));
-					revTmx_[mes.id] = data;
+					revTmx_[cnt / sizeof(sendData)] = data;
 					std::cout << mes.id << std::endl;
-					cnt += sizeof(sendData);
+					cnt ++;
 					if (cnt >= tmxSizeData_.allsize)
 					{
 						break;
@@ -244,6 +246,7 @@ void NetWork::SendTmxSize(TMX_SIZE data)
 	{
 		return;
 	}
+	std::cout << "TMXのサイズ送信" << std::endl;
 	NetWorkSend(handle, &data, sizeof(TMX_SIZE));
 }
 
@@ -287,7 +290,7 @@ bool NetWork::SendTmxData(std::string filename)
 	std::string str;
 	std::string num;
 	sendData sdata = {0};
-	std::array<sendData, (1000 / sizeof(sendData))> test;
+	sendData test[90];
 	int cnt = 0;
 	int id = 0;
 	strat_ = std::chrono::system_clock::now();
@@ -309,10 +312,11 @@ bool NetWork::SendTmxData(std::string filename)
 
 	auto SendData = [&]()
 	{
-		MES_H send = { MES_TYPE::TMX_DATA,id,0,sdata.idata[0],sdata.idata[1] };
+		MES_H send = { MES_TYPE::TMX_DATA,id,0,sizeof(test)};
 		SendMes(send);
 		sdata = { 0 };
 		id++;
+		NetWorkSend(state_->GetNetHandle(), &test, sizeof(test));
 	};
 
 	if (!ifp)
@@ -337,7 +341,8 @@ bool NetWork::SendTmxData(std::string filename)
 					cnt++;
 					if (cnt % 16 == 0)
 					{
-						SendData();
+						test[((cnt / 16) - 1)] = sdata;
+						sdata = { 0 };
 					}
 				}
 				if (lineData.eof())
@@ -347,10 +352,12 @@ bool NetWork::SendTmxData(std::string filename)
 			}
 		}
 	}
-	if (cnt % 16 != 0)
-	{
-		SendData();
-	}
+	test[89] = sdata;
+	SendData();
+	//if (cnt % sizeof(test) != 0)
+	//{
+	//	SendData();
+	//}
 	std::cout << id << std::endl;
 	return true;
 }
