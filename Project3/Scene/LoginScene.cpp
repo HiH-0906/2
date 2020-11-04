@@ -259,7 +259,7 @@ bool LoginScene::SendNetWorkMes(std::string filename)
 {
 	std::ifstream tmxstr(filename.c_str());
 	tmxstr.seekg(0, std::ios::end);
-	MES_DATA data = { MES_TYPE::TMX_SIZE,0,0,{90,0} };
+	MES_H data = { MES_TYPE::TMX_SIZE,0,0,sizeof(TMX_SIZE) };
 	lpNetWork.SendMes(data);
 	return true;
 }

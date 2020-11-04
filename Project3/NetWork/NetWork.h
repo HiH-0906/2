@@ -31,7 +31,8 @@ public:
 	IParray GetIP(void);
 	bool ConnectHost(IPDATA hostIP);					// 指定されたIPアドレスのホストへ接続しに行く
 	NetWorkMode GetMode(void);
-	void SendMes(MES_DATA data);
+	void SendMes(MES_H data);
+	void SendTmxSize(TMX_SIZE data);
 	void SendStanby(void);
 	void SendStart(void);
 	bool SendTmxData(std::string filename);
@@ -39,7 +40,7 @@ public:
 	bool GetRevStanby(void);
 	bool GetGameStart(void);
 
-	MES_DATA PickUpMes(void);
+	MES_H PickUpMes(void);
 
 private:
 	bool revState_;
@@ -49,6 +50,8 @@ private:
 	int cntRev_;
 
 	IParray ipdata_;
+
+	TMX_SIZE tmxSizeData_;
 
 	struct NetWorkDeleter
 	{
@@ -70,7 +73,7 @@ private:
 	std::mutex mesMtx_;
 	std::mutex stMtx_;
 
-	std::list<MES_DATA> mesList_;
+	std::list<MES_H> mesList_;
 
 	NetWork();
 	~NetWork();

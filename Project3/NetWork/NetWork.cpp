@@ -27,25 +27,38 @@ void NetWork::UpDate(void)
 		{
 			continue;
 		}
-		if (GetNetWorkDataLength(handle) >= sizeof(MES_DATA))
+		if (GetNetWorkDataLength(handle) >= sizeof(MES_H))
 		{
-			MES_DATA mes;
-			NetWorkRecv(handle, &mes, sizeof(MES_DATA));
+			MES_H mes;
+			NetWorkRecv(handle, &mes, sizeof(MES_H));
+			while (GetNetWorkDataLength(handle) < mes.length)
+			{
+				// データ部受信待機
+			}
 			if (mes.type == MES_TYPE::TMX_SIZE)
 			{
-				TRACE("TMXのデータｻｲｽﾞは%dです。\n", mes.data[0]);
-				revSize_ = mes.data[0];
-				revTmx_.resize(mes.data[0]);
+				NetWorkRecv(handle, &tmxSizeData_, mes.length);
+				TRACE("TMXのデータｻｲｽﾞは%dです。\n", tmxSizeData_.size);
+				revSize_ = tmxSizeData_.size;
+				revTmx_.resize(tmxSizeData_.size);
 				strat_ = std::chrono::system_clock::now();
 				continue;
 			}
 			if (mes.type == MES_TYPE::TMX_DATA)
 			{
 				sendData data;
-				data.idata[0] = mes.data[0];
-				data.idata[1] = mes.data[1];
-				revTmx_[mes.id] = data;
-				std::cout << mes.id << std::endl;
+				int cnt = 0;
+				while (cnt < tmxSizeData_.size)
+				{
+					NetWorkRecv(handle, &data, sizeof(sendData));
+					revTmx_[mes.id] = data;
+					std::cout << mes.id << std::endl;
+					cnt += sizeof(sendData);
+					if (cnt >= tmxSizeData_.allsize)
+					{
+						break;
+					}
+				}
 				continue;
 			}
 			if (mes.type == MES_TYPE::STANBY)
@@ -206,7 +219,7 @@ NetWorkMode NetWork::GetMode(void)
 	return state_->GetMode();
 }
 
-void NetWork::SendMes(MES_DATA data)
+void NetWork::SendMes(MES_H data)
 {
 	if (!state_)
 	{
@@ -217,7 +230,21 @@ void NetWork::SendMes(MES_DATA data)
 	{
 		return;
 	}
-	NetWorkSend(handle, &data, sizeof(MES_DATA));
+	NetWorkSend(handle, &data, sizeof(MES_H));
+}
+
+void NetWork::SendTmxSize(TMX_SIZE data)
+{
+	if (!state_)
+	{
+		return;
+	}
+	auto handle = state_->GetNetHandle();
+	if (handle == -1)
+	{
+		return;
+	}
+	NetWorkSend(handle, &data, sizeof(TMX_SIZE));
 }
 
 void NetWork::SendStanby(void)
@@ -231,8 +258,8 @@ void NetWork::SendStanby(void)
 	{
 		return;
 	}
-	MES_DATA tmpMes = { MES_TYPE::STANBY,0,0,{0,0} };
-	NetWorkSend(handle, &tmpMes, sizeof(MES_DATA));
+	MES_H tmpMes = { MES_TYPE::STANBY,0,0,0 };
+	NetWorkSend(handle, &tmpMes, sizeof(MES_H));
 	std::cout << "GUESTからのスタートメッセージ待ちです" << std::endl;
 	state_->SetActive(ACTIVE_STATE::STANBY);
 }
@@ -248,8 +275,8 @@ void NetWork::SendStart(void)
 	{
 		return;
 	}
-	MES_DATA tmpMes = { MES_TYPE::GAME_START,0,0,{0,0} };
-	NetWorkSend(handle, &tmpMes, sizeof(MES_DATA));
+	MES_H tmpMes = { MES_TYPE::GAME_START,0,0,0 };
+	NetWorkSend(handle, &tmpMes, sizeof(MES_H));
 }
 
 bool NetWork::SendTmxData(std::string filename)
@@ -260,6 +287,7 @@ bool NetWork::SendTmxData(std::string filename)
 	std::string str;
 	std::string num;
 	sendData sdata = {0};
+	std::array<sendData, (1000 / sizeof(sendData))> test;
 	int cnt = 0;
 	int id = 0;
 	strat_ = std::chrono::system_clock::now();
@@ -281,7 +309,7 @@ bool NetWork::SendTmxData(std::string filename)
 
 	auto SendData = [&]()
 	{
-		MES_DATA send = { MES_TYPE::TMX_DATA,id,0,sdata.idata[0],sdata.idata[1] };
+		MES_H send = { MES_TYPE::TMX_DATA,id,0,sdata.idata[0],sdata.idata[1] };
 		SendMes(send);
 		sdata = { 0 };
 		id++;
@@ -338,7 +366,7 @@ bool NetWork::GetGameStart(void)
 	return gameStart_;
 }
 
-MES_DATA NetWork::PickUpMes(void)
+MES_H NetWork::PickUpMes(void)
 {
 	std::lock_guard<std::mutex> lock(mesMtx_);
 	if (mesList_.size() == 0)
