@@ -52,7 +52,7 @@ void NetWork::UpDate(void)
 				if (mes.length != 0)
 				{
 					revData_.resize(mes.length / sizeof(sendData));
-					NetWorkRecv(handle, &revData_, static_cast<int>(revData_.size() * sizeof(revData_[0])));
+					NetWorkRecv(handle, &revData_[0], static_cast<int>(revData_.size() * sizeof(revData_[0])));
 				}
 				continue;
 			}
@@ -63,7 +63,7 @@ void NetWork::UpDate(void)
 					std::cout << "スタンバイにデータ部があります" << std::endl;
 					MesDataVec tmpData;
 					tmpData.resize(mes.length / sizeof(sendData));
-					NetWorkRecv(handle, &tmpData, static_cast<int>(tmpData.size() * sizeof(tmpData[0])));
+					NetWorkRecv(handle, &tmpData[0], static_cast<int>(tmpData.size() * sizeof(tmpData[0])));
 				}
 				end_ = std::chrono::system_clock::now();
 				std::cout << "受信時間" << std::chrono::duration_cast<std::chrono::milliseconds>(end_ - strat_).count() << std::endl;
@@ -77,7 +77,7 @@ void NetWork::UpDate(void)
 					std::cout << "ゲームスタートにデータ部があります" << std::endl;
 					MesDataVec tmpData;
 					tmpData.resize(mes.length / sizeof(sendData));
-					NetWorkRecv(handle, &tmpData, static_cast<int>(tmpData.size() * sizeof(tmpData[0])));
+					NetWorkRecv(handle, &tmpData[0], static_cast<int>(tmpData.size() * sizeof(tmpData[0])));
 				}
 				std::lock_guard<std::mutex> lock(stMtx_);
 				gameStart_ = true;
