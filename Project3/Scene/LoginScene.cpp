@@ -257,12 +257,20 @@ bool LoginScene::WritFile(void)
 
 bool LoginScene::SendNetWorkMes(std::string filename)
 {
+	MesDataVec Mes;
 	std::ifstream tmxstr(filename.c_str());
 	tmxstr.seekg(0, std::ios::end);
-	MES_H data = { MES_TYPE::TMX_SIZE,0,0,sizeof(TMX_SIZE) };
-	lpNetWork.SendMes(data);
-	int sendsize = 1000;
-	TMX_SIZE sizedata = { 1,90,tmxstr.tellg() };
-	lpNetWork.SendTmxSize(sizedata);
+	mes_H data;
+	data.head = { MES_TYPE::TMX_SIZE,0,0,sizeof(TMX_SIZE) };
+	auto hsize = sizeof(MES_H) / sizeof(sendData);
+	auto dsize = sizeof(TMX_SIZE) / sizeof(sendData);
+	Mes.resize(hsize + dsize);
+	Mes[0].idata = data.ihead[0];
+	Mes[1].idata = data.ihead[1];
+	TMX_SIZE sizedata = { (tmxstr.tellg() / ONE_SEND_MES),ONE_SEND_MES,tmxstr.tellg() };
+	Mes[2].idata = sizedata.num;
+	Mes[3].idata = sizedata.size;
+	Mes[4].idata = sizedata.allsize;
+	lpNetWork.SendMes(Mes);
 	return true;
 }

@@ -44,9 +44,9 @@ bool Map::LoadMap(std::string str)
 	for (auto id : mapKey_)
 	{
 		SetDrawScreen(drawLayer_[id.second]);
-		for (int y = 0; y < info_.mapSize.y; y++)
+		for (__int64 y = 0; y < info_.mapSize.y; y++)
 		{
-			for (int x = 0; x < info_.mapSize.x; x++)
+			for (__int64 x = 0; x < info_.mapSize.x; x++)
 			{
 				if (mapData_[id.second][x + y * info_.mapSize.x] >= 0)
 				{
@@ -74,9 +74,9 @@ std::vector<int>& Map::GetMapData(MapLayer layer)
 void Map::ReDrawMap(MapLayer layer)
 {
 	SetDrawScreen(drawLayer_[mapKey_[layer]]);
-	for (int y = 0; y < info_.mapSize.y; y++)
+	for (__int64 y = 0; y < info_.mapSize.y; y++)
 	{
-		for (int x = 0; x < info_.mapSize.x; x++)
+		for (__int64 x = 0; x < info_.mapSize.x; x++)
 		{
 			if (mapData_[mapKey_[layer]][x + y * info_.mapSize.x] >= 0)
 			{

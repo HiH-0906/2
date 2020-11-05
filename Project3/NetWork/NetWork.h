@@ -11,7 +11,9 @@
 
 #define lpNetWork NetWork::GetInstance()
 
-using revTmx = std::vector<sendData>;
+#define ONE_SEND_MES 1000
+
+using MesDataVec = std::vector<sendData>;
 using IParray = std::array<IPDATA, 5>;
 
 // いつものシングルトンクラス
@@ -31,11 +33,12 @@ public:
 	IParray GetIP(void);
 	bool ConnectHost(IPDATA hostIP);					// 指定されたIPアドレスのホストへ接続しに行く
 	NetWorkMode GetMode(void);
-	void SendMes(MES_H data);
-	void SendTmxSize(TMX_SIZE data);
+	void SendMes(MesDataVec data);
 	void SendStanby(void);
 	void SendStart(void);
 	bool SendTmxData(std::string filename);
+
+	void SaveTmx(void);
 
 	bool GetRevStanby(void);
 	bool GetGameStart(void);
@@ -45,7 +48,7 @@ public:
 private:
 	bool revState_;
 	bool gameStart_;
-	revTmx revTmx_;
+	MesDataVec revData_;
 	int revSize_;
 	int cntRev_;
 

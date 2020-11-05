@@ -12,7 +12,6 @@ std::unique_ptr<NetWork, NetWork::NetWorkDeleter> NetWork::s_Instance(new NetWor
 
 void NetWork::UpDate(void)
 {
-	int cnt = 0;
 	while (!ProcessMessage())
 	{
 		if (!state_)
@@ -32,120 +31,57 @@ void NetWork::UpDate(void)
 		{
 			MES_H mes;
 			NetWorkRecv(handle, &mes, sizeof(MES_H));
-			auto taichi = GetNetWorkDataLength(handle);
-			while (GetNetWorkDataLength(handle) < mes.length)
-			{
-				// データ部受信待機
-			}
+			
 			if (mes.type == MES_TYPE::TMX_SIZE)
 			{
-				NetWorkRecv(handle, &tmxSizeData_, mes.length);
-				TRACE("TMXのデータｻｲｽﾞは%dです。\n", tmxSizeData_.size);
-				revSize_ = tmxSizeData_.size;
-				revTmx_.resize(tmxSizeData_.size);
+				if (mes.length != 0)
+				{
+					NetWorkRecv(handle, &tmxSizeData_, mes.length);
+					TRACE("TMXのデータｻｲｽﾞは%dです。\n", tmxSizeData_.size);
+					revSize_ = tmxSizeData_.size;
+				}
+				else
+				{
+					std::cout << "サイズデータの長さが0です" << std::endl;
+				}
 				strat_ = std::chrono::system_clock::now();
 				continue;
 			}
 			if (mes.type == MES_TYPE::TMX_DATA)
 			{
-				sendData data;
-				
-				while (cnt < tmxSizeData_.size)
+				if (mes.length != 0)
 				{
-					NetWorkRecv(handle, &data, sizeof(sendData));
-					revTmx_[cnt / sizeof(sendData)] = data;
-					std::cout << mes.id << std::endl;
-					cnt ++;
-					if (cnt >= tmxSizeData_.allsize)
-					{
-						break;
-					}
+					revData_.resize(mes.length / sizeof(int));
+					NetWorkRecv(handle, &revData_, static_cast<int>(revData_.size() * sizeof(revData_[0])));
 				}
 				continue;
 			}
 			if (mes.type == MES_TYPE::STANBY)
 			{
-
+				if (mes.length == 0)
+				{
+					std::cout << "スタンバイにデータ部があります" << std::endl;
+					MesDataVec tmpData;
+					tmpData.resize(mes.length / sizeof(sendData));
+					NetWorkRecv(handle, &tmpData, static_cast<int>(tmpData.size() * sizeof(tmpData[0])));
+				}
 				end_ = std::chrono::system_clock::now();
 				std::cout << "受信時間" << std::chrono::duration_cast<std::chrono::milliseconds>(end_ - strat_).count() << std::endl;
-				std::ifstream tmx("mapData/tmp.tmx");
-				std::ofstream file("Capture/test.tmx", std::ios::out);
-				std::string str;
-				int cnt = 0;
-
-				auto writTmxTmp = [&]()
-				{
-					do
-					{
-						std::getline(tmx, str);
-						if (tmx.eof())
-						{
-							return true;
-						}
-						file << str;
-						file << std::endl;
-					} while (str.find("data encoding") == std::string::npos);
-					return false;
-				};
-
-				if (!file)
-				{
-					continue;
-				}
-				while (!tmx.eof())
-				{
-					writTmxTmp();
-					if (!tmx.eof())
-					{
-						while (cnt < (21 * 17 * 4))
-						{
-							for (int bitcnt = 0; bitcnt < 16; bitcnt++)
-							{
-								auto num = revTmx_[cnt / 16].cdata[bitcnt / 2] >> (4 * (bitcnt % 2)) & 0x0f;
-								std::cout << num;
-								file << num;
-								cnt++;
-								if (cnt % 21 != 0)
-								{
-									file << ",";
-									std::cout << ",";
-								}
-								else
-								{
-									if (cnt % (21 * 17) == 0)
-									{
-										file << std::endl;
-										std::cout << std::endl;
-										if (writTmxTmp())
-										{
-											revState_ = true;
-											bitcnt = 16;
-											std::cout << "スタンバイMES受信" << std::endl;
-											continue;
-										}
-									}
-									else
-									{
-										file << ",";
-										std::cout << ",";
-										std::cout << std::endl;
-										file << std::endl;
-									}
-								}
-							}
-						}
-					}
-				}
+				SaveTmx();
+				continue;
 			}
 			if (mes.type==MES_TYPE::GAME_START)
 			{
+				if (mes.length == 0)
+				{
+					std::cout << "ゲームスタートにデータ部があります" << std::endl;
+					MesDataVec tmpData;
+					tmpData.resize(mes.length / sizeof(sendData));
+					NetWorkRecv(handle, &tmpData, static_cast<int>(tmpData.size() * sizeof(tmpData[0])));
+				}
 				std::lock_guard<std::mutex> lock(stMtx_);
 				gameStart_ = true;
 				continue;
-			}
-			{
-				std::lock_guard<std::mutex> lock(mesMtx_);
-				mesList_.push_back(mes);
 			}
 		}
 	}
@@ -199,7 +135,7 @@ ACTIVE_STATE NetWork::GetActive(void)
 
 IParray NetWork::GetIP(void)
 {
-	GetMyIPAddress(&ipdata_[0],ipdata_.size());
+	GetMyIPAddress(&ipdata_[0],static_cast<int>(ipdata_.size()));
 	return ipdata_;
 }
 
@@ -221,7 +157,7 @@ NetWorkMode NetWork::GetMode(void)
 	return state_->GetMode();
 }
 
-void NetWork::SendMes(MES_H data)
+void NetWork::SendMes(MesDataVec data)
 {
 	if (!state_)
 	{
@@ -232,22 +168,7 @@ void NetWork::SendMes(MES_H data)
 	{
 		return;
 	}
-	NetWorkSend(handle, &data, sizeof(MES_H));
-}
-
-void NetWork::SendTmxSize(TMX_SIZE data)
-{
-	if (!state_)
-	{
-		return;
-	}
-	auto handle = state_->GetNetHandle();
-	if (handle == -1)
-	{
-		return;
-	}
-	std::cout << "TMXのサイズ送信" << std::endl;
-	NetWorkSend(handle, &data, sizeof(TMX_SIZE));
+	NetWorkSend(handle, &data, static_cast<int>(data.size() * sizeof(data[0])));
 }
 
 void NetWork::SendStanby(void)
@@ -261,8 +182,14 @@ void NetWork::SendStanby(void)
 	{
 		return;
 	}
-	MES_H tmpMes = { MES_TYPE::STANBY,0,0,0 };
-	NetWorkSend(handle, &tmpMes, sizeof(MES_H));
+	MesDataVec mes;
+	mes_H tmpMes;
+	tmpMes.head = { MES_TYPE::STANBY,0,0,0 };
+	mes.reserve(sizeof(tmpMes) / sizeof(sendData));
+	mes.resize(sizeof(tmpMes) / sizeof(sendData));
+	mes[0].idata = tmpMes.ihead[0];
+	mes[1].idata = tmpMes.ihead[1];
+	SendMes(mes);
 	std::cout << "GUESTからのスタートメッセージ待ちです" << std::endl;
 	state_->SetActive(ACTIVE_STATE::STANBY);
 }
@@ -278,21 +205,25 @@ void NetWork::SendStart(void)
 	{
 		return;
 	}
-	MES_H tmpMes = { MES_TYPE::GAME_START,0,0,0 };
-	NetWorkSend(handle, &tmpMes, sizeof(MES_H));
+	MesDataVec mes;
+	mes_H tmpMes = { MES_TYPE::GAME_START,0,0,0 };
+	mes.reserve(sizeof(tmpMes) / sizeof(sendData));
+	mes.resize(sizeof(tmpMes) / sizeof(sendData));
+	mes[0].idata = tmpMes.ihead[0];
+	mes[1].idata = tmpMes.ihead[1];
+	SendMes(mes);
 }
 
 bool NetWork::SendTmxData(std::string filename)
 {
-	
+	MesDataVec sendMes;
 	std::stringstream lineData;
 	std::ifstream ifp(filename.c_str());
 	std::string str;
 	std::string num;
 	sendData sdata = {0};
-	sendData test[90];
 	int cnt = 0;
-	int id = 0;
+	unsigned short id = 0;
 	strat_ = std::chrono::system_clock::now();
 	auto SetLineData = [&](std::string& str)
 	{
@@ -312,17 +243,26 @@ bool NetWork::SendTmxData(std::string filename)
 
 	auto SendData = [&]()
 	{
-		MES_H send = { MES_TYPE::TMX_DATA,id,0,sizeof(test)};
-		SendMes(send);
+		mes_H send = { MES_TYPE::TMX_DATA,0,id,static_cast<unsigned int>(sendMes.size()) };
+		MesDataVec mes;
+		mes.resize(sizeof(send) / sizeof(sendData));
+		mes[0].idata = send.ihead[0];
+		mes[1].idata = send.ihead[1];
+		sendMes.emplace(sendMes.begin(), mes[1]);
+		sendMes.emplace(sendMes.begin(), mes[0]);
+		auto taichi = sendMes.size();
+		auto aki = taichi * sizeof(sendMes[0]);
+		SendMes(sendMes);
 		sdata = { 0 };
 		id++;
-		NetWorkSend(state_->GetNetHandle(), &test, sizeof(test));
 	};
 
 	if (!ifp)
 	{
 		return false;
 	}
+	sendMes.reserve(ONE_SEND_MES);
+	sendMes.resize(ONE_SEND_MES / sizeof(sendData));
 	while (!ifp.eof())
 	{
 		std::getline(ifp, str);
@@ -337,11 +277,11 @@ bool NetWork::SendTmxData(std::string filename)
 				{
 					auto tmp = ChengeInt(num);
 					tmp <<= 4 * (cnt % 2);
-					sdata.cdata[cnt % 16 / 2] |= tmp;
+					sdata.cdata[cnt % 8 / 2] |= tmp;
 					cnt++;
-					if (cnt % 16 == 0)
+					if (cnt % 8 == 0)
 					{
-						test[((cnt / 16) - 1)] = sdata;
+						sendMes[(static_cast<__int64>(cnt) / 8) - 1] = sdata;
 						sdata = { 0 };
 					}
 				}
@@ -352,14 +292,84 @@ bool NetWork::SendTmxData(std::string filename)
 			}
 		}
 	}
-	test[89] = sdata;
+	if (cnt % 8 != 0)
+	{
+		sendMes[cnt / 8] = sdata;
+	}
 	SendData();
-	//if (cnt % sizeof(test) != 0)
-	//{
-	//	SendData();
-	//}
 	std::cout << id << std::endl;
 	return true;
+}
+
+void NetWork::SaveTmx(void)
+{
+	std::ifstream tmx("mapData/tmp.tmx");
+	std::ofstream file("Capture/test.tmx", std::ios::out);
+	std::string str;
+	int cnt = 0;
+
+	auto writTmxTmp = [&]()
+	{
+		do
+		{
+			std::getline(tmx, str);
+			if (tmx.eof())
+			{
+				return true;
+			}
+			file << str;
+			file << std::endl;
+		} while (str.find("data encoding") == std::string::npos);
+		return false;
+	};
+
+	if (!file)
+	{
+		return;
+	}
+	while (!tmx.eof())
+	{
+		writTmxTmp();
+		if (!tmx.eof())
+		{
+			while (cnt < (21 * 17 * 4))
+			{
+				for (int bitcnt = 0; bitcnt < 16; bitcnt++)
+				{
+					auto num = revData_[cnt / 16].cdata[bitcnt / 2] >> (4 * (bitcnt % 2)) & 0x0f;
+					std::cout << num;
+					file << num;
+					cnt++;
+					if (cnt % 21 != 0)
+					{
+						file << ",";
+						std::cout << ",";
+					}
+					else
+					{
+						if (cnt % (21 * 17) == 0)
+						{
+							file << std::endl;
+							std::cout << std::endl;
+							if (writTmxTmp())
+							{
+								revState_ = true;
+								std::cout << "スタンバイMES受信" << std::endl;
+								return;
+							}
+						}
+						else
+						{
+							file << ",";
+							std::cout << ",";
+							std::cout << std::endl;
+							file << std::endl;
+						}
+					}
+				}
+			}
+		}
+	}
 }
 
 bool NetWork::GetRevStanby(void)

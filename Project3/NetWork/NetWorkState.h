@@ -37,8 +37,8 @@ enum class MES_TYPE:unsigned char
 struct MES_H
 {
 	MES_TYPE type;
-	unsigned short id;
 	unsigned char cdata;
+	unsigned short id;
 	unsigned int length;
 };
 
@@ -49,10 +49,16 @@ struct TMX_SIZE
 	unsigned int allsize;
 };
 
+union mes_H
+{
+	MES_H head;
+	int ihead[2];
+};
+
 union sendData
 {
-	unsigned char cdata[8];
-	unsigned int idata[2];
+	unsigned char cdata[4];
+	unsigned int idata;
 };
 
 
