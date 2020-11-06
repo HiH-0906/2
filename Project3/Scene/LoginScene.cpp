@@ -261,7 +261,7 @@ bool LoginScene::SendNetWorkMes(std::string filename)
 	std::ifstream tmxstr(filename.c_str());
 	tmxstr.seekg(0, std::ios::end);
 	mes_H data;
-	data.head = { MES_TYPE::TMX_SIZE,0,0,sizeof(TMX_SIZE) };
+	data.head = { MES_TYPE::TMX_SIZE,0,0,sizeof(TMX_SIZE) / sizeof(sendData) };
 	auto hsize = sizeof(MES_H) / sizeof(sendData);
 	auto dsize = sizeof(TMX_SIZE) / sizeof(sendData);
 	Mes.reserve(hsize + dsize);

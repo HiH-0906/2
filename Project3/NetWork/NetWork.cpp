@@ -36,9 +36,9 @@ void NetWork::UpDate(void)
 			{
 				if (mes.length != 0)
 				{
-					NetWorkRecv(handle, &tmxSizeData_, mes.length);
-					TRACE("TMXのデータｻｲｽﾞは%dです。\n", tmxSizeData_.size);
-					revSize_ = tmxSizeData_.size;
+					NetWorkRecv(handle, &tmxSizeData_, mes.length * sizeof(sendData));
+					TRACE("TMXのデータｻｲｽﾞは%dです。\n", tmxSizeData_.num);
+					revSize_ = tmxSizeData_.num;
 				}
 				else
 				{
@@ -51,9 +51,10 @@ void NetWork::UpDate(void)
 			{
 				if (mes.length != 0)
 				{
-					revData_.resize(mes.length / sizeof(sendData));
-					NetWorkRecv(handle, &revData_[0], static_cast<int>(revData_.size() * sizeof(revData_[0])));
+					revData_.resize(mes.length);
+					NetWorkRecv(handle, revData_.data(), static_cast<int>(revData_.size() * sizeof(revData_[0])));
 				}
+				end_ = std::chrono::system_clock::now();
 				continue;
 			}
 			if (mes.type == MES_TYPE::STANBY)
@@ -62,22 +63,21 @@ void NetWork::UpDate(void)
 				{
 					std::cout << "スタンバイにデータ部があります" << std::endl;
 					MesDataVec tmpData;
-					tmpData.resize(mes.length / sizeof(sendData));
-					NetWorkRecv(handle, &tmpData[0], static_cast<int>(tmpData.size() * sizeof(tmpData[0])));
+					tmpData.resize(mes.length);
+					NetWorkRecv(handle, tmpData.data(), static_cast<int>(tmpData.size() * sizeof(tmpData[0])));
 				}
-				end_ = std::chrono::system_clock::now();
 				std::cout << "受信時間" << std::chrono::duration_cast<std::chrono::milliseconds>(end_ - strat_).count() << std::endl;
 				SaveTmx();
 				continue;
 			}
 			if (mes.type==MES_TYPE::GAME_START)
 			{
-				if (mes.length == 0)
+				if (mes.length != 0)
 				{
 					std::cout << "ゲームスタートにデータ部があります" << std::endl;
 					MesDataVec tmpData;
-					tmpData.resize(mes.length / sizeof(sendData));
-					NetWorkRecv(handle, &tmpData[0], static_cast<int>(tmpData.size() * sizeof(tmpData[0])));
+					tmpData.resize(mes.length);
+					NetWorkRecv(handle, tmpData.data(), static_cast<int>(tmpData.size() * sizeof(tmpData[0])));
 				}
 				std::lock_guard<std::mutex> lock(stMtx_);
 				gameStart_ = true;
@@ -168,7 +168,7 @@ void NetWork::SendMes(MesDataVec data)
 	{
 		return;
 	}
-	NetWorkSend(handle, &data[0], static_cast<int>(data.size() * sizeof(data[0])));
+	NetWorkSend(handle, data.data(), static_cast<int>(data.size() * sizeof(data[0])));
 }
 
 void NetWork::SendStanby(void)
@@ -248,7 +248,7 @@ bool NetWork::SendTmxData(std::string filename)
 	
 	auto SendData = [&]()
 	{
-		mes_H send = { MES_TYPE::TMX_DATA,0,id,static_cast<unsigned int>(sendMes.size()) * sizeof(sendData) };
+		mes_H send = { MES_TYPE::TMX_DATA,0,id,static_cast<unsigned int>(sendMes.size())};
 		MesDataVec mes;
 		mes.resize(sizeof(send) / sizeof(sendData));
 		mes[0].idata = send.ihead[0];
