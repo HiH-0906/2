@@ -37,8 +37,8 @@ void NetWork::UpDate(void)
 				if (mes.length != 0)
 				{
 					NetWorkRecv(handle, &tmxSizeData_, mes.length * sizeof(sendData));
-					TRACE("TMXのデータｻｲｽﾞは%dです。\n", tmxSizeData_.num);
-					revSize_ = tmxSizeData_.num;
+					TRACE("TMXのデータｻｲｽﾞは%dです。\n", tmxSizeData_.size);
+					revSize_ = tmxSizeData_.size;
 				}
 				else
 				{
@@ -157,7 +157,7 @@ NetWorkMode NetWork::GetMode(void)
 	return state_->GetMode();
 }
 
-void NetWork::SendMes(MesDataVec data)
+void NetWork::SendMes(MesDataVec& data)
 {
 	if (!state_)
 	{
@@ -218,9 +218,13 @@ bool NetWork::SendTmxData(std::string filename)
 {
 	MesDataVec sendMes;
 	auto header = sizeof(mes_H) / sizeof(sendData);
-	auto data = ONE_SEND_MES / sizeof(sendData);
-	sendMes.reserve(data + header);
-	sendMes.resize(data + header);
+	auto data = ALL_CSV_SIZE / BIT_NUM;
+	if (ALL_CSV_SIZE % BIT_NUM)
+	{
+		data++;
+	}
+	sendMes.reserve(data);
+	sendMes.resize(data);
 	std::stringstream lineData;
 	std::ifstream ifp(filename.c_str());
 	std::string str;
@@ -248,18 +252,18 @@ bool NetWork::SendTmxData(std::string filename)
 	
 	auto SendData = [&]()
 	{
-		mes_H send = { MES_TYPE::TMX_DATA,0,id,static_cast<unsigned int>(sendMes.size())};
+		mes_H send = { MES_TYPE::TMX_DATA,0,id,static_cast<unsigned int>(sendMes.size()) };
 		MesDataVec mes;
 		mes.resize(sizeof(send) / sizeof(sendData));
 		mes[0].idata = send.ihead[0];
 		mes[1].idata = send.ihead[1];
-		sendMes.emplace(sendMes.begin(), mes[1]);
-		sendMes.emplace(sendMes.begin(), mes[0]);
+		sendMes.insert(sendMes.begin(), mes[1]);
+		sendMes.insert(sendMes.begin(), mes[0]);
 		SendMes(sendMes);
 
 		sendMes.clear();
-		sendMes.reserve(data + header);
-		sendMes.resize(data + header);
+		sendMes.reserve(data);
+		sendMes.resize(data);
 
 		sdata = { 0 };
 		id++;
@@ -283,14 +287,14 @@ bool NetWork::SendTmxData(std::string filename)
 				{
 					auto tmp = ChengeInt(num);
 					tmp <<= 4 * (cnt % 2);
-					sdata.cdata[cnt % 8 / 2] |= tmp;
+					sdata.cdata[cnt % BIT_NUM / 2] |= tmp;
 					cnt++;
-					if (cnt % 8 == 0)
+					if (cnt % BIT_NUM == 0)
 					{
-						sendMes[(static_cast<__int64>(cnt) / 8) - 1] = sdata;
+						sendMes[(static_cast<__int64>(cnt) / BIT_NUM) - 1] = sdata;
 						sdata = { 0 };
 					}
-					if (cnt / 8 >= (ONE_SEND_MES / sizeof(sendData)))
+					if (cnt / BIT_NUM >= (ONE_SEND_MES / sizeof(sendData)))
 					{
 						SendData();
 					}
@@ -302,9 +306,9 @@ bool NetWork::SendTmxData(std::string filename)
 			}
 		}
 	}
-	if (cnt % 8 != 0)
+	if (cnt % BIT_NUM != 0)
 	{
-		sendMes[cnt / 8] = sdata;
+		sendMes[cnt / BIT_NUM] = sdata;
 	}
 	SendData();
 	std::cout << id << std::endl;
@@ -342,7 +346,7 @@ void NetWork::SaveTmx(void)
 		writTmxTmp();
 		if (!tmx.eof())
 		{
-			while (cnt < (21 * 17 * 4))
+			while (cnt < ALL_CSV_SIZE)
 			{
 				for (int bitcnt = 0; bitcnt < 8; bitcnt++)
 				{
@@ -350,14 +354,18 @@ void NetWork::SaveTmx(void)
 					std::cout << num;
 					file << num;
 					cnt++;
-					if (cnt % 21 != 0)
+					if (cnt >= CSV_SIZE * 2)
+					{
+						auto taichi = 20;
+					}
+					if (cnt % CSV_WIDTH != 0)
 					{
 						file << ",";
 						std::cout << ",";
 					}
 					else
 					{
-						if (cnt % (21 * 17) == 0)
+						if (cnt % CSV_SIZE == 0)
 						{
 							file << std::endl;
 							std::cout << std::endl;

@@ -268,10 +268,11 @@ bool LoginScene::SendNetWorkMes(std::string filename)
 	Mes.resize(hsize + dsize);
 	Mes[0].idata = data.ihead[0];
 	Mes[1].idata = data.ihead[1];
-	TMX_SIZE sizedata = { (tmxstr.tellg() / ONE_SEND_MES),ONE_SEND_MES,tmxstr.tellg() };
-	Mes[2].idata = sizedata.num;
-	Mes[3].idata = sizedata.size;
-	Mes[4].idata = sizedata.allsize;
+	Mes[2].idata = ALL_CSV_SIZE / BIT_NUM;
+	if (ALL_CSV_SIZE % BIT_NUM)
+	{
+		Mes[2].idata++;
+	}
 	lpNetWork.SendMes(Mes);
 	return true;
 }

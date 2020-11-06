@@ -44,9 +44,7 @@ struct MES_H
 
 struct TMX_SIZE
 {
-	unsigned int num;
 	unsigned int size;
-	unsigned int allsize;
 };
 
 union mes_H

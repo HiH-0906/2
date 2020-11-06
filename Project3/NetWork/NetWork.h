@@ -10,8 +10,21 @@
 #include "NetWorkState.h"
 
 #define lpNetWork NetWork::GetInstance()
-
+/// <summary>
+/// 一度に送信していいバイト数 TCP/IPは1500弱が上限らしいので1000までにしとけば問題ないやろ感
+/// </summary>
 #define ONE_SEND_MES 1000
+
+/// <summary>
+/// データ受け取り時の定数
+/// </summary>
+#define CSV_HEIGHT 17
+#define CSV_WIDTH 21
+#define CSV_SIZE (CSV_HEIGHT*CSV_WIDTH)
+#define CSV_LAYER 4
+#define ALL_CSV_SIZE (CSV_SIZE*CSV_LAYER)
+
+#define BIT_NUM 8
 
 using MesDataVec = std::vector<sendData>;
 using IParray = std::array<IPDATA, 5>;
@@ -33,10 +46,15 @@ public:
 	IParray GetIP(void);
 	bool ConnectHost(IPDATA hostIP);					// 指定されたIPアドレスのホストへ接続しに行く
 	NetWorkMode GetMode(void);
-	void SendMes(MesDataVec data);
+	/// <summary>
+	/// 相手にデータを送る
+	/// </summary>
+	/// <param name="data">送りたいデータ</param>
+	void SendMes(MesDataVec& data);
 	void SendStanby(void);
 	void SendStart(void);
 	bool SendTmxData(std::string filename);
+	//void SetHedar(mes_H herdar,)
 
 	void SaveTmx(void);
 
