@@ -226,7 +226,7 @@ bool LoginScene::ReadHost(void)
 // ファイルからの読み込み
 bool LoginScene::ReadFile(void)
 {
-	std::fstream file("Data/IPData.dat", std::ios::binary | std::ios::in);
+	std::fstream file("ini/IPData.dat", std::ios::binary | std::ios::in);
 
 	if (!file)
 	{
@@ -241,7 +241,7 @@ bool LoginScene::ReadFile(void)
 // ファイルへの書き込み
 bool LoginScene::WritFile(void)
 {
-	std::fstream file("Data/IPData.dat", std::ios::binary | std::ios::out);
+	std::fstream file("ini/IPData.dat", std::ios::binary | std::ios::out);
 
 	if(!file)
 	{

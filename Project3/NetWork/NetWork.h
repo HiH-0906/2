@@ -46,10 +46,7 @@ public:
 	IParray GetIP(void);
 	bool ConnectHost(IPDATA hostIP);					// 指定されたIPアドレスのホストへ接続しに行く
 	NetWorkMode GetMode(void);
-	/// <summary>
-	/// 相手にデータを送る
-	/// </summary>
-	/// <param name="data">送りたいデータ</param>
+	void SendMes(MES_TYPE type, MesDataVec data);
 	void SendMes(MesDataVec& data);
 	void SendStanby(void);
 	void SendStart(void);
@@ -69,6 +66,8 @@ private:
 	MesDataVec revData_;
 	int revSize_;
 	int cntRev_;
+
+	int testLength_;
 
 	IParray ipdata_;
 

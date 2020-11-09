@@ -157,6 +157,29 @@ NetWorkMode NetWork::GetMode(void)
 	return state_->GetMode();
 }
 
+void NetWork::SendMes(MES_TYPE type, MesDataVec data)
+{
+	mes_H tmpMes = {};
+	tmpMes.head = { type,0,0,0 };
+	int sendLength = data.size() > testLength_ ? testLength_ : data.size();
+	do
+	{
+		// 一度に送るデータ量と送れる上限が同じなら分割している
+		if (sendLength == testLength_)
+		{
+			tmpMes.head.length = sendLength - sizeof(tmpMes) / sizeof(sendData);
+			tmpMes.head.next = 1;
+		}
+		else
+		{
+			tmpMes.head.length = data.size();
+			tmpMes.head.next = 0;
+		}
+		//data.insert();
+		tmpMes.head.sendID++;
+	} while (data.size() > sizeof(mes_H) / sizeof(sendData));
+}
+
 void NetWork::SendMes(MesDataVec& data)
 {
 	if (!state_)
@@ -420,6 +443,7 @@ NetWork::NetWork()
 	gameStart_ = false;
 	revState_ = false;
 	cntRev_ = 0;
+	testLength_ = 500;
 }
 
 NetWork::~NetWork()

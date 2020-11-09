@@ -24,8 +24,9 @@ enum class ACTIVE_STATE
 	OFFLINE
 };
 
-enum class MES_TYPE:unsigned char
+enum class MES_TYPE :unsigned char
 {
+	NON = 100,
 	STANBY,
 	GAME_START,
 	TMX_SIZE,
@@ -37,8 +38,8 @@ enum class MES_TYPE:unsigned char
 struct MES_H
 {
 	MES_TYPE type;
-	unsigned char cdata;
-	unsigned short id;
+	unsigned char next;
+	unsigned short sendID;
 	unsigned int length;
 };
 
@@ -50,7 +51,7 @@ struct TMX_SIZE
 union mes_H
 {
 	MES_H head;
-	int ihead[2];
+	unsigned int ihead[2];
 };
 
 union sendData
