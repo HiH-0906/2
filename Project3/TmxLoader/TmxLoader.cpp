@@ -58,6 +58,7 @@ bool Loader::TmxLoader::TmxLoad(std::string filename)
 	// マップの全体サイズ格納
 	info_.mapSize.x = std::atoi(orign_node_->first_attribute("width")->value());
 	info_.mapSize.y = std::atoi(orign_node_->first_attribute("height")->value());
+	info_.nextLayer = std::atoi(orign_node_->first_attribute("nextlayerid")->value());
 
 	// データの格納準備
 	mapStr_.resize(GetLayerSize());

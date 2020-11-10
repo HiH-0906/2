@@ -12,6 +12,8 @@ std::unique_ptr<NetWork, NetWork::NetWorkDeleter> NetWork::s_Instance(new NetWor
 
 void NetWork::UpDate(void)
 {
+	MES_H mes = {};
+	size_t writePos;
 	while (!ProcessMessage())
 	{
 		if (!state_)
@@ -29,32 +31,37 @@ void NetWork::UpDate(void)
 		}
 		if (GetNetWorkDataLength(handle) >= sizeof(MES_H))
 		{
-			MES_H mes;
+			if (mes.next == 0)
+			{
+				revData_.clear();
+				writePos = 0;
+			}
 			NetWorkRecv(handle, &mes, sizeof(MES_H));
 			
+			if (mes.length != 0)
+			{
+				revData_.resize(static_cast<size_t>(writePos + mes.length));
+				NetWorkRecv(handle, revData_.data() + writePos, static_cast<int>(mes.length * sizeof(revData_[0])));
+			}
+
+			if (mes.next == 1)
+			{
+				TRACE("後続のデータがあります\n");
+				writePos = revData_.size();
+				continue;
+			}
+
 			if (mes.type == MES_TYPE::TMX_SIZE)
 			{
-				if (mes.length != 0)
-				{
-					NetWorkRecv(handle, &tmxSizeData_, mes.length * sizeof(sendData));
-					TRACE("TMXのデータｻｲｽﾞは%dです。\n", tmxSizeData_.size);
-					revSize_ = tmxSizeData_.size;
-				}
-				else
-				{
-					std::cout << "サイズデータの長さが0です" << std::endl;
-				}
+				revSize_ = revData_[0].idata;
+				TRACE("TMXのデータｻｲｽﾞは%dです。\n", revSize_);
 				strat_ = std::chrono::system_clock::now();
 				continue;
 			}
 			if (mes.type == MES_TYPE::TMX_DATA)
 			{
-				if (mes.length != 0)
-				{
-					revData_.resize(mes.length);
-					NetWorkRecv(handle, revData_.data(), static_cast<int>(revData_.size() * sizeof(revData_[0])));
-				}
 				end_ = std::chrono::system_clock::now();
+				SaveTmx();
 				continue;
 			}
 			if (mes.type == MES_TYPE::STANBY)
@@ -62,12 +69,11 @@ void NetWork::UpDate(void)
 				if (mes.length != 0)
 				{
 					std::cout << "スタンバイにデータ部があります" << std::endl;
-					MesDataVec tmpData;
+					MesDataList tmpData;
 					tmpData.resize(mes.length);
 					NetWorkRecv(handle, tmpData.data(), static_cast<int>(tmpData.size() * sizeof(tmpData[0])));
 				}
 				std::cout << "受信時間" << std::chrono::duration_cast<std::chrono::milliseconds>(end_ - strat_).count() << std::endl;
-				SaveTmx();
 				continue;
 			}
 			if (mes.type==MES_TYPE::GAME_START)
@@ -75,7 +81,7 @@ void NetWork::UpDate(void)
 				if (mes.length != 0)
 				{
 					std::cout << "ゲームスタートにデータ部があります" << std::endl;
-					MesDataVec tmpData;
+					MesDataList tmpData;
 					tmpData.resize(mes.length);
 					NetWorkRecv(handle, tmpData.data(), static_cast<int>(tmpData.size() * sizeof(tmpData[0])));
 				}
@@ -157,41 +163,54 @@ NetWorkMode NetWork::GetMode(void)
 	return state_->GetMode();
 }
 
-void NetWork::SendMes(MES_TYPE type, MesDataVec data)
-{
-	mes_H tmpMes = {};
-	tmpMes.head = { type,0,0,0 };
-	int sendLength = data.size() > testLength_ ? testLength_ : data.size();
-	do
-	{
-		// 一度に送るデータ量と送れる上限が同じなら分割している
-		if (sendLength == testLength_)
-		{
-			tmpMes.head.length = sendLength - sizeof(tmpMes) / sizeof(sendData);
-			tmpMes.head.next = 1;
-		}
-		else
-		{
-			tmpMes.head.length = data.size();
-			tmpMes.head.next = 0;
-		}
-		//data.insert();
-		tmpMes.head.sendID++;
-	} while (data.size() > sizeof(mes_H) / sizeof(sendData));
-}
-
-void NetWork::SendMes(MesDataVec& data)
+void NetWork::SendMes(MES_TYPE type, MesDataList data)
 {
 	if (!state_)
 	{
 		return;
 	}
-	auto handle = state_->GetNetHandle();
+	int handle = state_->GetNetHandle();
 	if (handle == -1)
 	{
 		return;
 	}
-	NetWorkSend(handle, data.data(), static_cast<int>(data.size() * sizeof(data[0])));
+	mes_H tmpMes = {};
+	tmpMes.head = { type,0,0,0 };
+	data.insert(data.begin(), {tmpMes.ihead[1] });
+	data.insert(data.begin(), { tmpMes.ihead[0] });
+	
+	do
+	{
+		unsigned int sendCnt = static_cast<unsigned int>(data.size()) > oneSendLength_ ? oneSendLength_ : static_cast<unsigned int>(data.size());
+		data[1].idata = sendCnt - sizeof(tmpMes) / sizeof(sendData);
+		// 一度に送るデータ量と送れる上限が同じなら分割している
+		if (sendCnt == oneSendLength_)
+		{
+			TRACE("分割します\n");
+			TRACE("送信データint数：%d\n", data[1].idata);
+			tmpMes.head.next = 1;
+		}
+		else
+		{
+			TRACE("分割しません\n");
+			TRACE("送信データint数：%d\n", data[1].idata);
+			tmpMes.head.next = 0;
+		}
+		data[0].idata = tmpMes.ihead[0];
+		NetWorkSend(handle, data.data(), sendCnt * sizeof(sendData));
+		data.erase(data.begin() + sizeof(tmpMes) / sizeof(sendData), data.begin() + sendCnt);
+		tmpMes.head.sendID++;
+	} while (data.size() > (sizeof(mes_H) / sizeof(sendData)));
+}
+
+void NetWork::SendMes(MES_TYPE type)
+{
+	if (!state_)
+	{
+		return;
+	}
+	MesDataList data;
+	SendMes(type, std::move(data));
 }
 
 void NetWork::SendStanby(void)
@@ -200,19 +219,7 @@ void NetWork::SendStanby(void)
 	{
 		return;
 	}
-	auto handle = state_->GetNetHandle();
-	if (handle == -1)
-	{
-		return;
-	}
-	MesDataVec mes;
-	mes_H tmpMes;
-	tmpMes.head = { MES_TYPE::STANBY,0,0,0 };
-	mes.reserve(sizeof(tmpMes) / sizeof(sendData));
-	mes.resize(sizeof(tmpMes) / sizeof(sendData));
-	mes[0].idata = tmpMes.ihead[0];
-	mes[1].idata = tmpMes.ihead[1];
-	SendMes(mes);
+	SendMes(MES_TYPE::STANBY);
 	std::cout << "GUESTからのスタートメッセージ待ちです" << std::endl;
 	state_->SetActive(ACTIVE_STATE::STANBY);
 }
@@ -223,23 +230,12 @@ void NetWork::SendStart(void)
 	{
 		return;
 	}
-	auto handle = state_->GetNetHandle();
-	if (handle == -1)
-	{
-		return;
-	}
-	MesDataVec mes;
-	mes_H tmpMes = { MES_TYPE::GAME_START,0,0,0 };
-	mes.reserve(sizeof(tmpMes) / sizeof(sendData));
-	mes.resize(sizeof(tmpMes) / sizeof(sendData));
-	mes[0].idata = tmpMes.ihead[0];
-	mes[1].idata = tmpMes.ihead[1];
-	SendMes(mes);
+	SendMes(MES_TYPE::GAME_START);
 }
 
 bool NetWork::SendTmxData(std::string filename)
 {
-	MesDataVec sendMes;
+	MesDataList sendMes;
 	auto header = sizeof(mes_H) / sizeof(sendData);
 	auto data = ALL_CSV_SIZE / BIT_NUM;
 	if (ALL_CSV_SIZE % BIT_NUM)
@@ -272,26 +268,6 @@ bool NetWork::SendTmxData(std::string filename)
 		return num;
 	};
 
-	
-	auto SendData = [&]()
-	{
-		mes_H send = { MES_TYPE::TMX_DATA,0,id,static_cast<unsigned int>(sendMes.size()) };
-		MesDataVec mes;
-		mes.resize(sizeof(send) / sizeof(sendData));
-		mes[0].idata = send.ihead[0];
-		mes[1].idata = send.ihead[1];
-		sendMes.insert(sendMes.begin(), mes[1]);
-		sendMes.insert(sendMes.begin(), mes[0]);
-		SendMes(sendMes);
-
-		sendMes.clear();
-		sendMes.reserve(data);
-		sendMes.resize(data);
-
-		sdata = { 0 };
-		id++;
-	};
-
 	if (!ifp)
 	{
 		return false;
@@ -317,10 +293,6 @@ bool NetWork::SendTmxData(std::string filename)
 						sendMes[(static_cast<__int64>(cnt) / BIT_NUM) - 1] = sdata;
 						sdata = { 0 };
 					}
-					if (cnt / BIT_NUM >= (ONE_SEND_MES / sizeof(sendData)))
-					{
-						SendData();
-					}
 				}
 				if (lineData.eof())
 				{
@@ -333,7 +305,14 @@ bool NetWork::SendTmxData(std::string filename)
 	{
 		sendMes[cnt / BIT_NUM] = sdata;
 	}
-	SendData();
+
+	MesDataList sizeMes;
+	sendData size = { static_cast<unsigned int>(sendMes.size()) };
+	sizeMes.emplace_back(size);
+	SendMes(MES_TYPE::TMX_SIZE, std::move(sizeMes));
+	// 横縦レイヤーリザーブ
+	SendMes(MES_TYPE::TMX_DATA, std::move(sendMes));
+
 	std::cout << id << std::endl;
 	return true;
 }
@@ -377,10 +356,6 @@ void NetWork::SaveTmx(void)
 					std::cout << num;
 					file << num;
 					cnt++;
-					if (cnt >= CSV_SIZE * 2)
-					{
-						auto taichi = 20;
-					}
 					if (cnt % CSV_WIDTH != 0)
 					{
 						file << ",";
@@ -443,7 +418,28 @@ NetWork::NetWork()
 	gameStart_ = false;
 	revState_ = false;
 	cntRev_ = 0;
-	testLength_ = 500;
+	std::ifstream inistr("ini/setting.txt");
+	std::string str;
+	if (!inistr)
+	{
+		TRACE("Init用ファイルが読み込めません");
+		oneSendLength_ = 500;
+		return;
+	}
+	// 最大送信数の読み込み
+	std::getline(inistr, str);
+	do
+	{
+		if (str.find("byte") != std::string::npos)
+		{
+			auto first = str.find_first_of('"') + 1;
+			auto last = str.find_last_of('"');
+			str = str.substr(first, last- first);
+			oneSendLength_ = std::atoi(str.c_str());
+		}
+		std::getline(inistr, str);
+	} while (!inistr.eof());
+	oneSendLength_ /= sizeof(sendData);
 }
 
 NetWork::~NetWork()

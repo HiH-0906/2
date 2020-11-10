@@ -153,7 +153,6 @@ bool LoginScene::StartInit(void)
 	{
 		if (lpNetWork.GetActive() == ACTIVE_STATE::INIT)
 		{
-			SendNetWorkMes("mapData/map.tmx");
 			if (lpNetWork.SendTmxData("mapData/map.tmx"))
 			{
 				lpNetWork.SendStanby();
@@ -252,27 +251,5 @@ bool LoginScene::WritFile(void)
 
 	file.close();
 
-	return true;
-}
-
-bool LoginScene::SendNetWorkMes(std::string filename)
-{
-	MesDataVec Mes;
-	std::ifstream tmxstr(filename.c_str());
-	tmxstr.seekg(0, std::ios::end);
-	mes_H data;
-	data.head = { MES_TYPE::TMX_SIZE,0,0,sizeof(TMX_SIZE) / sizeof(sendData) };
-	auto hsize = sizeof(MES_H) / sizeof(sendData);
-	auto dsize = sizeof(TMX_SIZE) / sizeof(sendData);
-	Mes.reserve(hsize + dsize);
-	Mes.resize(hsize + dsize);
-	Mes[0].idata = data.ihead[0];
-	Mes[1].idata = data.ihead[1];
-	Mes[2].idata = ALL_CSV_SIZE / BIT_NUM;
-	if (ALL_CSV_SIZE % BIT_NUM)
-	{
-		Mes[2].idata++;
-	}
-	lpNetWork.SendMes(Mes);
 	return true;
 }

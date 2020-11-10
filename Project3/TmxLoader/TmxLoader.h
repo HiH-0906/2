@@ -21,6 +21,7 @@ struct mapInfo
 	int allNum = 0;
 	int columnsNum = 0;
 	int lineNum = 0;
+	int nextLayer = 0;
 	std::string key = std::string{};
 };
 // ‚»‚ñ‚È’·‚­‚È‚¢‚¯‚Çusing‚µ‚Æ‚­‚©Š´

@@ -26,7 +26,7 @@
 
 #define BIT_NUM 8
 
-using MesDataVec = std::vector<sendData>;
+using MesDataList = std::vector<sendData>;
 using IParray = std::array<IPDATA, 5>;
 
 // いつものシングルトンクラス
@@ -46,8 +46,8 @@ public:
 	IParray GetIP(void);
 	bool ConnectHost(IPDATA hostIP);					// 指定されたIPアドレスのホストへ接続しに行く
 	NetWorkMode GetMode(void);
-	void SendMes(MES_TYPE type, MesDataVec data);
-	void SendMes(MesDataVec& data);
+	void SendMes(MES_TYPE type, MesDataList data);
+	void SendMes(MES_TYPE type);
 	void SendStanby(void);
 	void SendStart(void);
 	bool SendTmxData(std::string filename);
@@ -63,11 +63,11 @@ public:
 private:
 	bool revState_;
 	bool gameStart_;
-	MesDataVec revData_;
+	MesDataList revData_;
 	int revSize_;
 	int cntRev_;
 
-	int testLength_;
+	unsigned int oneSendLength_;
 
 	IParray ipdata_;
 

@@ -56,8 +56,8 @@ union mes_H
 
 union sendData
 {
-	unsigned char cdata[4];
 	unsigned int idata;
+	unsigned char cdata[4];
 };
 
 

@@ -46,10 +46,8 @@ private:
 	bool ReadFile(void);
 	bool WritFile(void);
 
-	bool SendNetWorkMes(std::string filename);
 
-
-	UPDATE_STATE state_;						// Update管理用変数 タイトルシーンではなくなる予定
+	UPDATE_STATE state_;						// Update管理用変数
 
 	// 見りゃわかる系 一部タイトルで持つのこれ…？ってのがあるけどいずれなくなるでしょう現状TitleSceneしかないので是非もナイネ
 	int screenSize_X;
