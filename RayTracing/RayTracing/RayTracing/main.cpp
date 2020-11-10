@@ -3,7 +3,6 @@
 #include"Geometry.h"
 const int screen_width = 640;
 const int screen_height = 480;
-Vector3 Light = Vector3{ -100,100,100 };
 
 //ヒントになると思って、色々と関数を用意しておりますが
 //別にこの関数を使わなければいけないわけでも、これに沿わなければいけないわけでも
@@ -46,6 +45,7 @@ float Clamp(float in, const float min = 0.0f, const float max = 1.0f) {
 ///@param eye 視点座標
 ///@param sphere 球オブジェクト(そのうち複数にする)
 void RayTracing(const Position3& eye,const Sphere& sphere) {
+	Vector3 Light = Vector3{ 1,-1,-1 };
 	for (int y = 0; y < screen_height; ++y) {//スクリーン縦方向
 		for (int x = 0; x < screen_width; ++x) {//スクリーン横方向
 			//①視点とスクリーン座標から視線ベクトルを作る
@@ -56,26 +56,27 @@ void RayTracing(const Position3& eye,const Sphere& sphere) {
 			float t;
 			if (IsHitRayAndObject(eye, ray, sphere, t))
 			{
-				auto b = (400 - t) / 100;
+				// 交点を求める
+				auto P = eye + ray * t;
+				// 交点が分かったので法線ベクトルを求める
+				auto N = P - sphere.pos;
+				N.Normalize();
+				auto L = Light.Normalized();
+				auto blink = Dot(N, -L);
+
+				blink = Clamp(blink);
+
 				//※塗りつぶしはDrawPixelという関数を使う。
-				int color = 0xff*b;
+				int color = 0xff * blink;
 				color = color << 8;
-				color += 0xff * b;
+				color += 0xff * blink;
 				color = color << 8;
-				color += 0xff * b;
+				color += 0xff * blink;
 				
-				auto Pi = eye + ray * t;
-				auto tmp = sphere.pos - Pi;
-				tmp.Normalize();
-				auto l = Light.Normalized();
-				auto blink = Dot(tmp, -l);
-				auto test = 255 * blink;
-				SetDrawBright(test, test, test);
 				DrawPixel(x, y, color);
 			}
 			else
 			{
-				SetDrawBright(255, 255, 255);
 				if ((x / 40 + y / 40) % 2 == 0)
 				{
 					DrawPixel(x, y, 0x007700);
@@ -93,8 +94,11 @@ int WINAPI WinMain(HINSTANCE , HINSTANCE,LPSTR,int ) {
 
 	auto eye = Vector3(0, 0, 300);
 	auto sphere = Sphere(100, Position3(0, 0, -100));
-	RayTracing(eye, sphere);
-
-	WaitKey();
+	while (!ProcessMessage() && !CheckHitKey(KEY_INPUT_ESCAPE))
+	{
+		ClsDrawScreen();
+		RayTracing(eye, sphere);
+		ScreenFlip();
+	}
 	DxLib_End();
 }
