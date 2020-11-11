@@ -153,6 +153,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="common\ImageMng.cpp" />
+    <ClCompile Include="Player.cpp" />
     <ClCompile Include="Scene\CrossOver.cpp" />
     <ClCompile Include="Scene\GameScene.cpp" />
     <ClCompile Include="Input\Input.cpp" />
@@ -176,6 +177,7 @@
     <ClInclude Include="common\details\Vector2.h" />
     <ClInclude Include="common\ImageMng.h" />
     <ClInclude Include="common\Vector2.h" />
+    <ClInclude Include="Player.h" />
     <ClInclude Include="Scene\CrossOver.h" />
     <ClInclude Include="Scene\GameScene.h" />
     <ClInclude Include="Input\Input.h" />

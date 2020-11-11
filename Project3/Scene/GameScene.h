@@ -1,7 +1,9 @@
 #pragma once
 #include <memory>
+#include <vector>
 #include "BaseScene.h"
 #include "../map/Map.h"
+#include "../Player.h"
 
 class GameScene :
 	public BaseScene
@@ -14,6 +16,6 @@ public:
 	~GameScene();
 
 private:
-	std::unique_ptr<Map> mapMng_;				// Map関係大体持ってるクラス
+	std::vector<std::shared_ptr<Player>> plList_;			// ネットテスト用Player管理リスト
 };
 

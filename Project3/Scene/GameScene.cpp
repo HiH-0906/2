@@ -6,6 +6,10 @@
 
 uniqueBase GameScene::Update(uniqueBase own)
 {
+	for (auto pl:plList_)
+	{
+		pl->Update();
+	}
 	DrawOwnScene();
 	return own;
 }
@@ -15,23 +19,29 @@ void GameScene::DrawOwnScene(void)
 	SetDrawScreen(drawScreen_);
 	for (int i = 0; i <= static_cast<int>(MapLayer::CHAR); i++)
 	{
-		DrawGraph(0, 0, mapMng_->GetDarwMap(static_cast<MapLayer>(i)), true);
+		DrawGraph(0, 0, Map::GetInstance().GetDarwMap(static_cast<MapLayer>(i)), true);
+	}
+	for (auto pl : plList_)
+	{
+		pl->Draw();
 	}
 }
 
 void GameScene::Init(void)
 {
+	auto& map = Map::GetInstance();
 	auto size = lpSceneMng.GetScreenSize();
 	drawScreen_ = MakeScreen(size.x, size.y, true);
 	auto mode = lpNetWork.GetMode();
 	if (mode == NetWorkMode::HOST || mode == NetWorkMode::OFFLINE)
 	{
-		mapMng_ = std::make_unique<Map>("mapData/map.tmx");
+		map.LoadMap("mapData/map2.tmx");
 	}
 	else
 	{
-		mapMng_ = std::make_unique<Map>("Capture/test.tmx");
+		map.LoadMap("Capture/test.tmx");
 	}
+	plList_.emplace_back(std::make_shared<Player>(map.GetChipSize(), 1));
 	DrawOwnScene();
 }
 
