@@ -2,6 +2,7 @@
 #include <memory>
 #include <functional>
 #include <Map>
+#include "Obj.h"
 #include "common/Vector2.h"
 
 
@@ -34,20 +35,16 @@ static DIR operator*(DIR key)
 }
 
 class Player
+	:public Obj
 {
 public:
 	Player(Vector2 pos, Vector2 size ,int speed,int id);
 	~Player();
-	void UpdateH(void);
-	void Update(void);
-	void UpdataNet(void);
-	void Draw(void);
+	bool UpdateDef(void)override;
+	bool UpdataNet(void);
+	void Draw(void)override;
 private:
-	std::function<void(void)> update_;
-	Vector2 pos_;
-	Vector2 size_;
 	int id_;
-	int speed_;
 	DIR dir_;
 };
 

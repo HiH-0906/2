@@ -6,9 +6,9 @@
 
 uniqueBase GameScene::Update(uniqueBase own)
 {
-	for (auto pl:plList_)
+	for (auto pl:objList_)
 	{
-		pl->Update();
+		pl->Update_();
 	}
 	DrawOwnScene();
 	return own;
@@ -21,7 +21,7 @@ void GameScene::DrawOwnScene(void)
 	{
 		DrawGraph(0, 0, Map::GetInstance().GetDarwMap(static_cast<MapLayer>(i)), true);
 	}
-	for (auto pl : plList_)
+	for (auto pl : objList_)
 	{
 		pl->Draw();
 	}
@@ -46,7 +46,7 @@ void GameScene::Init(void)
 			if (data != -1)
 			{
 				Vector2 pos = { chip.x * (cnt % 21),chip.y * (cnt / 21) };
-				plList_.emplace_back(std::make_shared<Player>(pos, Vector2{ 32,50 }, 4, id));
+				objList_.emplace_back(std::make_shared<Player>(pos, Vector2{ 32,50 }, 4, id));
 				MesDataList mes;
 				sendData data;
 				data.idata = id;
@@ -71,8 +71,8 @@ void GameScene::Init(void)
 		}
 		while (mes.first.type == MES_TYPE::INSTANCE)
 		{
-			auto data = mes.second;
-			plList_.emplace_back(std::make_shared<Player>(Vector2{ static_cast<int>(data[1].idata),static_cast<int>(data[2].idata) }, Vector2{ 32,50 }, 4, data[0].idata));
+			MesDataList data = mes.second;
+			objList_.emplace_back(std::make_shared<Player>(Vector2{ static_cast<int>(data[1].idata),static_cast<int>(data[2].idata) }, Vector2{ 32,50 }, 4, data[0].idata));
 			mes = lpNetWork.PickUpMes();
 		}
 	}

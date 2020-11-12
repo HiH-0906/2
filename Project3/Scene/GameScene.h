@@ -16,6 +16,6 @@ public:
 	~GameScene();
 
 private:
-	std::vector<std::shared_ptr<Player>> plList_;			// ネットテスト用Player管理リスト
+	std::vector<std::shared_ptr<Obj>> objList_;			// ネットテスト用Player管理リスト
 };
 
