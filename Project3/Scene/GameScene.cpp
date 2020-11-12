@@ -6,7 +6,7 @@
 
 uniqueBase GameScene::Update(uniqueBase own)
 {
-	for (auto pl:objList_)
+	for (auto& pl:objList_)
 	{
 		pl->Update_();
 	}
@@ -21,7 +21,7 @@ void GameScene::DrawOwnScene(void)
 	{
 		DrawGraph(0, 0, Map::GetInstance().GetDarwMap(static_cast<MapLayer>(i)), true);
 	}
-	for (auto pl : objList_)
+	for (auto& pl : objList_)
 	{
 		pl->Draw();
 	}
