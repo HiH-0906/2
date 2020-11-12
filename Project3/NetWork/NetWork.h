@@ -1,4 +1,5 @@
 #pragma once
+
 #include <memory>
 #include <thread>
 #include <mutex>
@@ -6,14 +7,11 @@
 #include <array>
 #include <list>
 #include <chrono>
+#include <utility>
 #include <DxLib.h>
 #include "NetWorkState.h"
 
 #define lpNetWork NetWork::GetInstance()
-/// <summary>
-/// 一度に送信していいバイト数 TCP/IPは1500弱が上限らしいので1000までにしとけば問題ないやろ感
-/// </summary>
-#define ONE_SEND_MES 1000
 
 /// <summary>
 /// データ受け取り時の定数
@@ -28,6 +26,7 @@
 
 using MesDataList = std::vector<sendData>;
 using IParray = std::array<IPDATA, 5>;
+using RevData = std::pair<MES_H, MesDataList>;
 
 // いつものシングルトンクラス
 class NetWork
@@ -51,15 +50,14 @@ public:
 	void SendStanby(void);
 	void SendStart(void);
 	bool SendTmxData(std::string filename);
-	//void SetHedar(mes_H herdar,)
 
 	void SaveTmx(void);
 
 	bool GetRevStanby(void);
 	bool GetGameStart(void);
 
-	MES_H PickUpMes(void);
-
+	RevData PickUpMes(void);
+	bool CheckMes(MES_TYPE type);
 private:
 	bool revState_;
 	bool gameStart_;
@@ -92,8 +90,9 @@ private:
 	std::thread update_;
 	std::mutex mesMtx_;
 	std::mutex stMtx_;
+	std::mutex revMtx_;
 
-	std::list<MES_H> mesList_;
+	std::list<RevData> mesList_;
 
 	NetWork();
 	~NetWork();

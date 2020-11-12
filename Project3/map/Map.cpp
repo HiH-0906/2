@@ -89,15 +89,13 @@ void Map::ReDrawMap(MapLayer layer)
 }
 
 bool Map::CheckHitWall(const Vector2& pos)
-{
-	auto chip = ChengeChip(pos);
-	
-	return (mapData_[mapKey_[MapLayer::WALL]][chip.x + static_cast<size_t>(chip.y) * static_cast<size_t>(info_.mapSize.x)] != -1);
+{	
+	return (mapData_[mapKey_[MapLayer::WALL]][pos.x + static_cast<size_t>(pos.y) * static_cast<size_t>(info_.mapSize.x)] != -1);
 }
 
 Vector2 Map::ChengeChip(const Vector2& pos)
 {
-	Vector2 chip = { pos.x / info_.chipSize.x,pos.y / info_.chipSize.y };
+	Vector2 chip = { static_cast<int>(pos.x) / info_.chipSize.x,static_cast<int>(pos.y) / info_.chipSize.y };
 	return std::move(chip);
 }
 

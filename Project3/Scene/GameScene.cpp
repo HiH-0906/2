@@ -35,13 +35,48 @@ void GameScene::Init(void)
 	auto mode = lpNetWork.GetMode();
 	if (mode == NetWorkMode::HOST || mode == NetWorkMode::OFFLINE)
 	{
+		
 		map.LoadMap("mapData/map2.tmx");
+		auto cLayer = map.GetMapData(MapLayer::CHAR);
+		int cnt = 0;
+		int id = 0;
+		auto chip = map.GetChipSize();
+		for (auto data : cLayer)
+		{
+			if (data != -1)
+			{
+				Vector2 pos = { chip.x * (cnt % 21),chip.y * (cnt / 21) };
+				plList_.emplace_back(std::make_shared<Player>(pos, Vector2{ 32,50 }, 4, id));
+				MesDataList mes;
+				sendData data;
+				data.idata = id;
+				mes.emplace_back(data);
+				data.idata = pos.x;
+				mes.emplace_back(data);
+				data.idata = pos.y;
+				mes.emplace_back(data);
+				lpNetWork.SendMes(MES_TYPE::INSTANCE, mes);
+				id++;
+			}
+			cnt++;
+		}
 	}
 	else
 	{
 		map.LoadMap("Capture/test.tmx");
+		RevData mes;
+		while (!lpNetWork.CheckMes(MES_TYPE::INSTANCE))
+		{
+			
+		}
+		while (mes.first.type == MES_TYPE::INSTANCE)
+		{
+			auto data = mes.second;
+			plList_.emplace_back(std::make_shared<Player>(Vector2{ static_cast<int>(data[1].idata),static_cast<int>(data[2].idata) }, Vector2{ 32,50 }, 4, data[0].idata));
+			mes = lpNetWork.PickUpMes();
+		}
 	}
-	plList_.emplace_back(std::make_shared<Player>(map.GetChipSize(), 1));
+	
 	DrawOwnScene();
 }
 

@@ -153,7 +153,7 @@ bool LoginScene::StartInit(void)
 	{
 		if (lpNetWork.GetActive() == ACTIVE_STATE::INIT)
 		{
-			if (lpNetWork.SendTmxData("mapData/map.tmx"))
+			if (lpNetWork.SendTmxData("mapData/map2.tmx"))
 			{
 				lpNetWork.SendStanby();
 			}

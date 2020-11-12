@@ -89,6 +89,12 @@ void NetWork::UpDate(void)
 				gameStart_ = true;
 				continue;
 			}
+			if (mes.type == MES_TYPE::INSTANCE || mes.type == MES_TYPE::POS)
+			{
+				std::lock_guard<std::mutex> lock(mesMtx_);
+				std::lock_guard<std::mutex> lock2(revMtx_);
+				mesList_.emplace_back(mes, revData_);
+			}
 		}
 	}
 	if (state_)
@@ -399,18 +405,31 @@ bool NetWork::GetGameStart(void)
 	return gameStart_;
 }
 
-MES_H NetWork::PickUpMes(void)
+RevData NetWork::PickUpMes(void)
 {
 	std::lock_guard<std::mutex> lock(mesMtx_);
 	if (mesList_.size() == 0)
 	{
 		return {};
 	}
-	auto mes = mesList_.begin();
+	auto mes = *mesList_.begin();
 	mesList_.pop_front();
 
-	return *mes;
+	return mes;
 }
+
+bool NetWork::CheckMes(MES_TYPE type)
+{
+	for (auto list : mesList_)
+	{
+		if (list.first.type == type)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 
 NetWork::NetWork()
 {
