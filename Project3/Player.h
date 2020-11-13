@@ -15,6 +15,13 @@ enum class DIR
 	MAX
 };
 
+enum class AnimState
+{
+	IDEL,
+	WALK,
+	MAX
+};
+
 static DIR begin(DIR)
 {
 	return DIR::DOWN;
@@ -46,5 +53,6 @@ public:
 private:
 	int id_;
 	DIR dir_;
+	AnimState state_;
 };
 

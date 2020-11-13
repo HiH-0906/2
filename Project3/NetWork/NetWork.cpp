@@ -89,7 +89,7 @@ void NetWork::UpDate(void)
 				gameStart_ = true;
 				continue;
 			}
-			if (mes.type == MES_TYPE::INSTANCE || mes.type == MES_TYPE::POS)
+			if (mes.type == MES_TYPE::POS)
 			{
 				std::lock_guard<std::mutex> lock(mesMtx_);
 				std::lock_guard<std::mutex> lock2(revMtx_);
@@ -192,14 +192,14 @@ void NetWork::SendMes(MES_TYPE type, MesDataList data)
 		// 一度に送るデータ量と送れる上限が同じなら分割している
 		if (sendCnt == oneSendLength_)
 		{
-			TRACE("分割します\n");
-			TRACE("送信データint数：%d\n", data[1].idata);
+			/*TRACE("分割します\n");
+			TRACE("送信データint数：%d\n", data[1].idata);*/
 			tmpMes.head.next = 1;
 		}
 		else
 		{
-			TRACE("分割しません\n");
-			TRACE("送信データint数：%d\n", data[1].idata);
+		/*	TRACE("分割しません\n");
+			TRACE("送信データint数：%d\n", data[1].idata);*/
 			tmpMes.head.next = 0;
 		}
 		data[0].idata = tmpMes.ihead[0];
@@ -413,7 +413,30 @@ RevData NetWork::PickUpMes(void)
 		return {};
 	}
 	auto mes = *mesList_.begin();
-	mesList_.pop_front();
+	mesList_.erase((mesList_.begin()));
+
+	return mes;
+}
+
+RevData NetWork::PickUpMes(int id)
+{
+	RevData mes;
+	std::lock_guard<std::mutex> lock(mesMtx_);
+	if (mesList_.size() == 0)
+	{
+		return {};
+	}
+	int cnt = 0;
+	for (auto list : mesList_)
+	{
+		if (list.second[0].idata == id)
+		{
+			mes = list;
+			break;
+		}
+		cnt++;
+	}
+	mesList_.erase((mesList_.begin() + cnt));
 
 	return mes;
 }
@@ -425,6 +448,21 @@ bool NetWork::CheckMes(MES_TYPE type)
 		if (list.first.type == type)
 		{
 			return true;
+		}
+	}
+	return false;
+}
+
+bool NetWork::CheckMes(MES_TYPE type, int id)
+{
+	for (auto list : mesList_)
+	{
+		if (list.first.type == type)
+		{
+			if (list.second[0].idata == id)
+			{
+				return true;
+			}
 		}
 	}
 	return false;

@@ -15,3 +15,8 @@ void BaseScene::Draw(void)
 {
 	DrawGraph(0, 0, drawScreen_, true);
 }
+
+void BaseScene::Fps(void)
+{
+
+}

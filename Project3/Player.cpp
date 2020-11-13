@@ -3,19 +3,29 @@
 #include "map/Map.h"
 #include "NetWork/NetWork.h"
 #include "common/ImageMng.h"
-
+#include "_debug/_DebugConOut.h"
 
 Player::Player(Vector2 pos, Vector2 size, int speed,int id): Obj(pos,size,speed), id_(id)
 {
 	lpImageMng.GetID("player", "Image/bomberman.png", { size_.x,size_.y }, { 5,4 });
 	dir_ = DIR::DOWN;
-	if ((id_ % 2) == 1)
+	state_ = AnimState::IDEL;
+	auto mode = lpNetWork.GetMode();
+	if (mode == NetWorkMode::OFFLINE)
 	{
-		Update_ = std::bind(&Player::UpdataNet, this);
+		Update_ = std::bind(&Player::UpdateDef, this);
 	}
 	else
 	{
-		Update_ = std::bind(&Player::UpdateDef, this);
+		int checkID = mode == NetWorkMode::HOST ? 0 : 1;
+		if ((id_ % 2) == checkID)
+		{
+			Update_ = std::bind(&Player::UpdataNet, this);
+		}
+		else
+		{
+			Update_ = std::bind(&Player::UpdateDef, this);
+		}
 	}
 }
 
@@ -81,32 +91,36 @@ bool Player::UpdateDef(void)
 	}
 	pos_ += power;
 	MesDataList mes;
+	sendData id = { static_cast<unsigned int>(id_) };
+	mes.emplace_back(id);
 	sendData pos = { static_cast<unsigned int>(pos_.x) };
 	mes.emplace_back(pos);
 	pos = { static_cast<unsigned int>(pos_.y) };
 	mes.emplace_back(pos);
 	lpNetWork.SendMes(MES_TYPE::POS, mes);
 	animCnt_++;
+	state_ = AnimState::WALK;
 	return true;
 }
 
 
 bool Player::UpdataNet(void)
 {
-	if (lpNetWork.CheckMes(MES_TYPE::POS))
+	while (lpNetWork.CheckMes(MES_TYPE::POS,id_))
 	{
-		auto mes = lpNetWork.PickUpMes();
+		auto mes = lpNetWork.PickUpMes(id_);
 		if (mes.first.type == MES_TYPE::POS)
 		{
 			auto data = mes.second;
-			pos_ = Vector2{ static_cast<int>(data[0].idata),static_cast<int>(data[1].idata) };
+			pos_ = Vector2{ static_cast<int>(data[1].idata),static_cast<int>(data[2].idata) };
 		}
 	}
 	animCnt_++;
+	state_ = AnimState::WALK;
 	return true;
 }
 
 void Player::Draw(void)
 {
-	DrawGraph(pos_.x, pos_.y - offSetY_, lpImageMng.GetID("player")[((animCnt_ / 15) % 4) * 5], true);
+	DrawGraph(pos_.x, pos_.y - offSetY_, lpImageMng.GetID("player")[static_cast<size_t>((animCnt_ / 15) % 2) * 5 + (static_cast<size_t>(state_) * 10)], true);
 }

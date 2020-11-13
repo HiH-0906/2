@@ -57,7 +57,9 @@ public:
 	bool GetGameStart(void);
 
 	RevData PickUpMes(void);
+	RevData PickUpMes(int id);
 	bool CheckMes(MES_TYPE type);
+	bool CheckMes(MES_TYPE type,int id);
 private:
 	bool revState_;
 	bool gameStart_;
@@ -92,7 +94,7 @@ private:
 	std::mutex stMtx_;
 	std::mutex revMtx_;
 
-	std::list<RevData> mesList_;
+	std::vector<RevData> mesList_;
 
 	NetWork();
 	~NetWork();
