@@ -24,5 +24,7 @@ protected:
 	int drawScreen_;
 	std::chrono::system_clock::time_point strat_;				// fps‘ª’è—p
 	std::chrono::system_clock::time_point end_;
+	unsigned int fpsCnt_;
+	unsigned int fps_;
 };
 

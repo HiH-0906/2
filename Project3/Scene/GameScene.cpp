@@ -11,6 +11,7 @@ uniqueBase GameScene::Update(uniqueBase own)
 		pl->Update_();
 	}
 	DrawOwnScene();
+	Fps();
 	return own;
 }
 

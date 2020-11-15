@@ -111,10 +111,10 @@ bool Player::UpdataNet(void)
 {
 	while (CheckMesList(MES_TYPE::POS))
 	{
-		auto mes = PickUpMes();
+		auto mes = PickUpMes(MES_TYPE::POS);
 		if (mes.first.type == MES_TYPE::POS)
 		{
-			auto data = mes.second;
+			auto& data = mes.second;
 			pos_ = Vector2{ static_cast<int>(data[1].idata),static_cast<int>(data[2].idata) };
 		}
 	}

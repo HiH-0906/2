@@ -29,10 +29,24 @@ bool Obj::CheckMesList(MES_TYPE type)
 	return false;
 }
 
-RevData Obj::PickUpMes(void)
+RevData Obj::PickUpMes(MES_TYPE type)
 {
+	RevData PickMes = {};
 	std::lock_guard<std::mutex> lock(mtx_);
-	RevData PickMes = *revList_.begin();
-	revList_.erase(revList_.begin());
+	if (revList_.size() != 0)
+	{
+		int cnt = 0;
+		for (auto& list : revList_)
+		{
+			if (list.first.type == type)
+			{
+				PickMes = *revList_.begin();
+				revList_.erase(revList_.begin() + cnt);
+				break;
+			}
+			cnt++;
+		}
+	}
+	
 	return PickMes;
 }

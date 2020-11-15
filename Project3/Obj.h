@@ -15,7 +15,7 @@ public:
 protected:
 	std::vector<RevData> revList_;
 	bool CheckMesList(MES_TYPE type);
-	RevData PickUpMes(void);
+	RevData PickUpMes(MES_TYPE type);
 	std::mutex mtx_;
 	Vector2 pos_;
 	Vector2 size_;
