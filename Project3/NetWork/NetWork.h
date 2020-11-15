@@ -8,6 +8,7 @@
 #include <list>
 #include <chrono>
 #include <utility>
+#include <map>
 #include <DxLib.h>
 #include "NetWorkState.h"
 
@@ -27,6 +28,7 @@
 using MesDataList = std::vector<sendData>;
 using IParray = std::array<IPDATA, 5>;
 using RevData = std::pair<MES_H, MesDataList>;
+using ObjRevMap = std::vector< std::pair<std::mutex&, std::vector<RevData>&>>;
 
 // いつものシングルトンクラス
 class NetWork
@@ -39,6 +41,8 @@ public:
 
 	void UpDate(void);
 	void RunUpdate(void);
+
+	void SetObjRevData(int id, std::mutex& mtx, std::vector<RevData>& mes);
 
 	bool SetNetWorkMode(NetWorkMode mode);
 	ACTIVE_STATE GetActive(void);
@@ -55,11 +59,6 @@ public:
 
 	bool GetRevStanby(void);
 	bool GetGameStart(void);
-
-	RevData PickUpMes(void);
-	RevData PickUpMes(int id);
-	bool CheckMes(MES_TYPE type);
-	bool CheckMes(MES_TYPE type,int id);
 private:
 	bool revState_;
 	bool gameStart_;
@@ -92,9 +91,8 @@ private:
 	std::thread update_;
 	std::mutex mesMtx_;
 	std::mutex stMtx_;
-	std::mutex revMtx_;
 
-	std::vector<RevData> mesList_;
+	ObjRevMap objRevMap_;
 
 	NetWork();
 	~NetWork();

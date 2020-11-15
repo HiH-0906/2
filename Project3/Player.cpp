@@ -18,7 +18,7 @@ Player::Player(Vector2 pos, Vector2 size, int speed,int id): Obj(pos,size,speed)
 	else
 	{
 		int checkID = mode == NetWorkMode::HOST ? 0 : 1;
-		if ((id_ % 2) == checkID)
+		if ((id_ % 2) != checkID)
 		{
 			Update_ = std::bind(&Player::UpdataNet, this);
 		}
@@ -27,6 +27,7 @@ Player::Player(Vector2 pos, Vector2 size, int speed,int id): Obj(pos,size,speed)
 			Update_ = std::bind(&Player::UpdateDef, this);
 		}
 	}
+	lpNetWork.SetObjRevData(id_, mtx_, revList_);
 }
 
 Player::~Player()
@@ -97,6 +98,8 @@ bool Player::UpdateDef(void)
 	mes.emplace_back(pos);
 	pos = { static_cast<unsigned int>(pos_.y) };
 	mes.emplace_back(pos);
+	sendData dirData = { static_cast<unsigned int>(dir_) };
+	mes.emplace_back(dirData);
 	lpNetWork.SendMes(MES_TYPE::POS, mes);
 	animCnt_++;
 	state_ = AnimState::WALK;
@@ -106,9 +109,9 @@ bool Player::UpdateDef(void)
 
 bool Player::UpdataNet(void)
 {
-	while (lpNetWork.CheckMes(MES_TYPE::POS,id_))
+	while (CheckMesList(MES_TYPE::POS))
 	{
-		auto mes = lpNetWork.PickUpMes(id_);
+		auto mes = PickUpMes();
 		if (mes.first.type == MES_TYPE::POS)
 		{
 			auto data = mes.second;
@@ -123,4 +126,5 @@ bool Player::UpdataNet(void)
 void Player::Draw(void)
 {
 	DrawGraph(pos_.x, pos_.y - offSetY_, lpImageMng.GetID("player")[static_cast<size_t>((animCnt_ / 15) % 2) * 5 + (static_cast<size_t>(state_) * 10)], true);
+	DrawFormatString(pos_.x, pos_.y, 0xffffff, "%d", id_);
 }

@@ -53,7 +53,7 @@ void NetWork::UpDate(void)
 
 			if (mes.type == MES_TYPE::TMX_SIZE)
 			{
-				revSize_ = revData_[0].idata;
+				revSize_ = revData_[0].cdata[0] * revData_[0].cdata[1] * revData_[0].cdata[2];
 				TRACE("TMXのデータｻｲｽﾞは%dです。\n", revSize_);
 				strat_ = std::chrono::system_clock::now();
 				continue;
@@ -92,8 +92,8 @@ void NetWork::UpDate(void)
 			if (mes.type == MES_TYPE::POS)
 			{
 				std::lock_guard<std::mutex> lock(mesMtx_);
-				std::lock_guard<std::mutex> lock2(revMtx_);
-				mesList_.emplace_back(mes, revData_);
+				std::lock_guard<std::mutex> lock2(objRevMap_[revData_[0].idata].first);
+				objRevMap_[revData_[0].idata].second.emplace_back(mes, revData_);
 			}
 		}
 	}
@@ -107,6 +107,11 @@ void NetWork::RunUpdate(void)
 {
 	update_ = std::thread(&NetWork::UpDate, this);
 	update_.detach();
+}
+
+void NetWork::SetObjRevData(int id, std::mutex& mtx, std::vector<RevData>& mes)
+{
+	objRevMap_.emplace_back(std::pair<std::mutex&, std::vector<RevData>&>{ mtx, mes });
 }
 
 bool NetWork::SetNetWorkMode(NetWorkMode mode)
@@ -313,7 +318,10 @@ bool NetWork::SendTmxData(std::string filename)
 	}
 
 	MesDataList sizeMes;
-	sendData size = { static_cast<unsigned int>(sendMes.size()) };
+	sendData size = {};
+	size.cdata[0] = 21;
+	size.cdata[1] = 17;
+	size.cdata[2] = 4;
 	sizeMes.emplace_back(size);
 	SendMes(MES_TYPE::TMX_SIZE, std::move(sizeMes));
 	// 横縦レイヤーリザーブ
@@ -403,69 +411,6 @@ bool NetWork::GetGameStart(void)
 {
 	std::lock_guard<std::mutex> lock(stMtx_);
 	return gameStart_;
-}
-
-RevData NetWork::PickUpMes(void)
-{
-	std::lock_guard<std::mutex> lock(mesMtx_);
-	if (mesList_.size() == 0)
-	{
-		return {};
-	}
-	auto mes = *mesList_.begin();
-	mesList_.erase((mesList_.begin()));
-
-	return mes;
-}
-
-RevData NetWork::PickUpMes(int id)
-{
-	RevData mes;
-	std::lock_guard<std::mutex> lock(mesMtx_);
-	if (mesList_.size() == 0)
-	{
-		return {};
-	}
-	int cnt = 0;
-	for (auto list : mesList_)
-	{
-		if (list.second[0].idata == id)
-		{
-			mes = list;
-			break;
-		}
-		cnt++;
-	}
-	mesList_.erase((mesList_.begin() + cnt));
-
-	return mes;
-}
-
-bool NetWork::CheckMes(MES_TYPE type)
-{
-	for (auto list : mesList_)
-	{
-		if (list.first.type == type)
-		{
-			return true;
-		}
-	}
-	return false;
-}
-
-bool NetWork::CheckMes(MES_TYPE type, int id)
-{
-	for (auto list : mesList_)
-	{
-		if (list.first.type == type)
-		{
-			if (list.second[0].idata == id)
-			{
-				return true;
-			}
-		}
-	}
-	return false;
 }
 
 

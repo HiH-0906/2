@@ -11,3 +11,28 @@ bool Obj::UpdateDef(void)
 {
 	return false;
 }
+
+bool Obj::CheckMesList(MES_TYPE type)
+{
+	std::lock_guard<std::mutex> lock(mtx_);
+	if (revList_.size() != 0)
+	{
+		for (const auto& list : revList_)
+		{
+			if (list.first.type == type)
+			{
+				return true;
+			}
+		}
+	}
+	
+	return false;
+}
+
+RevData Obj::PickUpMes(void)
+{
+	std::lock_guard<std::mutex> lock(mtx_);
+	RevData PickMes = *revList_.begin();
+	revList_.erase(revList_.begin());
+	return PickMes;
+}

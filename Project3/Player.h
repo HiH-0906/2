@@ -5,7 +5,6 @@
 #include "Obj.h"
 #include "common/Vector2.h"
 
-
 enum class DIR
 {
 	DOWN,
@@ -40,6 +39,8 @@ static DIR operator*(DIR key)
 {
 	return key;
 }
+
+
 
 class Player
 	:public Obj
