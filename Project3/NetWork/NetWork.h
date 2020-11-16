@@ -63,8 +63,10 @@ private:
 	bool revState_;
 	bool gameStart_;
 	MesDataList revData_;
+	MES_H mes_;
 	int revSize_;
 	int cntRev_;
+	int handle_;
 
 	unsigned int oneSendLength_;
 
@@ -84,6 +86,15 @@ private:
 	// ネットワーク関係本体
 	std::unique_ptr<NetWorkState> state_;
 
+	// レシーブ部メンバ関数ポインタ
+	using RevFunc = std::function<void(void)>;
+	std::map<MES_TYPE, RevFunc> revFunc_;
+
+	void RevStanby(void);
+	void RevGameStart(void);
+	void RevTmxSize(void);
+	void RevTmxData(void);
+	void RevPos(void);
 
 	std::chrono::system_clock::time_point strat_;
 	std::chrono::system_clock::time_point end_;
@@ -91,7 +102,7 @@ private:
 	std::thread update_;
 	std::mutex mesMtx_;
 	std::mutex stMtx_;
-
+	// 各オブジェが持つ受信データ格納先への参照
 	ObjRevMap objRevMap_;
 
 	NetWork();

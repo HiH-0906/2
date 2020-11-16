@@ -52,6 +52,8 @@ public:
 	bool UpdataNet(void);
 	void Draw(void)override;
 private:
+	sendData data[4];
+	std::map<DIR, Vector2> speedVec_;
 	int id_;
 	DIR dir_;
 	AnimState state_;

@@ -27,6 +27,13 @@ Player::Player(Vector2 pos, Vector2 size, int speed,int id): Obj(pos,size,speed)
 			Update_ = std::bind(&Player::UpdateDef, this);
 		}
 	}
+	revList_.reserve(10);
+
+	speedVec_.try_emplace(DIR::DOWN, Vector2{ 0,speed });
+	speedVec_.try_emplace(DIR::UP, Vector2{ 0,-speed });
+	speedVec_.try_emplace(DIR::LEFT, Vector2{ -speed,0 });
+	speedVec_.try_emplace(DIR::RIGHT, Vector2{ speed,0 });
+
 	lpNetWork.SetObjRevData(id_, mtx_, revList_);
 }
 
@@ -43,22 +50,7 @@ bool Player::UpdateDef(void)
 		{
 			Vector2 tmpPos = Map::GetInstance().ChengeChip(pos_);
 
-			if (dir == DIR::RIGHT)
-			{
-				tmpPos.x++;
-			}
-			if (dir == DIR::DOWN)
-			{
-				tmpPos.y++;
-			}
-			if (dir == DIR::LEFT)
-			{
-				tmpPos.x--;
-			}
-			if (dir == DIR::UP)
-			{
-				tmpPos.y--;
-			}
+			tmpPos += speedVec_[dir] / speed_;
 			return Map::GetInstance().CheckHitWall(tmpPos);
 		}
 		return false;
@@ -73,34 +65,12 @@ bool Player::UpdateDef(void)
 		}
 	}
 	dir_ = dir;
-	Vector2 power = { 0,0 };
-	if (dir_ == DIR::RIGHT)
-	{
-		power.x += speed_;
-	}
-	if (dir_ == DIR::LEFT)
-	{
-		power.x -= speed_;
-	}
-	if (dir_ == DIR::UP)
-	{
-		power.y -= speed_;
-	}
-	if (dir_ == DIR::DOWN)
-	{
-		power.y += speed_;
-	}
-	pos_ += power;
-	MesDataList mes;
-	sendData id = { static_cast<unsigned int>(id_) };
-	mes.emplace_back(id);
-	sendData pos = { static_cast<unsigned int>(pos_.x) };
-	mes.emplace_back(pos);
-	pos = { static_cast<unsigned int>(pos_.y) };
-	mes.emplace_back(pos);
-	sendData dirData = { static_cast<unsigned int>(dir_) };
-	mes.emplace_back(dirData);
-	lpNetWork.SendMes(MES_TYPE::POS, mes);
+	pos_ += speedVec_[dir_];
+	data[0] = { static_cast<unsigned int>(id_) };
+	data[1] = { static_cast<unsigned int>(pos_.x) };
+	data[2] = { static_cast<unsigned int>(pos_.y) };
+	data[3] = { static_cast<unsigned int>(dir_) };
+	lpNetWork.SendMes(MES_TYPE::POS, MesDataList{ data[0],data[1],data[2],data[3] });
 	animCnt_++;
 	state_ = AnimState::WALK;
 	return true;
@@ -126,5 +96,5 @@ bool Player::UpdataNet(void)
 void Player::Draw(void)
 {
 	DrawGraph(pos_.x, pos_.y - offSetY_, lpImageMng.GetID("player")[static_cast<size_t>((animCnt_ / 15) % 2) * 5 + (static_cast<size_t>(state_) * 10)], true);
-	DrawFormatString(pos_.x, pos_.y, 0xffffff, "%d", id_);
+	//DrawFormatString(pos_.x, pos_.y, 0xffffff, "%d", id_);
 }

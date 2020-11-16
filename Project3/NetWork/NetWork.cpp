@@ -12,89 +12,47 @@ std::unique_ptr<NetWork, NetWork::NetWorkDeleter> NetWork::s_Instance(new NetWor
 
 void NetWork::UpDate(void)
 {
-	MES_H mes = {};
-	size_t writePos;
+	size_t writePos = 0;
 	while (!ProcessMessage())
 	{
 		if (!state_)
 		{
-			return;
+			continue;
 		}
-		if(!state_->Update())
-		{
-			return;
-		}
-		auto handle = state_->GetNetHandle();
-		if (handle == -1)
+		if (!state_->Update())
 		{
 			continue;
 		}
-		if (GetNetWorkDataLength(handle) >= sizeof(MES_H))
+		handle_ = state_->GetNetHandle();
+		if (handle_ != -1)
 		{
-			if (mes.next == 0)
+			break;
+		}
+	}
+	
+	while (!ProcessMessage() && GetLostNetWork() == -1)
+	{
+		if (GetNetWorkDataLength(handle_) >= sizeof(MES_H))
+		{
+			if (mes_.next == 0)
 			{
-				revData_.clear();
 				writePos = 0;
 			}
-			NetWorkRecv(handle, &mes, sizeof(MES_H));
+			NetWorkRecv(handle_, &mes_, sizeof(MES_H));
 			
-			if (mes.length != 0)
+			if (mes_.length != 0)
 			{
-				revData_.resize(static_cast<size_t>(writePos + mes.length));
-				NetWorkRecv(handle, revData_.data() + writePos, static_cast<int>(mes.length * sizeof(revData_[0])));
+				revData_.resize(static_cast<size_t>(writePos + mes_.length));
+				NetWorkRecv(handle_, revData_.data() + writePos, static_cast<int>(mes_.length * sizeof(revData_[0])));
 			}
 
-			if (mes.next == 1)
+			if (mes_.next == 1)
 			{
 				TRACE("後続のデータがあります\n");
 				writePos = revData_.size();
 				continue;
 			}
-
-			if (mes.type == MES_TYPE::TMX_SIZE)
-			{
-				revSize_ = revData_[0].cdata[0] * revData_[0].cdata[1] * revData_[0].cdata[2];
-				TRACE("TMXのデータｻｲｽﾞは%dです。\n", revSize_);
-				strat_ = std::chrono::system_clock::now();
-				continue;
-			}
-			if (mes.type == MES_TYPE::TMX_DATA)
-			{
-				end_ = std::chrono::system_clock::now();
-				SaveTmx();
-				continue;
-			}
-			if (mes.type == MES_TYPE::STANBY)
-			{
-				if (mes.length != 0)
-				{
-					std::cout << "スタンバイにデータ部があります" << std::endl;
-					MesDataList tmpData;
-					tmpData.resize(mes.length);
-					NetWorkRecv(handle, tmpData.data(), static_cast<int>(tmpData.size() * sizeof(tmpData[0])));
-				}
-				std::cout << "受信時間" << std::chrono::duration_cast<std::chrono::milliseconds>(end_ - strat_).count() << std::endl;
-				continue;
-			}
-			if (mes.type==MES_TYPE::GAME_START)
-			{
-				if (mes.length != 0)
-				{
-					std::cout << "ゲームスタートにデータ部があります" << std::endl;
-					MesDataList tmpData;
-					tmpData.resize(mes.length);
-					NetWorkRecv(handle, tmpData.data(), static_cast<int>(tmpData.size() * sizeof(tmpData[0])));
-				}
-				std::lock_guard<std::mutex> lock(stMtx_);
-				gameStart_ = true;
-				continue;
-			}
-			if (mes.type == MES_TYPE::POS)
-			{
-				std::lock_guard<std::mutex> lock(mesMtx_);
-				std::lock_guard<std::mutex> lock2(objRevMap_[revData_[0].idata].first);
-				objRevMap_[revData_[0].idata].second.emplace_back(mes, revData_);
-			}
+			revFunc_[mes_.type]();
 		}
 	}
 	if (state_)
@@ -414,12 +372,67 @@ bool NetWork::GetGameStart(void)
 }
 
 
+void NetWork::RevStanby(void)
+{
+	if (mes_.length != 0)
+	{
+		std::cout << "スタンバイにデータ部があります" << std::endl;
+		MesDataList tmpData;
+		tmpData.resize(mes_.length);
+		NetWorkRecv(handle_, tmpData.data(), static_cast<int>(tmpData.size() * sizeof(tmpData[0])));
+	}
+	std::cout << "受信時間" << std::chrono::duration_cast<std::chrono::milliseconds>(end_ - strat_).count() << std::endl;
+
+}
+
+void NetWork::RevGameStart(void)
+{
+	if (mes_.length != 0)
+	{
+		std::cout << "ゲームスタートにデータ部があります" << std::endl;
+		MesDataList tmpData;
+		tmpData.resize(mes_.length);
+		NetWorkRecv(handle_, tmpData.data(), static_cast<int>(tmpData.size() * sizeof(tmpData[0])));
+	}
+	std::lock_guard<std::mutex> lock(stMtx_);
+	gameStart_ = true;
+}
+
+void NetWork::RevTmxSize(void)
+{
+
+	revSize_ = (revData_[0].cdata[0] * revData_[0].cdata[1] * revData_[0].cdata[2]) / 8;
+	TRACE("TMXのデータｻｲｽﾞは%dです。\n", revSize_);
+	strat_ = std::chrono::system_clock::now();
+}
+
+void NetWork::RevTmxData(void)
+{
+	end_ = std::chrono::system_clock::now();
+	SaveTmx();
+}
+
+void NetWork::RevPos(void)
+{
+	std::lock_guard<std::mutex> lock(mesMtx_);
+	std::lock_guard<std::mutex> lock2(objRevMap_[revData_[0].idata].first);
+	objRevMap_[revData_[0].idata].second.emplace_back(mes_, revData_);
+}
+
 NetWork::NetWork()
 {
 	state_ = nullptr;
 	gameStart_ = false;
 	revState_ = false;
 	cntRev_ = 0;
+	revFunc_.emplace(MES_TYPE::GAME_START, std::bind(&NetWork::RevGameStart, this));
+	revFunc_.emplace(MES_TYPE::STANBY, std::bind(&NetWork::RevStanby, this));
+	revFunc_.emplace(MES_TYPE::TMX_DATA, std::bind(&NetWork::RevTmxData, this));
+	revFunc_.emplace(MES_TYPE::TMX_SIZE, std::bind(&NetWork::RevTmxSize, this));
+	revFunc_.emplace(MES_TYPE::POS, std::bind(&NetWork::RevPos, this));
+
+	mes_ = {};
+	revData_.reserve(300);
 	std::ifstream inistr("ini/setting.txt");
 	std::string str;
 	if (!inistr)

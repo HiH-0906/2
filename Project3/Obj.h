@@ -7,7 +7,7 @@
 class Obj
 {
 public:
-	Obj(Vector2 pos, Vector2 size, int speed);
+	Obj(Vector2 pos, Vector2 size,int speed);
 	virtual ~Obj() = default;
 	virtual bool UpdateDef(void);
 	std::function<bool(void)> Update_;
@@ -19,8 +19,8 @@ protected:
 	std::mutex mtx_;
 	Vector2 pos_;
 	Vector2 size_;
-	int offSetY_;
 	int speed_;
+	int offSetY_;
 	int animCnt_;
 };
 
