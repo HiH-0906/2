@@ -56,5 +56,7 @@ private:
 	Vector2 pos_;
 	IPDATA ipData_;
 	std::unique_ptr<Input> input_;
+
+	int tetHight_;
 };
 

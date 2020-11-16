@@ -3,7 +3,7 @@
 
 NetWorkState::NetWorkState()
 {
-	active_ = ACTIVE_STATE::NON;
+	active_ = ACTIVE_STATE::OFFLINE;
 	netHandle_ = -1;
 }
 

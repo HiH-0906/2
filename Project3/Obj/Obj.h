@@ -1,8 +1,8 @@
 #pragma once
 #include <functional>
 #include <mutex>
-#include "NetWork/NetWork.h"
-#include "common/Vector2.h"
+#include "../NetWork/NetWork.h"
+#include "../common/Vector2.h"
 
 class Obj
 {

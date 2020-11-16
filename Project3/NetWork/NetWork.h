@@ -57,11 +57,14 @@ public:
 
 	void SaveTmx(void);
 
+	void EndOfNetWork(void);
+
 	bool GetRevStanby(void);
 	bool GetGameStart(void);
 private:
 	bool revState_;
 	bool gameStart_;
+	bool netEnd_;
 	MesDataList revData_;
 	MES_H mes_;
 	int revSize_;
@@ -100,8 +103,8 @@ private:
 	std::chrono::system_clock::time_point end_;
 
 	std::thread update_;
-	std::mutex mesMtx_;
 	std::mutex stMtx_;
+	std::mutex revMtx_;
 	// 各オブジェが持つ受信データ格納先への参照
 	ObjRevMap objRevMap_;
 

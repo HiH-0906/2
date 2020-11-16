@@ -57,7 +57,7 @@ void NetWork::UpDate(void)
 	}
 	if (state_)
 	{
-		CloseNetWork(state_->GetNetHandle());
+		EndOfNetWork();
 	}
 }
 
@@ -138,14 +138,13 @@ void NetWork::SendMes(MES_TYPE type, MesDataList data)
 	{
 		return;
 	}
-	int handle = state_->GetNetHandle();
-	if (handle == -1)
+	if (handle_ == -1)
 	{
 		return;
 	}
 	mes_H tmpMes = {};
 	tmpMes.head = { type,0,0,0 };
-	data.insert(data.begin(), {tmpMes.ihead[1] });
+	data.insert(data.begin(), { tmpMes.ihead[1] });
 	data.insert(data.begin(), { tmpMes.ihead[0] });
 	
 	do
@@ -166,7 +165,7 @@ void NetWork::SendMes(MES_TYPE type, MesDataList data)
 			tmpMes.head.next = 0;
 		}
 		data[0].idata = tmpMes.ihead[0];
-		NetWorkSend(handle, data.data(), sendCnt * sizeof(sendData));
+		NetWorkSend(handle_, data.data(), sendCnt * sizeof(sendData));
 		data.erase(data.begin() + sizeof(tmpMes) / sizeof(sendData), data.begin() + sendCnt);
 		tmpMes.head.sendID++;
 	} while (data.size() > (sizeof(mes_H) / sizeof(sendData)));
@@ -360,8 +359,19 @@ void NetWork::SaveTmx(void)
 	}
 }
 
+void NetWork::EndOfNetWork(void)
+{
+	CloseNetWork(state_->GetNetHandle());
+	state_ = nullptr;
+	gameStart_ = false;
+	revState_ = false;
+	handle_ = -1;
+	objRevMap_.clear();
+}
+
 bool NetWork::GetRevStanby(void)
 {
+	std::lock_guard<std::mutex> lock(revMtx_);
 	return revState_;
 }
 
@@ -414,7 +424,6 @@ void NetWork::RevTmxData(void)
 
 void NetWork::RevPos(void)
 {
-	std::lock_guard<std::mutex> lock(mesMtx_);
 	std::lock_guard<std::mutex> lock2(objRevMap_[revData_[0].idata].first);
 	objRevMap_[revData_[0].idata].second.emplace_back(mes_, revData_);
 }
@@ -425,6 +434,7 @@ NetWork::NetWork()
 	gameStart_ = false;
 	revState_ = false;
 	cntRev_ = 0;
+	handle_ = -1;
 	revFunc_.emplace(MES_TYPE::GAME_START, std::bind(&NetWork::RevGameStart, this));
 	revFunc_.emplace(MES_TYPE::STANBY, std::bind(&NetWork::RevStanby, this));
 	revFunc_.emplace(MES_TYPE::TMX_DATA, std::bind(&NetWork::RevTmxData, this));
@@ -432,9 +442,9 @@ NetWork::NetWork()
 	revFunc_.emplace(MES_TYPE::POS, std::bind(&NetWork::RevPos, this));
 
 	mes_ = {};
-	revData_.reserve(300);
+	revData_.reserve(180);
 	std::ifstream inistr("ini/setting.txt");
-	std::string str;
+ 	std::string str;
 	if (!inistr)
 	{
 		TRACE("Init用ファイルが読み込めません");

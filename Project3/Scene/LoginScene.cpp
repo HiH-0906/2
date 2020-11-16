@@ -30,6 +30,8 @@ LoginScene::LoginScene()
 	func_.try_emplace(UPDATE_STATE::SELECT_HOST, &LoginScene::SelectHost);
 	func_.try_emplace(UPDATE_STATE::READ_HOST, &LoginScene::ReadHost);
 
+	tetHight_ = 400;
+
 	DrawOwnScene();
 }
 
@@ -100,7 +102,7 @@ bool LoginScene::PlayUpdate(void)
 bool LoginScene::SetNetWork(void)
 {
 	auto ipVec = lpNetWork.GetIP();
-	for (auto ip : ipVec)
+	for (auto& ip : ipVec)
 	{
 		if (ip.d1 != 0)
 		{
@@ -113,7 +115,7 @@ bool LoginScene::SetNetWork(void)
 	{
 		std::cout << "キーを入力してネットモードを指定してください" << std::endl;
 		std::cout << "0:OffLine\n1:Host\n2:Gest\n" << std::endl;
-		std::string num;
+		std::string num = {};
 		std::cin >> num;
 		if (num == "0")
 		{

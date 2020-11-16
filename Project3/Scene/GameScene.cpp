@@ -1,6 +1,8 @@
 #include <iostream>
 #include <DxLib.h>
 #include "GameScene.h"
+#include "CrossOver.h"
+#include "LoginScene.h"
 #include "SceneMng.h"
 #include "../NetWork/NetWork.h"
 
@@ -12,6 +14,10 @@ uniqueBase GameScene::Update(uniqueBase own)
 	}
 	DrawOwnScene();
 	Fps();
+	if (lpNetWork.GetActive() == ACTIVE_STATE::NON)
+	{
+		return std::make_unique<CrossOver>(std::move(own), std::make_unique<LoginScene>());
+	}
 	return own;
 }
 

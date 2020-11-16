@@ -1,9 +1,9 @@
 #include <DxLib.h>
 #include "Player.h"
-#include "map/Map.h"
-#include "NetWork/NetWork.h"
-#include "common/ImageMng.h"
-#include "_debug/_DebugConOut.h"
+#include "../map/Map.h"
+#include "../NetWork/NetWork.h"
+#include "../common/ImageMng.h"
+#include "../_debug/_DebugConOut.h"
 
 Player::Player(Vector2 pos, Vector2 size, int speed,int id): Obj(pos,size,speed), id_(id)
 {
@@ -45,7 +45,7 @@ bool Player::UpdateDef(void)
 {
 	auto CheckDir = [&](DIR dir)
 	{
-		auto size = Map::GetInstance().GetChipSize();
+		auto& size = Map::GetInstance().GetChipSize();
 		if (((pos_.x % size.x) == 0) && ((pos_.y % size.y) == 0))
 		{
 			Vector2 tmpPos = Map::GetInstance().ChengeChip(pos_);

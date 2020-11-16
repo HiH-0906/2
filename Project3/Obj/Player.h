@@ -3,7 +3,7 @@
 #include <functional>
 #include <Map>
 #include "Obj.h"
-#include "common/Vector2.h"
+#include "../common/Vector2.h"
 
 enum class DIR
 {

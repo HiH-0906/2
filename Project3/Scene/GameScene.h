@@ -3,7 +3,7 @@
 #include <vector>
 #include "BaseScene.h"
 #include "../map/Map.h"
-#include "../Player.h"
+#include "../Obj/Player.h"
 
 class GameScene :
 	public BaseScene
