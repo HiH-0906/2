@@ -30,7 +30,8 @@ Player::Player(Vector2 pos, Vector2 size, int speed,int id): Obj(pos,size,speed)
 			Update_ = std::bind(&Player::UpdateDef, this);
 		}
 	}
-	revList_.reserve(10);
+	revList_.reserve(100);
+	revList_.resize(100);
 
 	speedVec_.try_emplace(DIR::DOWN, Vector2{ 0,speed });
 	speedVec_.try_emplace(DIR::UP, Vector2{ 0,-speed });
@@ -46,19 +47,8 @@ Player::~Player()
 
 bool Player::UpdateDef(void)
 {
-	auto CheckDir = [&](DIR dir)
-	{
-		if (((pos_.x % chipSize_.x) == 0) && ((pos_.y % chipSize_.y) == 0))
-		{
-			chPos_ = mapMng_.ChengeChip(pos_);
-
-			chPos_ += speedVec_[dir] / speed_;
-			return mapMng_.CheckHitWall(chPos_);
-		}
-		return false;
-	};
 	auto dir = dir_;
-	while (CheckDir(dir))
+	while (CheckHitWall(dir))
 	{
 		++dir;
 		if (dir == DIR::MAX)
@@ -81,7 +71,7 @@ bool Player::UpdateDef(void)
 
 bool Player::UpdataNet(void)
 {
-	if(isPickMesList(MES_TYPE::POS))
+	if(CheckMesList())
 	{
 		do
 		{
@@ -101,6 +91,18 @@ bool Player::UpdataNet(void)
 	animCnt_++;
 	state_ = AnimState::WALK;
 	return true;
+}
+
+bool Player::CheckHitWall(DIR dir)
+{
+	if (((pos_.x % chipSize_.x) == 0) && ((pos_.y % chipSize_.y) == 0))
+	{
+		chPos_ = mapMng_.ChengeChip(pos_);
+
+		chPos_ += speedVec_[dir] / speed_;
+		return mapMng_.CheckHitWall(chPos_);
+	}
+	return false;
 }
 
 void Player::Draw(void)

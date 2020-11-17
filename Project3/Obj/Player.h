@@ -51,6 +51,7 @@ public:
 	~Player();
 	bool UpdateDef(void)override;
 	bool UpdataNet(void);
+	bool CheckHitWall(DIR dir);
 	void Draw(void)override;
 	static int fallCnt_;
 private:

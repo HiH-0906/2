@@ -12,17 +12,24 @@ bool Obj::UpdateDef(void)
 	return false;
 }
 
-bool Obj::isPickMesList(MES_TYPE type)
+bool Obj::CheckMesList(void)
 {
 	std::lock_guard<std::mutex> lock(mtx_);
 	if (revList_.size() != 0)
 	{
-		for (const auto& list : revList_)
+		return true;
+	}
+	return false;
+}
+
+bool Obj::isPickMesList(MES_TYPE type)
+{
+	std::lock_guard<std::mutex> lock(mtx_);
+	for (const auto& list : revList_)
+	{
+		if (list.first.type == type)
 		{
-			if (list.first.type == type)
-			{
-				return true;
-			}
+			return true;
 		}
 	}
 	return false;
@@ -32,19 +39,16 @@ RevData Obj::PickUpMes(MES_TYPE type)
 {
 	RevData PickMes = {};
 	std::lock_guard<std::mutex> lock(mtx_);
-	if (revList_.size() != 0)
+	int cnt = 0;
+	for (auto& list : revList_)
 	{
-		int cnt = 0;
-		for (auto& list : revList_)
+		if (list.first.type == type)
 		{
-			if (list.first.type == type)
-			{
-				PickMes = *revList_.begin();
-				revList_.erase(revList_.begin() + cnt);
-				break;
-			}
-			cnt++;
+			PickMes = *revList_.begin();
+			revList_.erase(revList_.begin() + cnt);
+			break;
 		}
+		cnt++;
 	}
 	
 	return PickMes;
