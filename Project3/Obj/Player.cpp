@@ -81,7 +81,7 @@ bool Player::UpdateDef(void)
 
 bool Player::UpdataNet(void)
 {
-	if(CheckMesList(MES_TYPE::POS))
+	if(isPickMesList(MES_TYPE::POS))
 	{
 		do
 		{
@@ -91,7 +91,7 @@ bool Player::UpdataNet(void)
 				auto& data = mes.second;
 				pos_ = Vector2{ static_cast<int>(data[1].idata),static_cast<int>(data[2].idata) };
 			}
-		} while (CheckMesList(MES_TYPE::POS));
+		} while (isPickMesList(MES_TYPE::POS));
 	}
 	else
 	{

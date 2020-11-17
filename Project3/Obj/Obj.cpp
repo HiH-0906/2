@@ -12,7 +12,7 @@ bool Obj::UpdateDef(void)
 	return false;
 }
 
-bool Obj::CheckMesList(MES_TYPE type)
+bool Obj::isPickMesList(MES_TYPE type)
 {
 	std::lock_guard<std::mutex> lock(mtx_);
 	if (revList_.size() != 0)

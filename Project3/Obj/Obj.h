@@ -14,7 +14,7 @@ public:
 	virtual void Draw(void) = 0;
 protected:
 	std::vector<RevData> revList_;
-	bool CheckMesList(MES_TYPE type);
+	bool isPickMesList(MES_TYPE type);
 	RevData PickUpMes(MES_TYPE type);
 	std::mutex mtx_;
 	Vector2 pos_;
