@@ -2,6 +2,7 @@
 #include "BaseScene.h"
 #include "SceneMng.h"
 #include "../Obj/Player.h"
+#include "../_debug/_DebugConOut.h"
 
 BaseScene::BaseScene()
 {

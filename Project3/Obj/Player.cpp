@@ -31,7 +31,6 @@ Player::Player(Vector2 pos, Vector2 size, int speed,int id): Obj(pos,size,speed)
 		}
 	}
 	revList_.reserve(100);
-	revList_.resize(100);
 
 	speedVec_.try_emplace(DIR::DOWN, Vector2{ 0,speed });
 	speedVec_.try_emplace(DIR::UP, Vector2{ 0,-speed });
@@ -71,23 +70,22 @@ bool Player::UpdateDef(void)
 
 bool Player::UpdataNet(void)
 {
-	if(CheckMesList())
-	{
-		do
-		{
-			auto mes = PickUpMes(MES_TYPE::POS);
-			if (mes.first.type == MES_TYPE::POS)
-			{
-				auto& data = mes.second;
-				pos_ = Vector2{ static_cast<int>(data[1].idata),static_cast<int>(data[2].idata) };
-			}
-		} while (isPickMesList(MES_TYPE::POS));
-	}
-	else
-	{
-		TRACE("データ未受信ID:%d\n", id_);
-		fallCnt_++;
-	}
+	bool test = false;
+	 while (isPickMesList(MES_TYPE::POS))
+	 {
+		 auto mes = PickUpMes(MES_TYPE::POS);
+		 if (mes.first.type == MES_TYPE::POS)
+		 {
+			 auto& data = mes.second;
+			 pos_ = Vector2{ static_cast<int>(data[1].idata),static_cast<int>(data[2].idata) };
+			 test = true;
+		 }
+	 }
+	 if (!test)
+	 {
+		 TRACE("データ未受信ID:%d\n", id_);
+		 fallCnt_++;
+	 }
 	animCnt_++;
 	state_ = AnimState::WALK;
 	return true;

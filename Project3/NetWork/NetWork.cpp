@@ -436,7 +436,7 @@ NetWork::NetWork()
 	cntRev_ = 0;
 	handle_ = -1;
 	revFunc_[0] = nullptr;
-	revFunc_[1]=(std::bind(&NetWork::RevStanby, this));
+	revFunc_[1] = (std::bind(&NetWork::RevStanby, this));
 	revFunc_[2] = (std::bind(&NetWork::RevGameStart, this));
 	revFunc_[3] = (std::bind(&NetWork::RevTmxSize, this));
 	revFunc_[4] = (std::bind(&NetWork::RevTmxData, this));

@@ -25,11 +25,14 @@ bool Obj::CheckMesList(void)
 bool Obj::isPickMesList(MES_TYPE type)
 {
 	std::lock_guard<std::mutex> lock(mtx_);
-	for (const auto& list : revList_)
+	if (revList_.size() != 0)
 	{
-		if (list.first.type == type)
+		for (const auto& list : revList_)
 		{
-			return true;
+			if (list.first.type == type)
+			{
+				return true;
+			}
 		}
 	}
 	return false;
