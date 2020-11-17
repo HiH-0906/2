@@ -31,7 +31,8 @@ enum class MES_TYPE :unsigned char
 	GAME_START,
 	TMX_SIZE,
 	TMX_DATA,
-	POS
+	POS,
+	MAX
 };
 
 

@@ -3,6 +3,7 @@
 #include <functional>
 #include <Map>
 #include "Obj.h"
+#include "../map/Map.h"
 #include "../common/Vector2.h"
 
 enum class DIR
@@ -51,9 +52,13 @@ public:
 	bool UpdateDef(void)override;
 	bool UpdataNet(void);
 	void Draw(void)override;
+	static int fallCnt_;
 private:
+	Map& mapMng_;
 	sendData data[4];
 	std::map<DIR, Vector2> speedVec_;
+	Vector2 chipSize_;
+	Vector2 chPos_;
 	int id_;
 	DIR dir_;
 	AnimState state_;

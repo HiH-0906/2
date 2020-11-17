@@ -14,7 +14,7 @@ public:
 	void Init(void)override;
 	GameScene();
 	~GameScene();
-
+	
 private:
 	std::vector<std::shared_ptr<Obj>> objList_;			// ネットテスト用Player管理リスト
 };

@@ -104,3 +104,11 @@ const Vector2& Map::GetChipSize(void)const
 	return info_.chipSize;
 }
 
+void Map::EndOfMap(void)
+{
+	mapData_.clear();
+	drawLayer_.clear();
+	mapKey_.clear();
+	info_ = {};
+}
+

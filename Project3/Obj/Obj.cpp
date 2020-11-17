@@ -25,7 +25,6 @@ bool Obj::CheckMesList(MES_TYPE type)
 			}
 		}
 	}
-	
 	return false;
 }
 

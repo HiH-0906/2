@@ -153,7 +153,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="common\ImageMng.cpp" />
-    <ClCompile Include="Mouseable\Mouseable.cpp" />
     <ClCompile Include="Obj\Obj.cpp" />
     <ClCompile Include="Obj\Player.cpp" />
     <ClCompile Include="Scene\CrossOver.cpp" />
@@ -179,7 +178,6 @@
     <ClInclude Include="common\details\Vector2.h" />
     <ClInclude Include="common\ImageMng.h" />
     <ClInclude Include="common\Vector2.h" />
-    <ClInclude Include="Mouseable\Mouseable.h" />
     <ClInclude Include="Obj\Obj.h" />
     <ClInclude Include="Obj\Player.h" />
     <ClInclude Include="Scene\CrossOver.h" />

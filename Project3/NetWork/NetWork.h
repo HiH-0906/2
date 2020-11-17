@@ -23,6 +23,8 @@
 #define CSV_LAYER 4
 #define ALL_CSV_SIZE (CSV_SIZE*CSV_LAYER)
 
+#define REv_FUNC_SIZE (static_cast<size_t>(MES_TYPE::MAX) - static_cast<int>(MES_TYPE::NON))
+
 #define BIT_NUM 8
 
 using MesDataList = std::vector<sendData>;
@@ -91,7 +93,7 @@ private:
 
 	// レシーブ部メンバ関数ポインタ
 	using RevFunc = std::function<void(void)>;
-	std::map<MES_TYPE, RevFunc> revFunc_;
+	std::array<RevFunc, REv_FUNC_SIZE > revFunc_;
 
 	void RevStanby(void);
 	void RevGameStart(void);

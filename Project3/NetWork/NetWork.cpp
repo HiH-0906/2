@@ -52,7 +52,7 @@ void NetWork::UpDate(void)
 				writePos = revData_.size();
 				continue;
 			}
-			revFunc_[mes_.type]();
+			revFunc_[static_cast<unsigned int>(mes_.type) - static_cast<unsigned int>(MES_TYPE::NON)]();
 		}
 	}
 	if (state_)
@@ -435,11 +435,12 @@ NetWork::NetWork()
 	revState_ = false;
 	cntRev_ = 0;
 	handle_ = -1;
-	revFunc_.emplace(MES_TYPE::GAME_START, std::bind(&NetWork::RevGameStart, this));
-	revFunc_.emplace(MES_TYPE::STANBY, std::bind(&NetWork::RevStanby, this));
-	revFunc_.emplace(MES_TYPE::TMX_DATA, std::bind(&NetWork::RevTmxData, this));
-	revFunc_.emplace(MES_TYPE::TMX_SIZE, std::bind(&NetWork::RevTmxSize, this));
-	revFunc_.emplace(MES_TYPE::POS, std::bind(&NetWork::RevPos, this));
+	revFunc_[0] = nullptr;
+	revFunc_[1]=(std::bind(&NetWork::RevStanby, this));
+	revFunc_[2] = (std::bind(&NetWork::RevGameStart, this));
+	revFunc_[3] = (std::bind(&NetWork::RevTmxSize, this));
+	revFunc_[4] = (std::bind(&NetWork::RevTmxData, this));
+	revFunc_[5] = (std::bind(&NetWork::RevPos, this));
 
 	mes_ = {};
 	revData_.reserve(180);

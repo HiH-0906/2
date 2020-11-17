@@ -1,15 +1,18 @@
 #include <DxLib.h>
 #include "Player.h"
-#include "../map/Map.h"
 #include "../NetWork/NetWork.h"
 #include "../common/ImageMng.h"
 #include "../_debug/_DebugConOut.h"
 
-Player::Player(Vector2 pos, Vector2 size, int speed,int id): Obj(pos,size,speed), id_(id)
+int Player::fallCnt_ = 0;
+
+Player::Player(Vector2 pos, Vector2 size, int speed,int id): Obj(pos,size,speed), id_(id), mapMng_(Map::GetInstance())
 {
+	chPos_ = {};
 	lpImageMng.GetID("player", "Image/bomberman.png", { size_.x,size_.y }, { 5,4 });
 	dir_ = DIR::DOWN;
 	state_ = AnimState::IDEL;
+	chipSize_ = Map::GetInstance().GetChipSize();
 	auto mode = lpNetWork.GetMode();
 	if (mode == NetWorkMode::OFFLINE)
 	{
@@ -45,13 +48,12 @@ bool Player::UpdateDef(void)
 {
 	auto CheckDir = [&](DIR dir)
 	{
-		auto& size = Map::GetInstance().GetChipSize();
-		if (((pos_.x % size.x) == 0) && ((pos_.y % size.y) == 0))
+		if (((pos_.x % chipSize_.x) == 0) && ((pos_.y % chipSize_.y) == 0))
 		{
-			Vector2 tmpPos = Map::GetInstance().ChengeChip(pos_);
+			chPos_ = mapMng_.ChengeChip(pos_);
 
-			tmpPos += speedVec_[dir] / speed_;
-			return Map::GetInstance().CheckHitWall(tmpPos);
+			chPos_ += speedVec_[dir] / speed_;
+			return mapMng_.CheckHitWall(chPos_);
 		}
 		return false;
 	};
@@ -79,14 +81,22 @@ bool Player::UpdateDef(void)
 
 bool Player::UpdataNet(void)
 {
-	while (CheckMesList(MES_TYPE::POS))
+	if(CheckMesList(MES_TYPE::POS))
 	{
-		auto mes = PickUpMes(MES_TYPE::POS);
-		if (mes.first.type == MES_TYPE::POS)
+		do
 		{
-			auto& data = mes.second;
-			pos_ = Vector2{ static_cast<int>(data[1].idata),static_cast<int>(data[2].idata) };
-		}
+			auto mes = PickUpMes(MES_TYPE::POS);
+			if (mes.first.type == MES_TYPE::POS)
+			{
+				auto& data = mes.second;
+				pos_ = Vector2{ static_cast<int>(data[1].idata),static_cast<int>(data[2].idata) };
+			}
+		} while (CheckMesList(MES_TYPE::POS));
+	}
+	else
+	{
+		TRACE("データ未受信ID:%d\n", id_);
+		fallCnt_++;
 	}
 	animCnt_++;
 	state_ = AnimState::WALK;
@@ -96,5 +106,4 @@ bool Player::UpdataNet(void)
 void Player::Draw(void)
 {
 	DrawGraph(pos_.x, pos_.y - offSetY_, lpImageMng.GetID("player")[static_cast<size_t>((animCnt_ / 15) % 2) * 5 + (static_cast<size_t>(state_) * 10)], true);
-	//DrawFormatString(pos_.x, pos_.y, 0xffffff, "%d", id_);
 }

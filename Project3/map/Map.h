@@ -27,6 +27,7 @@ public:
 	bool CheckHitWall(const Vector2& pos);				// 渡された座標が壁に当たっているかどうか
 	Vector2 ChengeChip(const Vector2& pos);					// 渡された座標をチップに
 	const Vector2& GetChipSize(void)const;
+	void EndOfMap(void);
 private:
 	Map();
 	~Map();

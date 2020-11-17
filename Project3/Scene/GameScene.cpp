@@ -13,9 +13,11 @@ uniqueBase GameScene::Update(uniqueBase own)
 		pl->Update_();
 	}
 	DrawOwnScene();
-	Fps();
+	DrawFps();
 	if (lpNetWork.GetActive() == ACTIVE_STATE::NON)
 	{
+		Map::GetInstance().EndOfMap();
+		Player::fallCnt_ = 0;
 		return std::make_unique<CrossOver>(std::move(own), std::make_unique<LoginScene>());
 	}
 	return own;
@@ -24,7 +26,7 @@ uniqueBase GameScene::Update(uniqueBase own)
 void GameScene::DrawOwnScene(void)
 {
 	SetDrawScreen(drawScreen_);
-	for (int i = 0; i <= static_cast<int>(MapLayer::CHAR); i++)
+	for (int i = 0; i < static_cast<int>(MapLayer::CHAR); i++)
 	{
 		DrawGraph(0, 0, Map::GetInstance().GetDarwMap(static_cast<MapLayer>(i)), true);
 	}
@@ -37,18 +39,18 @@ void GameScene::DrawOwnScene(void)
 void GameScene::Init(void)
 {
 	auto& map = Map::GetInstance();
-	auto size = lpSceneMng.GetScreenSize();
+	const auto& size = lpSceneMng.GetScreenSize();
 	drawScreen_ = MakeScreen(size.x, size.y, true);
-	auto mode = lpNetWork.GetMode();
+	const auto& mode = lpNetWork.GetMode();
 	if (mode == NetWorkMode::HOST || mode == NetWorkMode::OFFLINE)
 	{
 
 		map.LoadMap("mapData/map2.tmx");
-		auto cLayer = map.GetMapData(MapLayer::CHAR);
+		const auto& cLayer = map.GetMapData(MapLayer::CHAR);
 		int cnt = 0;
 		int id = 0;
-		auto chip = map.GetChipSize();
-		for (auto data : cLayer)
+		const auto& chip = map.GetChipSize();
+		for (const auto& data : cLayer)
 		{
 			if (data != -1)
 			{
@@ -62,15 +64,12 @@ void GameScene::Init(void)
 	else
 	{
 		map.LoadMap("Capture/test.tmx");
-		auto& map = Map::GetInstance();
-		auto size = lpSceneMng.GetScreenSize();
 		drawScreen_ = MakeScreen(size.x, size.y, true);
-		auto mode = lpNetWork.GetMode();
-		auto cLayer = map.GetMapData(MapLayer::CHAR);
+		const auto& cLayer = map.GetMapData(MapLayer::CHAR);
 		int cnt = 0;
 		int id = 0;
 		auto chip = map.GetChipSize();
-		for (auto data : cLayer)
+		for (const auto& data : cLayer)
 		{
 			if (data != -1)
 			{
@@ -92,4 +91,5 @@ GameScene::GameScene()
 
 GameScene::~GameScene()
 {
+	objList_.clear();
 }
