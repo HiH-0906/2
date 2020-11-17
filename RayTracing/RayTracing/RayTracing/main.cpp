@@ -4,6 +4,21 @@
 const int screen_width = 640;
 const int screen_height = 480;
 
+// 反射ベクトルを返す
+// in：	入射ベクトル
+// normal：法線ベクトル
+// 返り値：反射ベクトル
+Vector3 ReflectVector(const Vector3& in, const Vector3& normal)
+{
+	// 反射ベクトルの式
+	// R=I-2*(N・I)N
+	// をそのままプログラムにする
+	// なおオペレーターオーバーロードの関係で実数*ベクトルはできないので注意してね
+	// 結果のRを返す関数を作る
+	return in - (normal * 2 * (Dot(normal, in)));
+}
+
+
 //ヒントになると思って、色々と関数を用意しておりますが
 //別にこの関数を使わなければいけないわけでも、これに沿わなければいけないわけでも
 //ありません。レイトレーシングができていれば構いません。
@@ -62,17 +77,29 @@ void RayTracing(const Position3& eye,const Sphere& sphere) {
 				auto N = P - sphere.pos;
 				N.Normalize();
 				auto L = Light.Normalized();
-				auto blink = Dot(N, -L);
+				auto deiffuse = Dot(N, -L);
+				
+				// ライトの反射ベクトルと視線の逆ベクトルの内積を取りpowでn乗する。オーバーフローしないように気を付ける
+				auto specular = Dot(ReflectVector(L, N), -ray);
 
-				blink = Clamp(blink);
+				specular = Clamp(specular);
+				specular = pow(specular, 10);
+
+				auto b = deiffuse + specular;
+				
+
+				b = Clamp(b);
 
 				//※塗りつぶしはDrawPixelという関数を使う。
-				int color = 0xff * blink;
+				int color = 0xff * b;
 				color = color << 8;
-				color += 0xff * blink;
+				color += 0xff * b;
 				color = color << 8;
-				color += 0xff * blink;
+				color += 0xff * b;
 				
+				auto R = ReflectVector(L, N);
+
+
 				DrawPixel(x, y, color);
 			}
 			else
