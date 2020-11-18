@@ -3,7 +3,6 @@
 #include <functional>
 #include <Map>
 #include "Obj.h"
-#include "../map/Map.h"
 #include "../common/Vector2.h"
 
 enum class DIR
@@ -41,13 +40,13 @@ static DIR operator*(DIR key)
 	return key;
 }
 
-
+class Map;
 
 class Player
 	:public Obj
 {
 public:
-	Player(Vector2 pos, Vector2 size ,int speed,int id);
+	Player(Vector2 pos, Vector2 size ,int speed,int id, std::shared_ptr<Map> mapMng);
 	~Player();
 	bool UpdateDef(void)override;
 	bool UpdataNet(void);
@@ -55,7 +54,6 @@ public:
 	void Draw(void)override;
 	static int fallCnt_;
 private:
-	Map& mapMng_;
 	sendData data[4];
 	std::map<DIR, Vector2> speedVec_;
 	Vector2 chipSize_;

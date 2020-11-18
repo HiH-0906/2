@@ -16,10 +16,8 @@ enum class MapLayer
 class Map
 {
 public:
-	static Map& GetInstance(void)
-	{
-		return *s_instance;
-	}
+	Map();
+	~Map();
 	bool LoadMap(std::string str);						// TMXから読み込まれたデータを使ってMapData作成
 	const int& GetDarwMap(MapLayer layer);				// 描画されたMapの獲得 将来的に壊せるブロックがあるので書き直しとかが必要になりそう
 	std::vector<int>& GetMapData(MapLayer layer);		// 格納されているマップデータの獲得
@@ -29,16 +27,6 @@ public:
 	const Vector2& GetChipSize(void)const;
 	void EndOfMap(void);
 private:
-	Map();
-	~Map();
-	struct MapDeleter
-	{
-		void operator()(Map *map) 
-		{ 
-			delete map;
-		};
-	};
-	static std::unique_ptr<Map, MapDeleter> s_instance;
 	std::map<std::string, std::vector<int>> mapData_;
 	std::map<std::string, int> drawLayer_;
 	std::map<MapLayer, std::string> mapKey_;

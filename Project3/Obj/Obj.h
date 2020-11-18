@@ -4,17 +4,20 @@
 #include "../NetWork/NetWork.h"
 #include "../common/Vector2.h"
 
+class Map;
+
 class Obj
 {
 public:
-	Obj(Vector2 pos, Vector2 size,int speed);
+	Obj(Vector2 pos, Vector2 size,int speed, std::shared_ptr<Map> mapMng);
 	virtual ~Obj() = default;
 	virtual bool UpdateDef(void);
 	std::function<bool(void)> Update_;
 	virtual void Draw(void) = 0;
+	bool CheckMesList(void);
 protected:
 	std::vector<RevData> revList_;
-	bool CheckMesList(void);
+	std::shared_ptr<Map> mapMng_;
 	bool isPickMesList(MES_TYPE type);
 	RevData PickUpMes(MES_TYPE type);
 	std::mutex mtx_;

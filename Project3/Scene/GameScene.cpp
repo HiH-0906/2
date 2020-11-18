@@ -1,4 +1,5 @@
 #include <iostream>
+#include <algorithm>
 #include <DxLib.h>
 #include "GameScene.h"
 #include "CrossOver.h"
@@ -8,6 +9,11 @@
 
 uniqueBase GameScene::Update(uniqueBase own)
 {
+	objList_.sort([](unique_Obj& objA, unique_Obj& objB)
+	{
+		return objA->CheckMesList() > objB->CheckMesList();
+	}
+	);
 	for (auto& pl:objList_)
 	{
 		pl->Update_();
@@ -16,7 +22,7 @@ uniqueBase GameScene::Update(uniqueBase own)
 	DrawFps();
 	if (lpNetWork.GetActive() == ACTIVE_STATE::NON)
 	{
-		Map::GetInstance().EndOfMap();
+		mapMng_->EndOfMap();
 		Player::fallCnt_ = 0;
 		return std::make_unique<CrossOver>(std::move(own), std::make_unique<LoginScene>());
 	}
@@ -28,7 +34,7 @@ void GameScene::DrawOwnScene(void)
 	SetDrawScreen(drawScreen_);
 	for (int i = 0; i < static_cast<int>(MapLayer::CHAR); i++)
 	{
-		DrawGraph(0, 0, Map::GetInstance().GetDarwMap(static_cast<MapLayer>(i)), true);
+		DrawGraph(0, 0, mapMng_->GetDarwMap(static_cast<MapLayer>(i)), true);
 	}
 	for (auto& pl : objList_)
 	{
@@ -38,24 +44,24 @@ void GameScene::DrawOwnScene(void)
 
 void GameScene::Init(void)
 {
-	auto& map = Map::GetInstance();
+	mapMng_ = std::make_shared<Map>();
 	const auto& size = lpSceneMng.GetScreenSize();
 	drawScreen_ = MakeScreen(size.x, size.y, true);
 	const auto& mode = lpNetWork.GetMode();
 	if (mode == NetWorkMode::HOST || mode == NetWorkMode::OFFLINE)
 	{
 
-		map.LoadMap("mapData/map2.tmx");
-		const auto& cLayer = map.GetMapData(MapLayer::CHAR);
+		mapMng_->LoadMap("mapData/map2.tmx");
+		const auto& cLayer = mapMng_->GetMapData(MapLayer::CHAR);
 		int cnt = 0;
 		int id = 0;
-		const auto& chip = map.GetChipSize();
+		const auto& chip = mapMng_->GetChipSize();
 		for (const auto& data : cLayer)
 		{
 			if (data != -1)
 			{
 				Vector2 pos = { chip.x * (cnt % 21),chip.y * (cnt / 21) };
-				objList_.emplace_back(std::make_shared<Player>(pos, Vector2{ 32,50 }, 4, id));
+				objList_.emplace_back(std::make_unique<Player>(pos, Vector2{ 32,50 }, 4, id,mapMng_));
 				id++;
 			}
 			cnt++;
@@ -63,18 +69,18 @@ void GameScene::Init(void)
 	}
 	else
 	{
-		map.LoadMap("Capture/test.tmx");
+		mapMng_->LoadMap("Capture/test.tmx");
 		drawScreen_ = MakeScreen(size.x, size.y, true);
-		const auto& cLayer = map.GetMapData(MapLayer::CHAR);
+		const auto& cLayer = mapMng_->GetMapData(MapLayer::CHAR);
 		int cnt = 0;
 		int id = 0;
-		auto chip = map.GetChipSize();
+		auto chip = mapMng_->GetChipSize();
 		for (const auto& data : cLayer)
 		{
 			if (data != -1)
 			{
 				Vector2 pos = { chip.x * (cnt % 21),chip.y * (cnt / 21) };
-				objList_.emplace_back(std::make_shared<Player>(pos, Vector2{ 32,50 }, 4, id));
+				objList_.emplace_back(std::make_unique<Player>(pos, Vector2{ 32,50 }, 4, id, mapMng_));
 				id++;
 			}
 			cnt++;

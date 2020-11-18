@@ -3,16 +3,17 @@
 #include "../NetWork/NetWork.h"
 #include "../common/ImageMng.h"
 #include "../_debug/_DebugConOut.h"
+#include"../map/Map.h"
 
 int Player::fallCnt_ = 0;
 
-Player::Player(Vector2 pos, Vector2 size, int speed,int id): Obj(pos,size,speed), id_(id), mapMng_(Map::GetInstance())
+Player::Player(Vector2 pos, Vector2 size, int speed,int id, std::shared_ptr<Map> mapMng): Obj(pos,size,speed,mapMng), id_(id)
 {
 	chPos_ = {};
 	lpImageMng.GetID("player", "Image/bomberman.png", { size_.x,size_.y }, { 5,4 });
 	dir_ = DIR::DOWN;
 	state_ = AnimState::IDEL;
-	chipSize_ = Map::GetInstance().GetChipSize();
+	chipSize_ = mapMng_->GetChipSize();
 	auto mode = lpNetWork.GetMode();
 	if (mode == NetWorkMode::OFFLINE)
 	{
@@ -95,10 +96,10 @@ bool Player::CheckHitWall(DIR dir)
 {
 	if (((pos_.x % chipSize_.x) == 0) && ((pos_.y % chipSize_.y) == 0))
 	{
-		chPos_ = mapMng_.ChengeChip(pos_);
+		chPos_ = mapMng_->ChengeChip(pos_);
 
 		chPos_ += speedVec_[dir] / speed_;
-		return mapMng_.CheckHitWall(chPos_);
+		return mapMng_->CheckHitWall(chPos_);
 	}
 	return false;
 }

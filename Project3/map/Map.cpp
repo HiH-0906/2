@@ -5,7 +5,6 @@
 #include "Map.h"
 #include "../common/ImageMng.h"
 
-std::unique_ptr<Map, Map::MapDeleter> Map::s_instance(new Map);
 
 Map::Map()
 {
