@@ -144,7 +144,7 @@ bool Player::UpdataNet(void)
 		 uinonTimeData time = { std::chrono::system_clock::now() };
 		 time.idata[0] = mes.second[4].idata;
 		 time.idata[1] = mes.second[5].idata;
-		 dynamic_cast<GameScene&>(scene_).SetBomb(Vector2{ mes.second[2].idata,mes.second[3].idata }, mes.second[0].idata, mes.second[1].idata, false, time.time);
+		 dynamic_cast<GameScene&>(scene_).SetBomb(Vector2{ mes.second[2].idata,mes.second[3].idata }, mes.second[1].idata, mes.second[0].idata, false, time.time);
 	 }
 	 if (!test)
 	 {
