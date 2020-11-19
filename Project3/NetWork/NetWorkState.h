@@ -2,6 +2,7 @@
 #include <DxLib.h>
 #include <map>
 #include <functional>
+#include <chrono>
 #include "../common/Vector2.h"
 
 // ネット状態判断用
@@ -32,6 +33,7 @@ enum class MES_TYPE :unsigned char
 	TMX_SIZE,
 	TMX_DATA,
 	POS,
+	SET_BOMB,
 	MAX
 };
 
@@ -57,10 +59,16 @@ union mes_H
 
 union sendData
 {
-	unsigned int idata;
+	unsigned int uidata;
+	int idata;
 	unsigned char cdata[4];
 };
 
+union uinonTimeData
+{
+	std::chrono::system_clock::time_point time;
+	unsigned int idata[2];
+};
 
 // ネット接続モジュールの基盤 OFFLINE時はこれがインスタンスされる
 class NetWorkState

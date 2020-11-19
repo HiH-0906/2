@@ -6,7 +6,7 @@
 #include "../map/Map.h"
 #include "../Obj/Player.h"
 
-using unique_Obj = std::unique_ptr<Obj>;
+using shared_Obj = std::shared_ptr<Obj>;
 
 class GameScene :
 	public BaseScene
@@ -17,9 +17,12 @@ public:
 	void Init(void)override;
 	GameScene();
 	~GameScene();
+
+	shared_Obj GetPlayer(int id);
+	void SetBomb(Vector2 pos, int& id, int& oid, bool send,std::chrono::system_clock::time_point start);
 	
 private:
-	std::list<unique_Obj> objList_;			// ネットテスト用Player管理リスト
+	std::list<shared_Obj> objList_;			// Obj管理リスト
 	std::shared_ptr<Map> mapMng_;
 };
 

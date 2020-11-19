@@ -5,11 +5,13 @@
 #include "CrossOver.h"
 #include "LoginScene.h"
 #include "SceneMng.h"
+#include "../Obj/Player.h"
+#include "../Obj/Bomb.h"
 #include "../NetWork/NetWork.h"
 
 uniqueBase GameScene::Update(uniqueBase own)
 {
-	objList_.sort([](unique_Obj& objA, unique_Obj& objB)
+	objList_.sort([](shared_Obj& objA, shared_Obj& objB)
 	{
 		return objA->CheckMesList() > objB->CheckMesList();
 	}
@@ -18,6 +20,8 @@ uniqueBase GameScene::Update(uniqueBase own)
 	{
 		pl->Update_();
 	}
+	auto delItr = std::remove_if(objList_.begin(), objList_.end(), [](shared_Obj& obj) {return !obj->Alive(); });
+	objList_.erase(delItr, objList_.end());
 	DrawOwnScene();
 	DrawFps();
 	if (lpNetWork.GetActive() == ACTIVE_STATE::NON)
@@ -61,8 +65,8 @@ void GameScene::Init(void)
 			if (data != -1)
 			{
 				Vector2 pos = { chip.x * (cnt % 21),chip.y * (cnt / 21) };
-				objList_.emplace_back(std::make_unique<Player>(pos, Vector2{ 32,50 }, 4, id,mapMng_));
-				id++;
+				objList_.emplace_back(std::make_shared<Player>(pos, Vector2{ 32,50 }, 4, id,mapMng_,*this));
+				id += UNIT_ID_BASE;
 			}
 			cnt++;
 		}
@@ -80,8 +84,8 @@ void GameScene::Init(void)
 			if (data != -1)
 			{
 				Vector2 pos = { chip.x * (cnt % 21),chip.y * (cnt / 21) };
-				objList_.emplace_back(std::make_unique<Player>(pos, Vector2{ 32,50 }, 4, id, mapMng_));
-				id++;
+				objList_.emplace_back(std::make_shared<Player>(pos, Vector2{ 32,50 }, 4, id, mapMng_,*this));
+				id += UNIT_ID_BASE;
 			}
 			cnt++;
 		}
@@ -98,4 +102,37 @@ GameScene::GameScene()
 GameScene::~GameScene()
 {
 	objList_.clear();
+}
+
+shared_Obj GameScene::GetPlayer(int id)
+{
+	shared_Obj tmp = nullptr;
+	for (auto& obj : objList_)
+	{
+		if (obj->GetID() == id)
+		{
+			tmp = obj;
+			break;
+		}
+	}
+	return tmp;
+}
+
+void GameScene::SetBomb(Vector2 pos, int& id, int& oid, bool send, std::chrono::system_clock::time_point start)
+{
+	uinonTimeData time = { start };
+	// auto追加 ホストゲスト共に先頭IDがDEF BOMBはdata4つ使う PlayerID,BombID,Posx,Posy 
+	if (send)
+	{
+		sendData data[6];
+		data[0].uidata = oid;
+		data[1].uidata = id;
+		data[2].uidata = pos.x;
+		data[3].uidata = pos.y;
+		data[4].uidata = time.idata[0];
+		data[5].uidata = time.idata[1];
+		
+		lpNetWork.SendMes(MES_TYPE::SET_BOMB, { data[0],data[1],data[2],data[3],data[4],data[5] });
+	}
+	objList_.emplace_back(std::make_unique<Bomb>(pos, Vector2{ 32,32 }, id, oid, mapMng_, *this, start));
 }

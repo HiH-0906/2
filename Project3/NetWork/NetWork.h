@@ -29,8 +29,8 @@
 
 using MesDataList = std::vector<sendData>;
 using IParray = std::array<IPDATA, 5>;
-using RevData = std::pair<MES_H, MesDataList>;
-using ObjRevMap = std::vector< std::pair<std::mutex&, std::vector<RevData>&>>;
+using RevDataP = std::pair<MES_H, MesDataList>;
+using ObjRevMap = std::vector< std::pair<std::mutex&, std::vector<RevDataP>&>>;
 
 // いつものシングルトンクラス
 class NetWork
@@ -44,7 +44,7 @@ public:
 	void UpDate(void);
 	void RunUpdate(void);
 
-	void SetObjRevData(int id, std::mutex& mtx, std::vector<RevData>& mes);
+	void SetObjRevData(int id, std::mutex& mtx, std::vector<RevDataP>& mes);
 
 	bool SetNetWorkMode(NetWorkMode mode);
 	ACTIVE_STATE GetActive(void);
@@ -67,7 +67,7 @@ private:
 	bool revState_;
 	bool gameStart_;
 	bool netEnd_;
-	MesDataList revData_;
+	MesDataList revDataList_;
 	MES_H mes_;
 	int revSize_;
 	int cntRev_;
@@ -99,7 +99,7 @@ private:
 	void RevGameStart(void);
 	void RevTmxSize(void);
 	void RevTmxData(void);
-	void RevPos(void);
+	void RevData(void);
 
 	std::chrono::system_clock::time_point strat_;
 	std::chrono::system_clock::time_point end_;

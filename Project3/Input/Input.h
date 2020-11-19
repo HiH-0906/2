@@ -27,7 +27,7 @@ public:
 private:
 	void Init(void);											// ‰Šú‰»
 protected:
-	InputData _input;											// ‰Ÿ‰ºÃŞ°ÀŠi”[æ
+	InputData input_;											// ‰Ÿ‰ºÃŞ°ÀŠi”[æ
 	int p_id_;
 	int pad_id_;
 };

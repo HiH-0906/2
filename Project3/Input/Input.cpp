@@ -21,7 +21,7 @@ bool Input::GetKeyTrg(INPUT_ID key)
 	{
 		return false;
 	}
-	return _input[key].first && !_input[key].second;
+	return input_[key].first && !input_[key].second;
 }
 
 bool Input::GetKeySty(INPUT_ID key)
@@ -31,7 +31,7 @@ bool Input::GetKeySty(INPUT_ID key)
 	{
 		return false;
 	}
-	return _input[key].first && _input[key].second;
+	return input_[key].first && input_[key].second;
 }
 
 void Input::SetPadNum(int&& num)
@@ -43,7 +43,7 @@ void Input::Reset(void)
 {
 	for (auto id : INPUT_ID())
 	{
-		_input[id] = { false,false };
+		input_[id] = { false,false };
 	}
 }
 
@@ -51,6 +51,6 @@ void Input::Init()
 {
 	for (auto id : INPUT_ID())
 	{
-		_input.try_emplace(id, std::pair<bool, bool>{ false, false });
+		input_.try_emplace(id, std::pair<bool, bool>{ false, false });
 	}
 }

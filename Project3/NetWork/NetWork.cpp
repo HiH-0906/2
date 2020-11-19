@@ -4,6 +4,7 @@
 #include "NetWork.h"
 #include "HostState.h"
 #include "GestState.h"
+#include "../Obj/Player.h"
 #include "../_debug/_DebugConOut.h"
 
 std::unique_ptr<NetWork, NetWork::NetWorkDeleter> NetWork::s_Instance(new NetWork);
@@ -42,14 +43,14 @@ void NetWork::UpDate(void)
 			
 			if (mes_.length != 0)
 			{
-				revData_.resize(static_cast<size_t>(writePos + mes_.length));
-				NetWorkRecv(handle_, revData_.data() + writePos, static_cast<int>(mes_.length * sizeof(revData_[0])));
+				revDataList_.resize(static_cast<size_t>(writePos + mes_.length));
+				NetWorkRecv(handle_, revDataList_.data() + writePos, static_cast<int>(mes_.length * sizeof(revDataList_[0])));
 			}
 
 			if (mes_.next == 1)
 			{
 				TRACE("後続のデータがあります\n");
-				writePos = revData_.size();
+				writePos = revDataList_.size();
 				continue;
 			}
 			revFunc_[static_cast<unsigned int>(mes_.type) - static_cast<unsigned int>(MES_TYPE::NON)]();
@@ -67,9 +68,9 @@ void NetWork::RunUpdate(void)
 	update_.detach();
 }
 
-void NetWork::SetObjRevData(int id, std::mutex& mtx, std::vector<RevData>& mes)
+void NetWork::SetObjRevData(int id, std::mutex& mtx, std::vector<RevDataP>& mes)
 {
-	objRevMap_.emplace_back(std::pair<std::mutex&, std::vector<RevData>&>{ mtx, mes });
+	objRevMap_.emplace_back(std::pair<std::mutex&, std::vector<RevDataP>&>{ mtx, mes });
 }
 
 bool NetWork::SetNetWorkMode(NetWorkMode mode)
@@ -150,7 +151,7 @@ void NetWork::SendMes(MES_TYPE type, MesDataList data)
 	do
 	{
 		unsigned int sendCnt = static_cast<unsigned int>(data.size()) > oneSendLength_ ? oneSendLength_ : static_cast<unsigned int>(data.size());
-		data[1].idata = sendCnt - sizeof(tmpMes) / sizeof(sendData);
+		data[1].uidata = sendCnt - sizeof(tmpMes) / sizeof(sendData);
 		// 一度に送るデータ量と送れる上限が同じなら分割している
 		if (sendCnt == oneSendLength_)
 		{
@@ -164,7 +165,7 @@ void NetWork::SendMes(MES_TYPE type, MesDataList data)
 			TRACE("送信データint数：%d\n", data[1].idata);*/
 			tmpMes.head.next = 0;
 		}
-		data[0].idata = tmpMes.ihead[0];
+		data[0].uidata = tmpMes.ihead[0];
 		NetWorkSend(handle_, data.data(), sendCnt * sizeof(sendData));
 		data.erase(data.begin() + sizeof(tmpMes) / sizeof(sendData), data.begin() + sendCnt);
 		tmpMes.head.sendID++;
@@ -323,7 +324,7 @@ void NetWork::SaveTmx(void)
 			{
 				for (int bitcnt = 0; bitcnt < 8; bitcnt++)
 				{
-					auto num = revData_[cnt / 8].cdata[bitcnt / 2] >> (4 * (bitcnt % 2)) & 0x0f;
+					auto num = revDataList_[cnt / 8].cdata[bitcnt / 2] >> (4 * (bitcnt % 2)) & 0x0f;
 					std::cout << num;
 					file << num;
 					cnt++;
@@ -411,7 +412,7 @@ void NetWork::RevGameStart(void)
 void NetWork::RevTmxSize(void)
 {
 
-	revSize_ = (revData_[0].cdata[0] * revData_[0].cdata[1] * revData_[0].cdata[2]) / 8;
+	revSize_ = (revDataList_[0].cdata[0] * revDataList_[0].cdata[1] * revDataList_[0].cdata[2]) / 8;
 	TRACE("TMXのデータｻｲｽﾞは%dです。\n", revSize_);
 	strat_ = std::chrono::system_clock::now();
 }
@@ -422,10 +423,10 @@ void NetWork::RevTmxData(void)
 	SaveTmx();
 }
 
-void NetWork::RevPos(void)
+void NetWork::RevData(void)
 {
-	std::lock_guard<std::mutex> lock2(objRevMap_[revData_[0].idata].first);
-	objRevMap_[revData_[0].idata].second.emplace_back(mes_, revData_);
+	std::lock_guard<std::mutex> lock2(objRevMap_[(revDataList_[0].uidata) / UNIT_ID_BASE].first);
+	objRevMap_[(revDataList_[0].uidata) / UNIT_ID_BASE].second.emplace_back(mes_, revDataList_);
 }
 
 NetWork::NetWork()
@@ -440,10 +441,11 @@ NetWork::NetWork()
 	revFunc_[2] = (std::bind(&NetWork::RevGameStart, this));
 	revFunc_[3] = (std::bind(&NetWork::RevTmxSize, this));
 	revFunc_[4] = (std::bind(&NetWork::RevTmxData, this));
-	revFunc_[5] = (std::bind(&NetWork::RevPos, this));
+	revFunc_[5] = (std::bind(&NetWork::RevData, this));
+	revFunc_[6] = (std::bind(&NetWork::RevData, this));
 
 	mes_ = {};
-	revData_.reserve(180);
+	revDataList_.reserve(180);
 	std::ifstream inistr("ini/setting.txt");
  	std::string str;
 	if (!inistr)

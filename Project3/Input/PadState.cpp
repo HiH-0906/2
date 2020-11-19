@@ -40,8 +40,8 @@ void PadState::Update(void)
 	// DxLibPower
 	for (auto id : _keyCon[0])
 	{
-		_input[id.first].second = _input[id.first].first;
-		_input[id.first].first = (GetJoypadInputState(DX_INPUT_PAD1) & id.second);
+		input_[id.first].second = input_[id.first].first;
+		input_[id.first].first = (GetJoypadInputState(DX_INPUT_PAD1) & id.second);
 	}
 }
 
