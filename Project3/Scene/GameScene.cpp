@@ -121,7 +121,6 @@ shared_Obj GameScene::GetPlayer(int id)
 void GameScene::SetBomb(Vector2 pos, int& id, int& oid, bool send, std::chrono::system_clock::time_point start)
 {
 	uinonTimeData time = { start };
-	// auto追加 ホストゲスト共に先頭IDがDEF BOMBはdata4つ使う PlayerID,BombID,Posx,Posy 
 	if (send)
 	{
 		sendData data[6];

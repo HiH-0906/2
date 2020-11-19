@@ -136,6 +136,10 @@ bool Player::UpdataNet(void)
 		 auto mes = PickUpMes(MES_TYPE::POS);
 			auto& data = mes.second;
 			pos_ = Vector2{ static_cast<int>(data[1].uidata),static_cast<int>(data[2].uidata) };
+			if (pos_.x <= 6)
+			{
+				auto taichi = 0;
+			}
 			test = true;
 	 }
 	 while (isPickMesList(MES_TYPE::SET_BOMB))

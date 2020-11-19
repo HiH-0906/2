@@ -60,7 +60,7 @@ RevDataP Obj::PickUpMes(MES_TYPE type)
 	{
 		if (list.first.type == type)
 		{
-			PickMes = *revList_.begin();
+			PickMes = list;
 			revList_.erase(revList_.begin() + cnt);
 			break;
 		}
