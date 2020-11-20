@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <DxLib.h>
 #include "LoginScene.h"
+#include "CheckeredBlock.h"
 #include "CrossOver.h"
 #include "GameScene.h"
 #include "SceneMng.h"
@@ -48,7 +49,7 @@ uniqueBase LoginScene::Update(uniqueBase own)
 	DrawOwnScene();
 	if (!(this->*func_[state_])())
 	{
-		return std::move(std::make_unique<CrossOver>(std::move(own), std::make_unique<GameScene>()));
+		return std::move(std::make_unique<CheckeredBlock>(std::move(own), std::make_unique<GameScene>(), Vector2{5,5}));
 	}
 	return own;
 }

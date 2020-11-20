@@ -1,5 +1,8 @@
 #pragma once
+#include <vector>
+#include <array>
 #include "Transition.h"
+
 class CheckeredBlock :
     public Transition
 {
@@ -9,7 +12,7 @@ public:
     /// </summary>
     /// <param name="old">前のscene</param>
     /// <param name="next">次のscene</param>
-    /// <param name="size">チェック柄分割数</param>
+    /// <param name="size">チェック柄分割数 縦横</param>
     CheckeredBlock(uniqueBase old, uniqueBase next,Vector2 size);
     ~CheckeredBlock();
     uniqueBase Update(uniqueBase own)override;
@@ -18,7 +21,11 @@ public:
     void Init(void)override;
     void DrawOwnScene(void)override;
 private:
+    void MakeBlockImage(void);
+
     int cnt_;
-    Vector2 size_;
+    int image_;
+    std::vector<int> blockList_;
+    Vector2 divCnt_;
 };
 

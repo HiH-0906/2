@@ -157,7 +157,7 @@
     <ClCompile Include="Input\keyState.cpp" />
     <ClCompile Include="Obj\Obj.cpp" />
     <ClCompile Include="Obj\Player.cpp" />
-    <ClCompile Include="Scene\RandonBlock.cpp" />
+    <ClCompile Include="Scene\CheckeredBlock.cpp" />
     <ClCompile Include="Scene\CrossOver.cpp" />
     <ClCompile Include="Scene\GameScene.cpp" />
     <ClCompile Include="Input\Input.cpp" />
@@ -186,7 +186,7 @@
     <ClInclude Include="Input\keyState.h" />
     <ClInclude Include="Obj\Obj.h" />
     <ClInclude Include="Obj\Player.h" />
-    <ClInclude Include="Scene\RandonBlock.h" />
+    <ClInclude Include="Scene\CheckeredBlock.h" />
     <ClInclude Include="Scene\CrossOver.h" />
     <ClInclude Include="Scene\GameScene.h" />
     <ClInclude Include="Input\Input.h" />
