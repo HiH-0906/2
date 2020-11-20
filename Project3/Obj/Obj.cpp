@@ -69,3 +69,34 @@ RevDataP Obj::PickUpMes(MES_TYPE type)
 	
 	return PickMes;
 }
+
+bool Obj::CheckHitWall(DIR dir)
+{
+	auto tmppos = pos_;
+
+	if (dir == DIR::LEFT)
+	{
+		tmppos.y += (size_.y / 2);
+		tmppos.x--;
+	}
+	if (dir == DIR::RIGHT)
+	{
+		tmppos.y += (size_.y / 2);
+		tmppos.x += size_.x + 1;
+	}
+	if (dir == DIR::UP)
+	{
+		tmppos.x += (size_.x / 2);
+		tmppos.y--;
+	}
+	if (dir == DIR::DOWN)
+	{
+		tmppos.x += (size_.x / 2);
+		tmppos.y += size_.y + 1;
+	}
+
+	auto chPos_ = mapMng_->ChengeChip(tmppos, size_);
+
+	return mapMng_->CheckHitWall(chPos_);
+
+}

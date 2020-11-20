@@ -5,15 +5,7 @@
 #include "Obj.h"
 #include "../Input/Input.h"
 #include "../common/Vector2.h"
-
-enum class DIR
-{
-	DOWN,
-	LEFT,
-	UP,
-	RIGHT,
-	MAX
-};
+#include "../State/DIR.h"
 
 enum class AnimState
 {
@@ -22,24 +14,6 @@ enum class AnimState
 	MAX
 };
 
-static DIR begin(DIR)
-{
-	return DIR::DOWN;
-}
-
-static DIR operator++(DIR& key)
-{
-	return (key = static_cast<DIR>(std::underlying_type<DIR>::type(key) + 1));
-}
-
-static DIR end(DIR)
-{
-	return DIR::MAX;
-}
-static DIR operator*(DIR key)
-{
-	return key;
-}
 
 class Map;
 
@@ -56,7 +30,6 @@ public:
 	bool UpdateAuto(void);
 	bool UpdateDef(void)override;
 	bool UpdataNet(void);
-	bool CheckHitWall(DIR dir);
 	void Draw(void)override;
 	void StockBomb(int id);
 	int UseBomb(void);
@@ -66,7 +39,6 @@ private:
 	sendData data[4];
 	std::map<DIR, Vector2> speedVec_;
 	Vector2 chipSize_;
-	Vector2 chPos_;
 	DIR dir_;
 	AnimState state_;
 	std::unique_ptr<Input> input_;

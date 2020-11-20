@@ -3,6 +3,7 @@
 #include <mutex>
 #include "../NetWork/NetWork.h"
 #include "../common/Vector2.h"
+#include "../State/DIR.h"
 
 class Map;
 class BaseScene;
@@ -24,6 +25,7 @@ protected:
 	std::shared_ptr<Map> mapMng_;
 	bool isPickMesList(MES_TYPE type);
 	RevDataP PickUpMes(MES_TYPE type);
+	bool CheckHitWall(DIR dir);
 	std::mutex mtx_;
 	Vector2 pos_;
 	Vector2 size_;

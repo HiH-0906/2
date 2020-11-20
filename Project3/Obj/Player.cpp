@@ -15,7 +15,6 @@ int Player::fallCnt_ = 0;
 
 Player::Player(Vector2 pos, Vector2 size,Vector2 ImageSize, int speed,int id, std::shared_ptr<Map> mapMng, BaseScene& scene): Obj(pos,size,id,speed,mapMng,scene)
 {
-	chPos_ = {};
 	lpImageMng.GetID("player", "Image/bomberman.png", { ImageSize.x,ImageSize.y }, { 5,4 });
 	dir_ = DIR::DOWN;
 	state_ = AnimState::IDEL;
@@ -75,16 +74,32 @@ Player::~Player()
 
 bool Player::UpdateAuto(void)
 {
+	auto NextDir = [&](DIR dir)
+	{
+		if (dir == DIR::DOWN)
+		{
+			return DIR::LEFT;
+		}
+		if (dir == DIR::LEFT)
+		{
+			return DIR::UP;
+		}
+		if (dir == DIR::UP)
+		{
+			return DIR::RIGHT;
+		}
+		if (dir == DIR::RIGHT)
+		{
+			return DIR::DOWN;
+		}
+		return begin(DIR());
+	};
 	auto dir = dir_;
 	if (((pos_.x % chipSize_.x) == 0) && ((pos_.y % chipSize_.y) == 0))
 	{
 		while (CheckHitWall(dir))
 		{
-			++dir;
-			if (dir == DIR::MAX)
-			{
-				dir = begin(DIR());
-			}
+			dir = NextDir(dir);
 		}
 	}
 	dir_ = dir;
@@ -102,13 +117,14 @@ bool Player::UpdateAuto(void)
 bool Player::UpdateDef(void)
 {
 	input_->Update();
-
+	state_ = AnimState::IDEL;
 	for (auto movePrg = moveFunc_.begin(); movePrg != moveFunc_.end(); movePrg++)
 	{
 		if ((*movePrg)(true))
 		{
 			moveFunc_.splice(moveFunc_.begin(), moveFunc_, movePrg);
 			moveFunc_.sort([&](moveFunc funcA, moveFunc funcB) {return funcA(false) < funcB(false); });
+			state_ = AnimState::WALK;
 			break;
 		}
 	}
@@ -127,7 +143,6 @@ bool Player::UpdateDef(void)
 	data[3] = { static_cast<unsigned int>(dir_) };
 	lpNetWork.SendMes(MES_TYPE::POS, MesDataList{ data[0],data[1],data[2],data[3] });
 	animCnt_++;
-	state_ = AnimState::WALK;
 	return true;
 }
 
@@ -159,39 +174,12 @@ bool Player::UpdataNet(void)
 	return true;
 }
 
-bool Player::CheckHitWall(DIR dir)
-{
-	auto tmppos = pos_;
-
-	if (dir == DIR::LEFT)
-	{
-		tmppos.y += (size_.y / 2);
-	}
-	if (dir == DIR::RIGHT)
-	{
-		tmppos.y += (size_.y / 2);
-		tmppos.x += size_.x;
-	}
-	if (dir == DIR::UP)
-	{
-		tmppos.x += (size_.x / 2);
-	}
-	if (dir == DIR::DOWN)
-	{
-		tmppos.x += (size_.x / 2);
-		tmppos.y += size_.y;
-	}
-
-	tmppos += speedVec_[dir] / speed_;
-
-	chPos_ = mapMng_->ChengeChip(tmppos, size_);
-
-	return mapMng_->CheckHitWall(chPos_);
-}
-
 void Player::Draw(void)
 {
-	DrawGraph(pos_.x, pos_.y - offSetY_, lpImageMng.GetID("player")[static_cast<size_t>((animCnt_ / 15) % 2) * 5 + (static_cast<size_t>(state_) * 10)], true);
+	size_t anim = static_cast<size_t>((animCnt_ / 15) % 2) * 5;
+	size_t state = (static_cast<size_t>(state_) * 10);
+	size_t dir = static_cast<size_t>(dir_);
+	DrawGraph(pos_.x, pos_.y - offSetY_, lpImageMng.GetID("player")[anim + state + dir], true);
 	_dbgDrawBox(pos_.x, pos_.y, pos_.x + size_.x, pos_.y + size_.y, 0xffffff, false);
 }
 
