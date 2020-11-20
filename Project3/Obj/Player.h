@@ -45,11 +45,13 @@ class Map;
 
 #define UNIT_ID_BASE 5
 
+using moveFunc = std::function<bool(bool)>;
+
 class Player
 	:public Obj
 {
 public:
-	Player(Vector2 pos, Vector2 size ,int speed,int id, std::shared_ptr<Map> mapMng, BaseScene& scene);
+	Player(Vector2 pos, Vector2 size, Vector2 ImageSize,int speed,int id, std::shared_ptr<Map> mapMng, BaseScene& scene);
 	~Player();
 	bool UpdateAuto(void);
 	bool UpdateDef(void)override;
@@ -60,6 +62,7 @@ public:
 	int UseBomb(void);
 	static int fallCnt_;
 private:
+	void FuncInit(void);
 	sendData data[4];
 	std::map<DIR, Vector2> speedVec_;
 	Vector2 chipSize_;
@@ -68,5 +71,6 @@ private:
 	AnimState state_;
 	std::unique_ptr<Input> input_;
 	std::list<int> bombList_;
+	std::list<moveFunc> moveFunc_;
 };
 

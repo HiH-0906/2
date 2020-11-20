@@ -65,7 +65,7 @@ void GameScene::Init(void)
 			if (data != -1)
 			{
 				Vector2 pos = { chip.x * (cnt % 21),chip.y * (cnt / 21) };
-				objList_.emplace_back(std::make_shared<Player>(pos, Vector2{ 32,50 }, 4, id,mapMng_,*this));
+				objList_.emplace_back(std::make_shared<Player>(pos, Vector2{32,32}, Vector2{ 32,50 }, 4, id, mapMng_, *this));
 				id += UNIT_ID_BASE;
 			}
 			cnt++;
@@ -84,7 +84,7 @@ void GameScene::Init(void)
 			if (data != -1)
 			{
 				Vector2 pos = { chip.x * (cnt % 21),chip.y * (cnt / 21) };
-				objList_.emplace_back(std::make_shared<Player>(pos, Vector2{ 32,50 }, 4, id, mapMng_,*this));
+				objList_.emplace_back(std::make_shared<Player>(pos, Vector2{ 32,32 }, Vector2{ 32,50 }, 4, id, mapMng_,*this));
 				id += UNIT_ID_BASE;
 			}
 			cnt++;

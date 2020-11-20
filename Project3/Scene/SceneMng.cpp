@@ -12,12 +12,13 @@ std::unique_ptr<SceneMng, SceneMng::SceneMngDeleter> SceneMng::s_instance_(new S
 
 void SceneMng::Run()
 {
-	_dbgSetup(screenX, screenY, 16);
+	_dbgSetup(screenX, screenY, 255);
 
 	activeScene_ = std::make_unique<LoginScene>();
 	activeScene_->Init();
 	while (!ProcessMessage() && !CheckHitKey(KEY_INPUT_ESCAPE))
 	{
+		_dbgStartDraw();
 		activeScene_ = (*activeScene_).Update(std::move(activeScene_));
 		Draw();
 	}

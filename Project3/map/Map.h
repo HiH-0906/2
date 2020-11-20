@@ -23,7 +23,7 @@ public:
 	std::vector<int>& GetMapData(MapLayer layer);		// 格納されているマップデータの獲得
 	void ReDrawMap(MapLayer layer);						// ボンバーマンってマップ書き換えるな…ってことで作成 そもそも事前描画やめてもいいかもしれない重くなければ
 	bool CheckHitWall(const Vector2& pos);				// 渡された座標が壁に当たっているかどうか
-	Vector2 ChengeChip(const Vector2& pos);					// 渡された座標をチップに
+	Vector2 ChengeChip(const Vector2& pos,const Vector2 size);					// 渡された座標をチップに
 	const Vector2& GetChipSize(void)const;
 	void EndOfMap(void);
 private:

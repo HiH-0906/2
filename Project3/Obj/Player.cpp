@@ -6,16 +6,17 @@
 #include "../NetWork/NetWork.h"
 #include "../common/ImageMng.h"
 #include "../_debug/_DebugConOut.h"
+#include "../_debug/_DebugDispOut.h"
 #include "../Input/PadState.h"
 #include "../Input/keyState.h"
 #include"../map/Map.h"
 
 int Player::fallCnt_ = 0;
 
-Player::Player(Vector2 pos, Vector2 size, int speed,int id, std::shared_ptr<Map> mapMng, BaseScene& scene): Obj(pos,size,id,speed,mapMng,scene)
+Player::Player(Vector2 pos, Vector2 size,Vector2 ImageSize, int speed,int id, std::shared_ptr<Map> mapMng, BaseScene& scene): Obj(pos,size,id,speed,mapMng,scene)
 {
 	chPos_ = {};
-	lpImageMng.GetID("player", "Image/bomberman.png", { size_.x,size_.y }, { 5,4 });
+	lpImageMng.GetID("player", "Image/bomberman.png", { ImageSize.x,ImageSize.y }, { 5,4 });
 	dir_ = DIR::DOWN;
 	state_ = AnimState::IDEL;
 	chipSize_ = mapMng_->GetChipSize();
@@ -24,7 +25,15 @@ Player::Player(Vector2 pos, Vector2 size, int speed,int id, std::shared_ptr<Map>
 	auto mode = lpNetWork.GetMode();
 	if (mode == NetWorkMode::OFFLINE)
 	{
-		Update_ = std::bind(&Player::UpdateDef, this);
+		if (id_ / UNIT_ID_BASE == 0)
+		{
+			Update_ = std::bind(&Player::UpdateDef, this);
+			FuncInit();
+		}
+		else
+		{
+			Update_ = std::bind(&Player::UpdateAuto, this);
+		}
 	}
 	else
 	{
@@ -32,6 +41,7 @@ Player::Player(Vector2 pos, Vector2 size, int speed,int id, std::shared_ptr<Map>
 		if (id_ / UNIT_ID_BASE == checkID)
 		{
 			Update_ = std::bind(&Player::UpdateDef, this);
+			FuncInit();
 		}
 		else
 		{	
@@ -56,7 +66,6 @@ Player::Player(Vector2 pos, Vector2 size, int speed,int id, std::shared_ptr<Map>
 	{
 		StockBomb(id_ + bomb);
 	}
-
 	lpNetWork.SetObjRevData(id_, mtx_, revList_);
 }
 
@@ -67,12 +76,15 @@ Player::~Player()
 bool Player::UpdateAuto(void)
 {
 	auto dir = dir_;
-	while (CheckHitWall(dir))
+	if (((pos_.x % chipSize_.x) == 0) && ((pos_.y % chipSize_.y) == 0))
 	{
-		++dir;
-		if (dir == DIR::MAX)
+		while (CheckHitWall(dir))
 		{
-			dir = begin(DIR());
+			++dir;
+			if (dir == DIR::MAX)
+			{
+				dir = begin(DIR());
+			}
 		}
 	}
 	dir_ = dir;
@@ -90,26 +102,17 @@ bool Player::UpdateAuto(void)
 bool Player::UpdateDef(void)
 {
 	input_->Update();
-	if (input_->GetKeySty(INPUT_ID::DOWN))
+
+	for (auto movePrg = moveFunc_.begin(); movePrg != moveFunc_.end(); movePrg++)
 	{
-		pos_ += speedVec_[DIR::DOWN];
-		dir_ = DIR::DOWN;
+		if ((*movePrg)(true))
+		{
+			moveFunc_.splice(moveFunc_.begin(), moveFunc_, movePrg);
+			moveFunc_.sort([&](moveFunc funcA, moveFunc funcB) {return funcA(false) < funcB(false); });
+			break;
+		}
 	}
-	if (input_->GetKeySty(INPUT_ID::LEFT))
-	{
-		pos_ += speedVec_[DIR::LEFT];
-		dir_ = DIR::LEFT;
-	}
-	if (input_->GetKeySty(INPUT_ID::RIGHT))
-	{
-		pos_ += speedVec_[DIR::RIGHT];
-		dir_ = DIR::RIGHT;
-	}
-	if (input_->GetKeySty(INPUT_ID::UP))
-	{
-		pos_ += speedVec_[DIR::UP];
-		dir_ = DIR::UP;
-	}
+
 	if (input_->GetKeyTrg(INPUT_ID::LROTA))
 	{
 		auto id = UseBomb();
@@ -136,10 +139,6 @@ bool Player::UpdataNet(void)
 		 auto mes = PickUpMes(MES_TYPE::POS);
 			auto& data = mes.second;
 			pos_ = Vector2{ static_cast<int>(data[1].uidata),static_cast<int>(data[2].uidata) };
-			if (pos_.x <= 6)
-			{
-				auto taichi = 0;
-			}
 			test = true;
 	 }
 	 while (isPickMesList(MES_TYPE::SET_BOMB))
@@ -162,19 +161,38 @@ bool Player::UpdataNet(void)
 
 bool Player::CheckHitWall(DIR dir)
 {
-	if (((pos_.x % chipSize_.x) == 0) && ((pos_.y % chipSize_.y) == 0))
-	{
-		chPos_ = mapMng_->ChengeChip(pos_);
+	auto tmppos = pos_;
 
-		chPos_ += speedVec_[dir] / speed_;
-		return mapMng_->CheckHitWall(chPos_);
+	if (dir == DIR::LEFT)
+	{
+		tmppos.y += (size_.y / 2);
 	}
-	return false;
+	if (dir == DIR::RIGHT)
+	{
+		tmppos.y += (size_.y / 2);
+		tmppos.x += size_.x;
+	}
+	if (dir == DIR::UP)
+	{
+		tmppos.x += (size_.x / 2);
+	}
+	if (dir == DIR::DOWN)
+	{
+		tmppos.x += (size_.x / 2);
+		tmppos.y += size_.y;
+	}
+
+	tmppos += speedVec_[dir] / speed_;
+
+	chPos_ = mapMng_->ChengeChip(tmppos, size_);
+
+	return mapMng_->CheckHitWall(chPos_);
 }
 
 void Player::Draw(void)
 {
 	DrawGraph(pos_.x, pos_.y - offSetY_, lpImageMng.GetID("player")[static_cast<size_t>((animCnt_ / 15) % 2) * 5 + (static_cast<size_t>(state_) * 10)], true);
+	_dbgDrawBox(pos_.x, pos_.y, pos_.x + size_.x, pos_.y + size_.y, 0xffffff, false);
 }
 
 void Player::StockBomb(int id)
@@ -191,4 +209,96 @@ int Player::UseBomb(void)
 		bombList_.erase(bombList_.begin());
 	}
 	return id;
+}
+
+void Player::FuncInit(void)
+{
+	moveFunc_.emplace_back([&](bool tmp)
+	{
+		if (input_->GetKeySty(INPUT_ID::DOWN))
+		{
+			if (tmp)
+			{
+				if (!CheckHitWall(DIR::DOWN))
+				{
+					pos_ += speedVec_[DIR::DOWN];
+					if (pos_.x % (size_.x) != 0)
+					{
+						pos_.x = ((pos_.x + (size_.x / 2)) / chipSize_.x) * chipSize_.x;
+					}
+					dir_ = DIR::DOWN;
+					return true;
+				}
+				return false;
+			}
+			return true;
+		}
+		return false;
+	});
+	moveFunc_.emplace_back([&](bool tmp)
+	{
+		if (input_->GetKeySty(INPUT_ID::LEFT))
+		{
+			if (tmp)
+			{
+				if (!CheckHitWall(DIR::LEFT))
+				{
+					pos_ += speedVec_[DIR::LEFT];
+					if (pos_.y % (32) != 0)
+					{
+						pos_.y = ((pos_.y + (size_.y / 2)) / chipSize_.y) * chipSize_.y;
+					}
+					dir_ = DIR::LEFT;
+					return true;
+				}
+				return false;
+			}
+			return true;
+		}
+		return false;
+	});
+	moveFunc_.emplace_back([&](bool tmp)
+	{
+		if (input_->GetKeySty(INPUT_ID::RIGHT))
+		{
+			if (tmp)
+			{
+				if (!CheckHitWall(DIR::RIGHT))
+				{
+					pos_ += speedVec_[DIR::RIGHT];
+					if (pos_.y % (32) != 0)
+					{
+						pos_.y = ((pos_.y + (size_.y / 2)) / chipSize_.y) * chipSize_.y;
+					}
+					dir_ = DIR::RIGHT;
+					return true;
+				}
+				return false;
+			}
+			return true;
+		}
+		return false;
+	});
+	moveFunc_.emplace_back([&](bool tmp)
+	{
+		if (input_->GetKeySty(INPUT_ID::UP))
+		{
+			if (tmp)
+			{
+				if (!CheckHitWall(DIR::UP))
+				{
+					pos_ += speedVec_[DIR::UP];
+					if (pos_.x % (size_.x) != 0)
+					{
+						pos_.x = ((pos_.x + (size_.x / 2)) / chipSize_.x) * chipSize_.x;
+					}
+					dir_ = DIR::UP;
+					return true;
+				}
+				return false;
+			}
+			return true;
+		}
+		return false;
+	});
 }
