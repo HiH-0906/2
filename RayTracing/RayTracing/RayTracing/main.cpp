@@ -56,11 +56,26 @@ float Clamp(float in, const float min = 0.0f, const float max = 1.0f) {
 	return max(min(in, max), min);
 }
 
+using Color = Vector3;
+
+Color Clamp(const Color& in, const float min = 0.0f, const float max = 1.0f)
+{
+	return Color(Clamp(in.x, min, max), Clamp(in.y, min, max), Clamp(in.z, min, max));
+}
+
+
+
+UINT32 GetUINT32ColorFromVectorColor(const Color col)
+{
+	return GetColor(col.x, col.y, col.z);
+}
+
 ///レイトレーシング
 ///@param eye 視点座標
 ///@param sphere 球オブジェクト(そのうち複数にする)
 void RayTracing(const Position3& eye,const Sphere& sphere) {
 	Vector3 Light = Vector3{ 1,-1,-1 };
+	float albedo[3] = { 0.5f , 0.5f, 1.0f };
 	for (int y = 0; y < screen_height; ++y) {//スクリーン縦方向
 		for (int x = 0; x < screen_width; ++x) {//スクリーン横方向
 			//①視点とスクリーン座標から視線ベクトルを作る
@@ -77,7 +92,7 @@ void RayTracing(const Position3& eye,const Sphere& sphere) {
 				auto N = P - sphere.pos;
 				N.Normalize();
 				auto L = Light.Normalized();
-				auto deiffuse = Dot(N, -L);
+				auto deiffuseB = Dot(N, -L);
 				
 				// ライトの反射ベクトルと視線の逆ベクトルの内積を取りpowでn乗する。オーバーフローしないように気を付ける
 				auto specular = Dot(ReflectVector(L, N), -ray);
@@ -85,28 +100,51 @@ void RayTracing(const Position3& eye,const Sphere& sphere) {
 				specular = Clamp(specular);
 				specular = pow(specular, 10);
 
-				auto b = deiffuse + specular;
+				float deiffuse[3];
+				for (int i = 0; i < 3; i++)
+				{
+					deiffuse[i] = (deiffuseB * albedo[i]) + specular;
+					deiffuse[i] = Clamp(deiffuse[i]);
+				}
 				
 
-				b = Clamp(b);
+				
 
 				//※塗りつぶしはDrawPixelという関数を使う。
-				int color = 0xff * b;
+				int color = 0xff * deiffuse[0];
 				color = color << 8;
-				color += 0xff * b;
+				color += 0xff * deiffuse[1];
 				color = color << 8;
-				color += 0xff * b;
+				color += 0xff * deiffuse[2];
 				
 				auto R = ReflectVector(L, N);
 
+				/*Color difColor(255, 128, 128);
+				Color specColor(255, 255, 255);
 
+				difColor *= deiffuseB;
+				specColor *= specular;
+				difColor *= deiffuseB;
+				color = GetUINT32ColorFromVectorColor(Clamp(difColor + specColor, 0.0f, 255.0f));*/
 				DrawPixel(x, y, color);
 			}
+			// 球体に当たらなかった
 			else
 			{
-				if ((x / 40 + y / 40) % 2 == 0)
+				// 平面に当たる条件
+				// 仮に平面の法線を(0,1,0)
+				// 平面に当たる条件は視線と法線ベクトルが90度以上
+				auto P = Dot(-ray, Vector3(0, 1, 0));
+				if (P > 0)
 				{
-					DrawPixel(x, y, 0x007700);
+					DrawPixel(x, y, 0xffffff);
+				}
+				else
+				{
+					if ((x / 40 + y / 40) % 2 == 0)
+					{
+						DrawPixel(x, y, 0x007700);
+					}
 				}
 			}
 		}

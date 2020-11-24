@@ -100,7 +100,12 @@ Vector3::operator*=(float scale) {
 
 Vector3
 Vector3::operator*(float scale)const {
-	return Vector3(x*scale, y*scale,z*scale);
+	return Vector3(x * scale, y * scale, z * scale);
+}
+
+Vector3 Vector3::operator*(const Vector3 vec) const
+{
+	return Vector3(x * vec.x, y * vec.y, z * vec.z);
 }
 
 Vector3 operator+(const Vector3& va, const Vector3 vb) {
@@ -113,7 +118,7 @@ Vector3 operator-(const Vector3& va, const Vector3 vb) {
 
 float
 Vector3::Magnitude()const {
-	return sqrt(x*x+y*y+z*z);
+	return sqrt(x * x + y * y + z * z);
 }
 
 

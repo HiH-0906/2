@@ -68,6 +68,7 @@ struct Vector3 {
 	void operator-=(const Vector3& v);
 	void operator*=(float scale);
 	Vector3 operator*(float scale)const;
+	Vector3 operator*(const Vector3 vec)const;
 	Vector3 operator-() {
 		return Vector3(-x, -y,-z);
 	}
