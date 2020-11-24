@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <algorithm>
 #include <DxLib.h>
 #include "Map.h"
 #include "../common/ImageMng.h"
@@ -8,11 +9,29 @@
 
 Map::Map()
 {
-
 }
 
 Map::~Map()
 {
+}
+
+bool Map::Update(void)
+{
+	for (auto& gene : geneList_)
+	{
+		gene->Update();
+	}
+	for (auto& data : flameData_)
+	{
+		if (data > 0)
+		{
+			data--;
+		}
+	}
+	auto delItr = std::remove_if(geneList_.begin(), geneList_.end(), [](shared_gene& gene) {return !gene->Alive(); });
+	geneList_.erase(delItr, geneList_.end());
+	ReDrawMap(MapLayer::WALL);
+	return true;
 }
 
 bool Map::LoadMap(std::string str)
@@ -56,6 +75,7 @@ bool Map::LoadMap(std::string str)
 			}
 		}
 	}
+	flameData_.resize(static_cast<size_t>(info_.mapSize.x) * info_.mapSize.y);
 	delete loadr;
 	return true;
 }
@@ -92,7 +112,7 @@ bool Map::CheckHitWall(const Vector2& pos)
 	return (mapData_[mapKey_[MapLayer::WALL]][pos.x + static_cast<size_t>(pos.y) * static_cast<size_t>(info_.mapSize.x)] != -1);
 }
 
-Vector2 Map::ChengeChip(const Vector2& pos, const Vector2 size)
+Vector2 Map::ChengeChip(const Vector2& pos)
 {
 	Vector2 chip = { pos.x / info_.chipSize.x,pos.y / info_.chipSize.y };
 	return std::move(chip);
@@ -103,11 +123,32 @@ const Vector2& Map::GetChipSize(void)const
 	return info_.chipSize;
 }
 
-void Map::EndOfMap(void)
+const Vector2& Map::GetMapSize(void) const
+{
+	return info_.mapSize;
+}
+
+const std::vector<int>& Map::GetFlameData(void) const
+{
+	return flameData_;
+}
+
+void Map::ResrtOfMap(void)
 {
 	mapData_.clear();
 	drawLayer_.clear();
 	mapKey_.clear();
+	flameData_.clear();
 	info_ = {};
+}
+
+void Map::GeneratoFlame(const Vector2& pos, int length)
+{
+	geneList_.push_back(std::make_shared<FlameGenerator>(pos, FlameDIR{ 1,1,1,1 }, length, 70, *this, flameData_));
+}
+
+void Map::GeneratoFlame(const Vector2& pos, int length, FlameDIR dir)
+{
+	geneList_.push_back(std::make_shared<FlameGenerator>(pos, dir, length, 70, *this, flameData_));
 }
 

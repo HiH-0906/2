@@ -443,6 +443,7 @@ NetWork::NetWork()
 	revFunc_[4] = (std::bind(&NetWork::RevTmxData, this));
 	revFunc_[5] = (std::bind(&NetWork::RevData, this));
 	revFunc_[6] = (std::bind(&NetWork::RevData, this));
+	revFunc_[7] = (std::bind(&NetWork::RevData, this));
 
 	mes_ = {};
 	revDataList_.reserve(180);

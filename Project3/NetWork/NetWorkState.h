@@ -34,6 +34,7 @@ enum class MES_TYPE :unsigned char
 	TMX_DATA,
 	POS,
 	SET_BOMB,
+	DETH,
 	MAX
 };
 

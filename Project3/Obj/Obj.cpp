@@ -95,7 +95,7 @@ bool Obj::CheckHitWall(DIR dir)
 		tmppos.y += size_.y + 1;
 	}
 
-	auto chPos_ = mapMng_->ChengeChip(tmppos, size_);
+	auto chPos_ = mapMng_->ChengeChip(tmppos);
 
 	return mapMng_->CheckHitWall(chPos_);
 
