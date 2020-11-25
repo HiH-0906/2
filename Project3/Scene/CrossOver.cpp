@@ -17,7 +17,7 @@ CrossOver::~CrossOver()
 {
 }
 
-uniqueBase CrossOver::Update(uniqueBase own, NowTime time)
+uniqueBase CrossOver::Update(uniqueBase own, const Time& now)
 {
 	if (cnt_ >= 255)
 	{

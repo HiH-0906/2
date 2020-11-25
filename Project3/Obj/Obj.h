@@ -7,15 +7,14 @@
 #include "../Scene/BaseScene.h"
 
 class Map;
-class BaseScene;
 
 class Obj
 {
 public:
 	Obj(Vector2 pos, Vector2 size,int id,int speed, std::shared_ptr<Map> mapMng, BaseScene& scene);
 	virtual ~Obj() = default;
-	virtual bool UpdateDef(NowTime time);
-	std::function<bool(NowTime time)> Update_;
+	virtual bool UpdateDef(const Time& now);
+	std::function<bool(const Time& now)> Update_;
 	virtual void Draw(void) = 0;
 	bool CheckMesList(void);
 	int GetID(void);
@@ -36,5 +35,6 @@ protected:
 	BaseScene& scene_;
 
 	bool alive_;
+	bool activ_;
 };
 

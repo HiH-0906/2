@@ -7,6 +7,11 @@ Bomb::Bomb(Vector2 pos, Vector2 size, int length,int id, int oid, std::shared_pt
 {
 	lpImageMng.GetID("Bomb", "Image/bomb.png", size_, { 2,7 });
 	start_ = start;
+	explosion_ = false;
+	elapsedTime_ = 0;
+	explosionTime_ = 1000;
+	defTime_ = 500;
+	offset_ = 0;
 	length_ = length;
 }
 
@@ -14,14 +19,28 @@ Bomb::~Bomb()
 {
 }
 
-bool Bomb::UpdateDef(NowTime time)
+bool Bomb::UpdateDef(const Time& now)
 {
-	if (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start_).count() >= 3000)
+	elapsedTime_ = std::chrono::duration_cast<std::chrono::milliseconds>(now - start_).count();
+	const auto& chip = mapMng_->ChengeChip(pos_);
+	if (mapMng_->CheckHitFlame(chip)&& !explosion_)
 	{
 		auto player = dynamic_cast<GameScene&>(scene_).GetPlayer(owner_);
 		dynamic_cast<Player&>(*player).StockBomb(id_);
 		auto chip = mapMng_->ChengeChip(pos_);
-		mapMng_->SetGenerator(chip, length_, time, (*mapMng_));
+		mapMng_->GeneratoFlame(chip, length_, now);
+		explosion_ = true;
+	}
+	if (elapsedTime_ >= 3000 && !explosion_)
+	{
+		auto player = dynamic_cast<GameScene&>(scene_).GetPlayer(owner_);
+		dynamic_cast<Player&>(*player).StockBomb(id_);
+		auto chip = mapMng_->ChengeChip(pos_);
+		mapMng_->GeneratoFlame(chip, length_, now);
+		explosion_ = true;
+	}
+	else if (elapsedTime_ >= 3000 + ((1000 / 6) * 7) || explosion_)
+	{
 		alive_ = false;
 	}
 	
@@ -31,5 +50,26 @@ bool Bomb::UpdateDef(NowTime time)
 
 void Bomb::Draw(void)
 {
-	DrawGraph(pos_.x, pos_.y , lpImageMng.GetID("Bomb")[0], true);
+	if (!explosion_)
+	{
+		if (explosionTime_ <= elapsedTime_)
+		{
+			if (offset_ == 0)
+			{
+				offset_ = 2;
+			}
+			else
+			{
+				offset_ = 0;
+				defTime_ -= 130;
+			}
+			
+			explosionTime_ += defTime_;
+		}
+	}
+	else
+	{
+		offset_ = ((elapsedTime_ - 3000) / (1000 / 6)) * 2 + 1;
+	}
+	DrawGraph(pos_.x, pos_.y, lpImageMng.GetID("Bomb")[offset_], true);
 }

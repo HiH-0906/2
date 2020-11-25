@@ -26,7 +26,7 @@ public:
 	LoginScene();
 	~LoginScene();
 	void Init(void)override final;
-	uniqueBase Update(uniqueBase own, NowTime time)override final;
+	uniqueBase Update(uniqueBase own, const Time& now)override final;
 	void DrawOwnScene(void)override final;
 private:
 

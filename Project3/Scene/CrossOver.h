@@ -6,7 +6,7 @@ class CrossOver :
 public:
     CrossOver(uniqueBase old, uniqueBase next);
     ~CrossOver();
-    uniqueBase Update(uniqueBase own, NowTime time)override;
+    uniqueBase Update(uniqueBase own, const Time& now)override;
     void Draw(void)override;
     void Init(void)override;
     void DrawOwnScene(void)override;

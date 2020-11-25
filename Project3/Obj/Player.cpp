@@ -26,7 +26,7 @@ Player::Player(Vector2 pos, Vector2 size,Vector2 ImageSize, int speed,int id, st
 	{
 		if (id_ / UNIT_ID_BASE == 0)
 		{
-			Update_ = std::bind(&Player::UpdateDef, this, std::placeholders::_1);
+			Update_ = std::bind(&Player::UpdateDef, this,std::placeholders::_1);
 			FuncInit();
 		}
 		else
@@ -72,8 +72,13 @@ Player::~Player()
 {
 }
 
-bool Player::UpdateAuto(NowTime time)
+bool Player::UpdateAuto(const Time& now)
 {
+	if (!activ_)
+	{
+		animCnt_++;
+		return true;
+	}
 	auto NextDir = [&](DIR dir)
 	{
 		if (dir == DIR::DOWN)
@@ -111,11 +116,23 @@ bool Player::UpdateAuto(NowTime time)
 	lpNetWork.SendMes(MES_TYPE::POS, MesDataList{ data[0],data[1],data[2],data[3] });
 	animCnt_++;
 	state_ = AnimState::WALK;
+	const auto& chip = mapMng_->ChengeChip(pos_);
+	if (mapMng_->CheckHitFlame(chip))
+	{
+		dir_ = DIR::DETH;
+		state_ = AnimState::IDEL;
+		activ_ = false;
+	}
 	return true;
 }
 
-bool Player::UpdateDef(NowTime time)
+bool Player::UpdateDef(const Time& now)
 {
+	if (!activ_)
+	{
+		animCnt_++;
+		return true;
+	}
 	input_->Update();
 	state_ = AnimState::IDEL;
 	for (auto movePrg = moveFunc_.begin(); movePrg != moveFunc_.end(); movePrg++)
@@ -143,11 +160,23 @@ bool Player::UpdateDef(NowTime time)
 	data[3] = { static_cast<unsigned int>(dir_) };
 	lpNetWork.SendMes(MES_TYPE::POS, MesDataList{ data[0],data[1],data[2],data[3] });
 	animCnt_++;
+	const auto& chip = mapMng_->ChengeChip(pos_);
+	if (mapMng_->CheckHitFlame(chip))
+	{
+		dir_ = DIR::DETH;
+		state_ = AnimState::IDEL;
+		activ_ = false;
+	}
 	return true;
 }
 
-bool Player::UpdataNet(NowTime time)
+bool Player::UpdataNet(const Time& now)
 {
+	if (!activ_)
+	{
+		animCnt_++;
+		return false;
+	}
 	bool test = false;
 	 while (isPickMesList(MES_TYPE::POS))
 	 {

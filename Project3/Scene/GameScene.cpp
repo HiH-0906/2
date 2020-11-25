@@ -11,7 +11,7 @@
 #include "../common/ImageMng.h"
 #include "../_debug/_DebugDispOut.h"
 
-uniqueBase GameScene::Update(uniqueBase own, NowTime time)
+uniqueBase GameScene::Update(uniqueBase own, const Time& now)
 {
 	objList_.sort([](shared_Obj& objA, shared_Obj& objB)
 	{
@@ -20,13 +20,13 @@ uniqueBase GameScene::Update(uniqueBase own, NowTime time)
 	);
 	for (auto& pl:objList_)
 	{
-		pl->Update_(time);
+		pl->Update_(now);
 	}
 	auto delItr = std::remove_if(objList_.begin(), objList_.end(), [](shared_Obj& obj) {return !obj->Alive(); });
 	objList_.erase(delItr, objList_.end());
-	mapMng_->Update(time);
+	mapMng_->Update(now);
 	DrawOwnScene();
-	DrawFps();
+	DrawFps(now);
 	if (lpNetWork.GetActive() == ACTIVE_STATE::NON)
 	{
 		mapMng_->ResrtOfMap();
@@ -38,26 +38,16 @@ uniqueBase GameScene::Update(uniqueBase own, NowTime time)
 
 void GameScene::DrawOwnScene(void)
 {
-	auto size = mapMng_->GetMapSize();
-	auto data = mapMng_->GetFlameData();
-	auto chipSize = mapMng_->GetChipSize();
+	const auto& size = mapMng_->GetMapSize();
+	const auto& data = mapMng_->GetFlameData();
+	const auto& chipSize = mapMng_->GetChipSize();
 	SetDrawScreen(drawScreen_);
+	ClsDrawScreen();
 	for (int i = 0; i < static_cast<int>(MapLayer::CHAR); i++)
 	{
 		DrawGraph(0, 0, mapMng_->GetDarwMap(static_cast<MapLayer>(i)), true);
 	}
-	for (size_t y = 0; y < mapMng_->GetMapSize().y; y++)
-	{
-		for (size_t x = 0; x < mapMng_->GetMapSize().x; x++)
-		{
-			auto tmp = data[x + static_cast<size_t>(y) * static_cast<size_t>(size.x)];
-			_dbgDrawFormatString(x * static_cast<size_t>(chipSize.x), y * static_cast<size_t>(chipSize.y), 0xffffff, "%d", tmp.endTime_);
-			if (data[x + static_cast<size_t>(y) * static_cast<size_t>(size.x)].endTime_ != 0)
-			{
-				DrawGraph(x * chipSize.x, y * chipSize.y, lpImageMng.GetID("fire")[0], true);
-			}
-		}
-	}
+	mapMng_->DrawFlame();
 	for (auto& pl : objList_)
 	{
 		pl->Draw();
@@ -73,7 +63,7 @@ void GameScene::Init(void)
 	if (mode == NetWorkMode::HOST || mode == NetWorkMode::OFFLINE)
 	{
 
-		mapMng_->LoadMap("mapData/map2.tmx");
+		mapMng_->LoadMap("mapData/map.tmx");
 		const auto& cLayer = mapMng_->GetMapData(MapLayer::CHAR);
 		int cnt = 0;
 		int id = 0;
@@ -108,7 +98,7 @@ void GameScene::Init(void)
 			cnt++;
 		}
 	}
-	lpImageMng.GetID("fire", "Image/fire.png", Vector2{ 20,20 }, Vector2{ 3,4 });
+	lpImageMng.GetID("fire", "Image/fire.png", Vector2{ 32,32 }, Vector2{ 3,4 });
 	DrawOwnScene();
 }
 

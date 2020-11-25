@@ -5,6 +5,7 @@
 #include <DxLib.h>
 #include "Map.h"
 #include "../common/ImageMng.h"
+#include "../_debug/_DebugDispOut.h"
 
 
 Map::Map()
@@ -15,25 +16,27 @@ Map::~Map()
 {
 }
 
-bool Map::Update(NowTime time)
+bool Map::Update(const Time& now)
 {
-	for (auto& list : geneList_)
+	for (auto& gene : geneList_)
 	{
-		list->Update(time);
+		gene->Update(now);
 	}
 	for (auto& data:flameData_)
 	{
-		if (data.endTime_ == 0)
+		if ((data.endTimeCnt_) > 0)
 		{
-			continue;
-		}
-		if (std::chrono::duration_cast<std::chrono::milliseconds>(time - data.time_).count() >= data.endTime_)
-		{
-			data = Flame{};
+			data.endTimeCnt_ -= std::chrono::duration_cast<std::chrono::milliseconds>(now - oldTime_).count();
+			if (data.endTimeCnt_ < 0)
+			{
+				data.endTimeCnt_ = 0;
+				data.length_ = {};
+			}
 		}
 	}
 
 	ReDrawMap(MapLayer::WALL);
+	oldTime_ = now;
 	return true;
 }
 
@@ -45,7 +48,7 @@ bool Map::LoadMap(std::string str)
 	info_ = loadr->GetMapInfo();
 	int id = 0;
 
-	for (auto tmp : loadr->GetmapStr())
+	for (const auto& tmp : loadr->GetmapStr())
 	{
 		// 取り出されるstrng保存用一時変数
 		std::string mapstr;
@@ -64,7 +67,7 @@ bool Map::LoadMap(std::string str)
 	// マップ作成に必要なデータの取得
 
 	// 描画スクリーンへの書き出し
-	for (auto id : mapKey_)
+	for (const auto& id : mapKey_)
 	{
 		SetDrawScreen(drawLayer_[id.second]);
 		for (__int64 y = 0; y < info_.mapSize.y; y++)
@@ -98,6 +101,7 @@ std::vector<int>& Map::GetMapData(MapLayer layer)
 void Map::ReDrawMap(MapLayer layer)
 {
 	SetDrawScreen(drawLayer_[mapKey_[layer]]);
+	ClsDrawScreen();
 	for (__int64 y = 0; y < info_.mapSize.y; y++)
 	{
 		for (__int64 x = 0; x < info_.mapSize.x; x++)
@@ -115,24 +119,32 @@ bool Map::CheckHitWall(const Vector2& pos)
 	return (mapData_[mapKey_[MapLayer::WALL]][pos.x + static_cast<size_t>(pos.y) * static_cast<size_t>(info_.mapSize.x)] != -1);
 }
 
+bool Map::CheckBreakWall(const Vector2& chip)
+{
+	if (mapData_[mapKey_[MapLayer::WALL]][chip.x + static_cast<size_t>(chip.y) * static_cast<size_t>(info_.mapSize.x)] == 7)
+	{
+		mapData_[mapKey_[MapLayer::WALL]][chip.x + static_cast<size_t>(chip.y) * static_cast<size_t>(info_.mapSize.x)] = -1;
+		return true;
+	}
+	return false;
+}
+
+bool Map::CheckHitFlame(const Vector2& pos)
+{
+	return flameData_[pos.x + static_cast<size_t>(pos.y) * static_cast<size_t>(info_.mapSize.x)].endTimeCnt_ != 0;
+}
+
 Vector2 Map::ChengeChip(const Vector2& pos)
 {
 	Vector2 chip = { pos.x / info_.chipSize.x,pos.y / info_.chipSize.y };
 	return std::move(chip);
 }
 
-void Map::SetFlame(Vector2 pos, std::chrono::system_clock::time_point time, FlameDIR dir, int endTime)
+void Map::SetFlameData(const Vector2& chip, FlameData data)
 {
-	auto& data = flameData_[static_cast<size_t>(pos.x) + pos.y * info_.mapSize.x];
-	data.time_ = time;
-	data.dir_ = dir;
-	data.endTime_ = endTime;
+	flameData_[chip.x + static_cast<size_t>(chip.y) * static_cast<size_t>(info_.mapSize.x)] = data;
 }
 
-void Map::SetGenerator(Vector2 pos, int length, NowTime time, Map& map)
-{
-	geneList_.push_back(std::make_unique<FlameGenerator>(pos, length, time, FlameDIR{ 1,1,1,1 }, map));
-}
 
 const Vector2& Map::GetChipSize(void)const
 {
@@ -144,9 +156,57 @@ const Vector2& Map::GetMapSize(void) const
 	return info_.mapSize;
 }
 
-const FlameData& Map::GetFlameData(void) const
+const std::vector<FlameData>& Map::GetFlameData(void) const
 {
 	return flameData_;
+}
+
+void Map::DrawFlame(void)
+{
+	for (size_t y = 0; y < info_.mapSize.y; y++)
+	{
+		for (size_t x = 0; x < info_.mapSize.x; x++)
+		{
+			if (flameData_[x + static_cast<size_t>(y) * static_cast<size_t>(info_.mapSize.x)].endTimeCnt_ != 0)
+			{
+				const auto& data = flameData_[x + static_cast<size_t>(y) * static_cast<size_t>(info_.mapSize.x)];
+				auto frame = data.endTimeCnt_ / (1000 / 6);
+				
+				frame = abs(frame - 6);
+				auto tmp = frame;
+				frame %= 4;
+				frame = abs(frame - (tmp / 4) * 2) * 3;
+				int offset = 0;
+				double angle = 0;
+				_dbgDrawFormatString(x * static_cast<size_t>(info_.chipSize.x), y * static_cast<size_t>(info_.chipSize.y), 0xffffff, "%d", frame);
+				if ((data.length_.fLength.down || data.length_.fLength.up) && (data.length_.fLength.left || data.length_.fLength.right))
+				{
+					offset = 0;
+					SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 200);
+				}
+				else if (data.length_.fLength.down || data.length_.fLength.up || data.length_.fLength.left || data.length_.fLength.right)
+				{
+					const auto RightAngle = DX_PI / 2;
+					if (data.length_.fLength.left)
+					{
+						angle = RightAngle * 2;
+					}
+					if (data.length_.fLength.down)
+					{
+						angle = RightAngle;
+					}
+					if (data.length_.fLength.up)
+					{
+						angle = RightAngle * 3;
+					}
+					offset = 1;
+					SetDrawBlendMode(DX_BLENDMODE_ADD, 200);
+				}
+				DrawRotaGraph(x * info_.chipSize.x + (info_.chipSize.x / 2), y * info_.chipSize.y + (info_.chipSize.y / 2), 1.0, angle, lpImageMng.GetID("fire")[frame + offset], true);
+			}
+		}
+	}
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 200);
 }
 
 void Map::ResrtOfMap(void)
@@ -158,12 +218,7 @@ void Map::ResrtOfMap(void)
 	info_ = {};
 }
 
-void Map::FlameGenerator::Update(NowTime time)
+void Map::GeneratoFlame(const Vector2& pos, int length,Time now)
 {
-	if (std::chrono::duration_cast<std::chrono::milliseconds>(time - time_).count() >= geneTime_)
-	{
-		
-		map_.SetFlame(pos_, time, dir_, geneTime_ * 7);
-		time_ = time;
-	}
+	geneList_.push_back(std::make_shared<FlameGenerator>(pos,length,*this, flameData_,now));
 }

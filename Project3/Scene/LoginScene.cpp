@@ -44,7 +44,7 @@ void LoginScene::Init(void)
 {
 }
 
-uniqueBase LoginScene::Update(uniqueBase own, NowTime time)
+uniqueBase LoginScene::Update(uniqueBase own, const Time& now)
 {
 	DrawOwnScene();
 	if (!(this->*func_[state_])())
@@ -57,6 +57,7 @@ uniqueBase LoginScene::Update(uniqueBase own, NowTime time)
 void LoginScene::DrawOwnScene(void)
 {
 	SetDrawScreen(drawScreen_);
+	ClsDrawScreen();
 	DrawGraph(0, 0, Image, true);
 }
 

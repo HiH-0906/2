@@ -6,11 +6,17 @@ class Bomb :
 public:
 	Bomb(Vector2 pos, Vector2 size, int length,int id,int oid, std::shared_ptr<Map> mapMng, BaseScene& scene, std::chrono::system_clock::time_point start);
 	~Bomb();
-	bool UpdateDef(NowTime time)override;
+	bool UpdateDef(const Time& now)override;
 	void Draw(void)override;
 private:
+	bool explosion_;
 	int owner_;
 	int length_;
-	std::chrono::system_clock::time_point start_;
+
+	Time start_;
+	int elapsedTime_;
+	int explosionTime_;
+	int defTime_;
+	int offset_;
 };
 

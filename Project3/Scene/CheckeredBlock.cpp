@@ -21,7 +21,7 @@ CheckeredBlock::~CheckeredBlock()
 {
 }
 
-uniqueBase CheckeredBlock::Update(uniqueBase own, NowTime time)
+uniqueBase CheckeredBlock::Update(uniqueBase own, const Time& now)
 {
 	if (cnt_ >= 255)
 	{
@@ -50,6 +50,7 @@ void CheckeredBlock::DrawOwnScene(void)
 {
 	auto size = lpSceneMng.GetScreenSize() / divCnt_;
 	SetDrawScreen(drawScreen_);
+	ClsDrawScreen();
 	oldScene_->Draw();
 	if (cnt_ > 128)
 	{

@@ -24,6 +24,7 @@ Loader::TmxLoader::~TmxLoader()
 void Loader::TmxLoader::VersionMap(void)
 {
 	version_["1.4.2"] = 1;
+	version_["1.4.3"] = 1;
 }
 // Tmxファイルをロード
 bool Loader::TmxLoader::TmxLoad(std::string filename)

@@ -39,7 +39,7 @@ private:
 	const int screenX;
 	const int screenY;
 
-	NowTime nowTime_;
+	Time now_;
 
 	void Draw();
 	SceneMng();
