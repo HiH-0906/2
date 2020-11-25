@@ -4,6 +4,7 @@
 #include "../NetWork/NetWork.h"
 #include "../common/Vector2.h"
 #include "../State/DIR.h"
+#include "../Scene/BaseScene.h"
 
 class Map;
 class BaseScene;
@@ -13,8 +14,8 @@ class Obj
 public:
 	Obj(Vector2 pos, Vector2 size,int id,int speed, std::shared_ptr<Map> mapMng, BaseScene& scene);
 	virtual ~Obj() = default;
-	virtual bool UpdateDef(void);
-	std::function<bool(void)> Update_;
+	virtual bool UpdateDef(NowTime time);
+	std::function<bool(NowTime time)> Update_;
 	virtual void Draw(void) = 0;
 	bool CheckMesList(void);
 	int GetID(void);

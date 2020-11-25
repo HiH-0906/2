@@ -14,14 +14,14 @@ Bomb::~Bomb()
 {
 }
 
-bool Bomb::UpdateDef(void)
+bool Bomb::UpdateDef(NowTime time)
 {
 	if (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - start_).count() >= 3000)
 	{
 		auto player = dynamic_cast<GameScene&>(scene_).GetPlayer(owner_);
 		dynamic_cast<Player&>(*player).StockBomb(id_);
 		auto chip = mapMng_->ChengeChip(pos_);
-		mapMng_->GeneratoFlame(chip, 3);
+		mapMng_->SetGenerator(chip, length_, time, (*mapMng_));
 		alive_ = false;
 	}
 	

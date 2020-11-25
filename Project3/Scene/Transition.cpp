@@ -8,8 +8,8 @@ Transition::~Transition()
 {
 }
 
-uniqueBase Transition::Update(uniqueBase own)
+uniqueBase Transition::Update(uniqueBase own, NowTime time)
 {
-	return uniqueBase();
+	return own;
 }
 

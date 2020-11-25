@@ -10,12 +10,14 @@ class BaseScene;											// ¸×½‚ÌÌßÛÄÀ²ÌßéŒ¾
 
 using uniqueBase = std::unique_ptr<BaseScene>;
 
+using NowTime = std::chrono::system_clock::time_point;
+
 class BaseScene
 {
 public:
 	BaseScene();
 	virtual ~BaseScene();
-	virtual uniqueBase Update(uniqueBase own) = 0;			// ‚Ç‚Ì¼°İ‚É‚à‚ ‚é‚Ì‚Åƒˆ‰¼‘z
+	virtual uniqueBase Update(uniqueBase own,NowTime time) = 0;			// ‚Ç‚Ì¼°İ‚É‚à‚ ‚é‚Ì‚Åƒˆ‰¼‘z
 	virtual void Draw(void);
 	virtual void DrawOwnScene(void) = 0;
 	virtual void Init(void) = 0;

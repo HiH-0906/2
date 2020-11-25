@@ -21,7 +21,7 @@ CheckeredBlock::~CheckeredBlock()
 {
 }
 
-uniqueBase CheckeredBlock::Update(uniqueBase own)
+uniqueBase CheckeredBlock::Update(uniqueBase own, NowTime time)
 {
 	if (cnt_ >= 255)
 	{

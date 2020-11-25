@@ -26,12 +26,12 @@ Player::Player(Vector2 pos, Vector2 size,Vector2 ImageSize, int speed,int id, st
 	{
 		if (id_ / UNIT_ID_BASE == 0)
 		{
-			Update_ = std::bind(&Player::UpdateDef, this);
+			Update_ = std::bind(&Player::UpdateDef, this, std::placeholders::_1);
 			FuncInit();
 		}
 		else
 		{
-			Update_ = std::bind(&Player::UpdateAuto, this);
+			Update_ = std::bind(&Player::UpdateAuto, this, std::placeholders::_1);
 		}
 	}
 	else
@@ -39,18 +39,18 @@ Player::Player(Vector2 pos, Vector2 size,Vector2 ImageSize, int speed,int id, st
 		int checkID = mode == NetWorkMode::HOST ? 0 : 1;
 		if (id_ / UNIT_ID_BASE == checkID)
 		{
-			Update_ = std::bind(&Player::UpdateDef, this);
+			Update_ = std::bind(&Player::UpdateDef, this, std::placeholders::_1);
 			FuncInit();
 		}
 		else
 		{	
 			if (((id_ / UNIT_ID_BASE) % 2) != checkID)
 			{
-				Update_ = std::bind(&Player::UpdataNet, this);
+				Update_ = std::bind(&Player::UpdataNet, this, std::placeholders::_1);
 			}
 			else
 			{
-				Update_ = std::bind(&Player::UpdateAuto, this);
+				Update_ = std::bind(&Player::UpdateAuto, this, std::placeholders::_1);
 			}
 		}
 	}
@@ -72,7 +72,7 @@ Player::~Player()
 {
 }
 
-bool Player::UpdateAuto(void)
+bool Player::UpdateAuto(NowTime time)
 {
 	auto NextDir = [&](DIR dir)
 	{
@@ -114,7 +114,7 @@ bool Player::UpdateAuto(void)
 	return true;
 }
 
-bool Player::UpdateDef(void)
+bool Player::UpdateDef(NowTime time)
 {
 	input_->Update();
 	state_ = AnimState::IDEL;
@@ -146,7 +146,7 @@ bool Player::UpdateDef(void)
 	return true;
 }
 
-bool Player::UpdataNet(void)
+bool Player::UpdataNet(NowTime time)
 {
 	bool test = false;
 	 while (isPickMesList(MES_TYPE::POS))

@@ -9,6 +9,7 @@
 
 #define lpSceneMng SceneMng::GetInstance()
 
+
 class SceneMng
 {
 public:
@@ -21,7 +22,7 @@ public:
 	Vector2 GetScreenSize(void);
 
 	bool SysInit(void);
-	
+
 private:
 	struct SceneMngDeleter
 	{
@@ -38,6 +39,7 @@ private:
 	const int screenX;
 	const int screenY;
 
+	NowTime nowTime_;
 
 	void Draw();
 	SceneMng();

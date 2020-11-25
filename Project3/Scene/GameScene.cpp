@@ -11,7 +11,7 @@
 #include "../common/ImageMng.h"
 #include "../_debug/_DebugDispOut.h"
 
-uniqueBase GameScene::Update(uniqueBase own)
+uniqueBase GameScene::Update(uniqueBase own, NowTime time)
 {
 	objList_.sort([](shared_Obj& objA, shared_Obj& objB)
 	{
@@ -20,11 +20,11 @@ uniqueBase GameScene::Update(uniqueBase own)
 	);
 	for (auto& pl:objList_)
 	{
-		pl->Update_();
+		pl->Update_(time);
 	}
 	auto delItr = std::remove_if(objList_.begin(), objList_.end(), [](shared_Obj& obj) {return !obj->Alive(); });
 	objList_.erase(delItr, objList_.end());
-	mapMng_->Update();
+	mapMng_->Update(time);
 	DrawOwnScene();
 	DrawFps();
 	if (lpNetWork.GetActive() == ACTIVE_STATE::NON)
@@ -51,8 +51,8 @@ void GameScene::DrawOwnScene(void)
 		for (size_t x = 0; x < mapMng_->GetMapSize().x; x++)
 		{
 			auto tmp = data[x + static_cast<size_t>(y) * static_cast<size_t>(size.x)];
-			_dbgDrawFormatString(x * static_cast<size_t>(chipSize.x), y * static_cast<size_t>(chipSize.y), 0xffffff, "%d", tmp);
-			if (data[x + static_cast<size_t>(y) * static_cast<size_t>(size.x)] != 0)
+			_dbgDrawFormatString(x * static_cast<size_t>(chipSize.x), y * static_cast<size_t>(chipSize.y), 0xffffff, "%d", tmp.endTime_);
+			if (data[x + static_cast<size_t>(y) * static_cast<size_t>(size.x)].endTime_ != 0)
 			{
 				DrawGraph(x * chipSize.x, y * chipSize.y, lpImageMng.GetID("fire")[0], true);
 			}

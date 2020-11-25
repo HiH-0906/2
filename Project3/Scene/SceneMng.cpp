@@ -19,7 +19,8 @@ void SceneMng::Run()
 	while (!ProcessMessage() && !CheckHitKey(KEY_INPUT_ESCAPE))
 	{
 		_dbgStartDraw();
-		activeScene_ = (*activeScene_).Update(std::move(activeScene_));
+		nowTime_ = std::chrono::system_clock::now();
+		activeScene_ = (*activeScene_).Update(std::move(activeScene_),nowTime_);
 		Draw();
 	}
 	DxLib::DxLib_End();

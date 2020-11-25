@@ -6,7 +6,7 @@ class Transition :
 public:
     Transition();
     virtual ~Transition();
-    virtual uniqueBase Update(uniqueBase own)override;
+    virtual uniqueBase Update(uniqueBase own, NowTime time)override;
     virtual void TransitionUpdate(void) = 0;
 private:
 protected:

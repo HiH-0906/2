@@ -44,7 +44,7 @@ void LoginScene::Init(void)
 {
 }
 
-uniqueBase LoginScene::Update(uniqueBase own)
+uniqueBase LoginScene::Update(uniqueBase own, NowTime time)
 {
 	DrawOwnScene();
 	if (!(this->*func_[state_])())

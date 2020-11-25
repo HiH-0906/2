@@ -15,21 +15,24 @@ Map::~Map()
 {
 }
 
-bool Map::Update(void)
+bool Map::Update(NowTime time)
 {
-	for (auto& gene : geneList_)
+	for (auto& list : geneList_)
 	{
-		gene->Update();
+		list->Update(time);
 	}
-	for (auto& data : flameData_)
+	for (auto& data:flameData_)
 	{
-		if (data > 0)
+		if (data.endTime_ == 0)
 		{
-			data--;
+			continue;
+		}
+		if (std::chrono::duration_cast<std::chrono::milliseconds>(time - data.time_).count() >= data.endTime_)
+		{
+			data = Flame{};
 		}
 	}
-	auto delItr = std::remove_if(geneList_.begin(), geneList_.end(), [](shared_gene& gene) {return !gene->Alive(); });
-	geneList_.erase(delItr, geneList_.end());
+
 	ReDrawMap(MapLayer::WALL);
 	return true;
 }
@@ -118,6 +121,19 @@ Vector2 Map::ChengeChip(const Vector2& pos)
 	return std::move(chip);
 }
 
+void Map::SetFlame(Vector2 pos, std::chrono::system_clock::time_point time, FlameDIR dir, int endTime)
+{
+	auto& data = flameData_[static_cast<size_t>(pos.x) + pos.y * info_.mapSize.x];
+	data.time_ = time;
+	data.dir_ = dir;
+	data.endTime_ = endTime;
+}
+
+void Map::SetGenerator(Vector2 pos, int length, NowTime time, Map& map)
+{
+	geneList_.push_back(std::make_unique<FlameGenerator>(pos, length, time, FlameDIR{ 1,1,1,1 }, map));
+}
+
 const Vector2& Map::GetChipSize(void)const
 {
 	return info_.chipSize;
@@ -128,7 +144,7 @@ const Vector2& Map::GetMapSize(void) const
 	return info_.mapSize;
 }
 
-const std::vector<int>& Map::GetFlameData(void) const
+const FlameData& Map::GetFlameData(void) const
 {
 	return flameData_;
 }
@@ -142,13 +158,12 @@ void Map::ResrtOfMap(void)
 	info_ = {};
 }
 
-void Map::GeneratoFlame(const Vector2& pos, int length)
+void Map::FlameGenerator::Update(NowTime time)
 {
-	geneList_.push_back(std::make_shared<FlameGenerator>(pos, FlameDIR{ 1,1,1,1 }, length, 70, *this, flameData_));
+	if (std::chrono::duration_cast<std::chrono::milliseconds>(time - time_).count() >= geneTime_)
+	{
+		
+		map_.SetFlame(pos_, time, dir_, geneTime_ * 7);
+		time_ = time;
+	}
 }
-
-void Map::GeneratoFlame(const Vector2& pos, int length, FlameDIR dir)
-{
-	geneList_.push_back(std::make_shared<FlameGenerator>(pos, dir, length, 70, *this, flameData_));
-}
-

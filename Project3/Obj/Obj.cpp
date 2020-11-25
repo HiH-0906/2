@@ -4,13 +4,13 @@
 Obj::Obj(Vector2 pos, Vector2 size, int id, int speed, std::shared_ptr<Map> mapMng, BaseScene& scene)
 	:pos_(pos), size_(size),id_(id), speed_(speed), mapMng_(mapMng), scene_(scene)
 {
-	Update_ = std::bind(&Obj::UpdateDef, this);
+	Update_ = std::bind(&Obj::UpdateDef, this, std::placeholders::_1);
 	offSetY_ = size_.y / 2;
 	animCnt_ = 0;
 	alive_ = true;
 }
 
-bool Obj::UpdateDef(void)
+bool Obj::UpdateDef(NowTime time)
 {
 	return false;
 }

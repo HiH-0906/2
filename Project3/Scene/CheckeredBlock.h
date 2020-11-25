@@ -15,7 +15,7 @@ public:
     /// <param name="size">チェック柄分割数 縦横</param>
     CheckeredBlock(uniqueBase old, uniqueBase next,Vector2 size);
     ~CheckeredBlock();
-    uniqueBase Update(uniqueBase own)override;
+    uniqueBase Update(uniqueBase own, NowTime time)override;
     void TransitionUpdate(void)override;
     void Draw(void)override;
     void Init(void)override;

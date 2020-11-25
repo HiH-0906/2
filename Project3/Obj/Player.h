@@ -27,9 +27,9 @@ class Player
 public:
 	Player(Vector2 pos, Vector2 size, Vector2 ImageSize,int speed,int id, std::shared_ptr<Map> mapMng, BaseScene& scene);
 	~Player();
-	bool UpdateAuto(void);
-	bool UpdateDef(void)override;
-	bool UpdataNet(void);
+	bool UpdateAuto(NowTime time);
+	bool UpdateDef(NowTime time)override;
+	bool UpdataNet(NowTime time);
 	void Draw(void)override;
 	void StockBomb(int id);
 	int UseBomb(void);

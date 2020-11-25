@@ -12,7 +12,7 @@ class GameScene :
 	public BaseScene
 {
 public:
-	uniqueBase Update(uniqueBase own)override;
+	uniqueBase Update(uniqueBase own, NowTime time)override;
 	void DrawOwnScene(void)override;
 	void Init(void)override;
 	GameScene();
