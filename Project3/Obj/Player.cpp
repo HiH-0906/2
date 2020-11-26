@@ -286,11 +286,9 @@ void Player::FuncInit(void)
 	auto CheckHitObj = [&](const Vector2& APos, const Vector2& ASize, const shared_Obj objB,std::shared_ptr<Map> mapMng)
 	{
 		const auto& BPos = objB->GetPos();
-
-		
 		const auto& Bchip = mapMng->ChengeChip(BPos);
 
-		return APos == Bchip;
+		return (APos == Bchip);
 	};
 	
 	moveFunc_.emplace_back([&](bool tmp, std::list<shared_Obj> list)
@@ -308,7 +306,7 @@ void Player::FuncInit(void)
 						auto Achip = mapMng_->ChengeChip(tmpPos);
 						Achip.y++;
 						const auto& BPos = list.front()->GetPos();
-						if (CheckHitObj(Achip, size_, list.front(),mapMng_) && (tmpPos.y + size_.y < BPos.y))
+						if (CheckHitObj(Achip, size_, list.front(),mapMng_))
 						{
 							return false;
 						}
@@ -342,7 +340,7 @@ void Player::FuncInit(void)
 						Achip.x--;
 						const auto& BPos = list.front()->GetPos();
 						const auto& BSize = list.front()->GetSize();
-						if (CheckHitObj(Achip, size_, list.front(), mapMng_) && (tmpPos.x < BPos.x + BSize.x))
+						if (CheckHitObj(Achip, size_, list.front(), mapMng_))
 						{
 							return false;
 						}
@@ -375,7 +373,7 @@ void Player::FuncInit(void)
 						auto Achip = mapMng_->ChengeChip(tmpPos);
 						Achip.x++;
 						const auto& BPos = list.front()->GetPos();
-						if (CheckHitObj(Achip, size_, list.front(), mapMng_) && (tmpPos.x + size_.x < BPos.x))
+						if (CheckHitObj(Achip, size_, list.front(), mapMng_))
 						{
 							return false;
 						}
@@ -410,7 +408,7 @@ void Player::FuncInit(void)
 						Achip.y++;
 						const auto& BSize = list.front()->GetSize();
 						const auto& BPos = list.front()->GetPos();
-						if (CheckHitObj(Achip, size_, list.front(), mapMng_) && (tmpPos.y < BPos.y + BSize.y))
+						if (CheckHitObj(Achip, size_, list.front(), mapMng_))
 						{
 							return false;
 						}
