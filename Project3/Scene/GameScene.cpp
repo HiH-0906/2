@@ -63,7 +63,7 @@ void GameScene::Init(void)
 	if (mode == NetWorkMode::HOST || mode == NetWorkMode::OFFLINE)
 	{
 
-		mapMng_->LoadMap("mapData/map.tmx");
+		mapMng_->LoadMap("mapData/map2.tmx");
 		const auto& cLayer = mapMng_->GetMapData(MapLayer::CHAR);
 		int cnt = 0;
 		int id = 0;

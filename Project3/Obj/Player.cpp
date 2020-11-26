@@ -188,11 +188,11 @@ bool Player::UpdateDef(const Time& now)
 	const auto& chip = mapMng_->ChengeChip(pos_);
 	if (mapMng_->CheckHitFlame(chip))
 	{
-		//data[0] = { static_cast<unsigned int>(id_) };
-		//lpNetWork.SendMes(MES_TYPE::DETH, MesDataList{ data[0] });
-		//dir_ = DIR::DETH;
-		//state_ = AnimState::DETH;
-		//activ_ = false;
+		/*data[0] = { static_cast<unsigned int>(id_) };
+		lpNetWork.SendMes(MES_TYPE::DETH, MesDataList{ data[0] });
+		dir_ = DIR::DETH;
+		state_ = AnimState::DETH;
+		activ_ = false;*/
 	}
 	return true;
 }
