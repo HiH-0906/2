@@ -1,16 +1,18 @@
 #include "Bomb.h"
 #include "../common/ImageMng.h"
 #include "../Scene/GameScene.h"
+#include "Player.h"
 
 Bomb::Bomb(Vector2 pos, Vector2 size, int length,int id, int oid, std::shared_ptr<Map> mapMng, BaseScene& scene, std::chrono::system_clock::time_point start)
 	: Obj(pos, size,id, 0, mapMng, scene),owner_(oid)
 {
 	lpImageMng.GetID("Bomb", "Image/bomb.png", size_, { 2,7 });
 	start_ = start;
+	tag_ = OBJ_TAG::BOMB;
 	explosion_ = false;
 	elapsedTime_ = 0;
 	explosionTime_ = 1000;
-	defTime_ = 500;
+	defTime_ = explosionTime_ / 2;
 	offset_ = 0;
 	length_ = length;
 }
@@ -70,6 +72,10 @@ void Bomb::Draw(void)
 	else
 	{
 		offset_ = ((elapsedTime_ - 3000) / (1000 / 6)) * 2 + 1;
+		if (offset_ > 7)
+		{
+			offset_ = 7;
+		}
 	}
-	DrawGraph(pos_.x, pos_.y, lpImageMng.GetID("Bomb")[offset_], true);
+	DrawGraph(pos_.x, pos_.y, lpImageMng.GetID("Bomb")[static_cast<size_t>(offset_)], true);
 }

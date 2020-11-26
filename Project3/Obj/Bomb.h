@@ -14,9 +14,9 @@ private:
 	int length_;
 
 	Time start_;
-	int elapsedTime_;
+	__int64 elapsedTime_;
 	int explosionTime_;
 	int defTime_;
-	int offset_;
+	__int64 offset_;
 };
 

@@ -13,7 +13,7 @@
 
 uniqueBase GameScene::Update(uniqueBase own, const Time& now)
 {
-	objList_.sort([](shared_Obj& objA, shared_Obj& objB)
+	objList_.sort([](shared_Obj objA, shared_Obj objB)
 	{
 		return objA->CheckMesList() > objB->CheckMesList();
 	}
@@ -27,7 +27,7 @@ uniqueBase GameScene::Update(uniqueBase own, const Time& now)
 	mapMng_->Update(now);
 	DrawOwnScene();
 	DrawFps(now);
-	if (lpNetWork.GetActive() == ACTIVE_STATE::NON)
+	if (lpNetWork.GetActive() == ACTIVE_STATE::NON || (objList_.size() == 0))
 	{
 		mapMng_->ResrtOfMap();
 		Player::fallCnt_ = 0;
@@ -73,7 +73,7 @@ void GameScene::Init(void)
 			if (data != -1)
 			{
 				Vector2 pos = { chip.x * (cnt % 21),chip.y * (cnt / 21) };
-				objList_.emplace_back(std::make_shared<Player>(pos, Vector2{ 32,32 }, Vector2{ 32,50 }, 4, id, mapMng_, *this));
+				objList_.emplace_back(std::make_shared<Player>(pos, Vector2{ 32,32 }, Vector2{ 32,51 }, 4, id, mapMng_, *this));
 				id += UNIT_ID_BASE;
 			}
 			cnt++;
@@ -92,7 +92,7 @@ void GameScene::Init(void)
 			if (data != -1)
 			{
 				Vector2 pos = { chip.x * (cnt % 21),chip.y * (cnt / 21) };
-				objList_.emplace_back(std::make_shared<Player>(pos, Vector2{ 32,32 }, Vector2{ 32,50 }, 4, id, mapMng_, *this));
+				objList_.emplace_back(std::make_shared<Player>(pos, Vector2{ 32,32 }, Vector2{ 32,51 }, 4, id, mapMng_, *this));
 				id += UNIT_ID_BASE;
 			}
 			cnt++;
@@ -127,7 +127,12 @@ shared_Obj GameScene::GetPlayer(int id)
 	return tmp;
 }
 
-void GameScene::SetBomb(Vector2 pos, int& id, int& oid, bool send, std::chrono::system_clock::time_point start)
+std::list<shared_Obj> GameScene::GetObjList(void)
+{
+	return objList_;
+}
+
+void GameScene::SetBomb(Vector2 pos, int& id, int& oid,  int length ,bool send, std::chrono::system_clock::time_point start)
 {
 	uinonTimeData time = { start };
 	auto chip = mapMng_->ChengeChip(pos);
@@ -135,15 +140,16 @@ void GameScene::SetBomb(Vector2 pos, int& id, int& oid, bool send, std::chrono::
 	chip = chip * chipSize;
 	if (send)
 	{
-		sendData data[6];
+		sendData data[7];
 		data[0].uidata = oid;
 		data[1].uidata = id;
 		data[2].uidata = chip.x;
 		data[3].uidata = chip.y;
-		data[4].uidata = time.idata[0];
-		data[5].uidata = time.idata[1];
+		data[4].uidata = 3;
+		data[5].uidata = time.idata[0];
+		data[6].uidata = time.idata[1];
 		
-		lpNetWork.SendMes(MES_TYPE::SET_BOMB, { data[0],data[1],data[2],data[3],data[4],data[5] });
+		lpNetWork.SendMes(MES_TYPE::SET_BOMB, { data[0],data[1],data[2],data[3],data[4],data[5],data[6] });
 	}
-	objList_.emplace_back(std::make_unique<Bomb>(chip, Vector2{ 32,32 },3, id, oid, mapMng_, *this, start));
+	objList_.emplace_back(std::make_unique<Bomb>(chip, Vector2{ 32,32 }, length, id, oid, mapMng_, *this, start));
 }

@@ -30,7 +30,7 @@ bool Map::Update(const Time& now)
 			if (data.endTimeCnt_ < 0)
 			{
 				data.endTimeCnt_ = 0;
-				data.length_ = {};
+				data.length_.length = 0;
 			}
 		}
 	}
@@ -134,6 +134,15 @@ bool Map::CheckHitFlame(const Vector2& pos)
 	return flameData_[pos.x + static_cast<size_t>(pos.y) * static_cast<size_t>(info_.mapSize.x)].endTimeCnt_ != 0;
 }
 
+bool Map::CheckCircleFlame(const Vector2 pos)
+{
+	if (CheckHitFlame(pos) || CheckHitWall(pos))
+	{
+		return false;
+	}
+	return true;
+}
+
 Vector2 Map::ChengeChip(const Vector2& pos)
 {
 	Vector2 chip = { pos.x / info_.chipSize.x,pos.y / info_.chipSize.y };
@@ -169,38 +178,60 @@ void Map::DrawFlame(void)
 		{
 			if (flameData_[x + static_cast<size_t>(y) * static_cast<size_t>(info_.mapSize.x)].endTimeCnt_ != 0)
 			{
+				SetDrawBlendMode(DX_BLENDMODE_ADD, 200);
 				const auto& data = flameData_[x + static_cast<size_t>(y) * static_cast<size_t>(info_.mapSize.x)];
 				auto frame = data.endTimeCnt_ / (1000 / 6);
-				
+				// ÉSÉ~
 				frame = abs(frame - 6);
 				auto tmp = frame;
 				frame %= 4;
 				frame = abs(frame - (tmp / 4) * 2) * 3;
 				int offset = 0;
 				double angle = 0;
-				_dbgDrawFormatString(x * static_cast<size_t>(info_.chipSize.x), y * static_cast<size_t>(info_.chipSize.y), 0xffffff, "%d", frame);
 				if ((data.length_.fLength.down || data.length_.fLength.up) && (data.length_.fLength.left || data.length_.fLength.right))
 				{
 					offset = 0;
-					SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 200);
 				}
-				else if (data.length_.fLength.down || data.length_.fLength.up || data.length_.fLength.left || data.length_.fLength.right)
+				else if (data.length_.length != 0)
 				{
 					const auto RightAngle = DX_PI / 2;
+					offset = 1;
 					if (data.length_.fLength.left)
 					{
 						angle = RightAngle * 2;
+						if (CheckCircleFlame(Vector2(x - 1, y)) || data.length_.fLength.left == 1)
+						{
+							offset = 2;
+						}
+							
 					}
 					if (data.length_.fLength.down)
 					{
 						angle = RightAngle;
+						if(CheckCircleFlame(Vector2(x , y + 1)) || data.length_.fLength.down == 1)
+						{
+							offset = 2;
+						}
 					}
 					if (data.length_.fLength.up)
 					{
 						angle = RightAngle * 3;
+						if (CheckCircleFlame(Vector2(x, y - 1)) || data.length_.fLength.up == 1)
+						{
+							offset = 2;
+						}
 					}
+					if (data.length_.fLength.right)
+					{
+						if (CheckCircleFlame(Vector2(x + 1, y)) || data.length_.fLength.right == 1)
+						{
+							offset = 2;
+						}
+					}
+				}
+				else
+				{
 					offset = 1;
-					SetDrawBlendMode(DX_BLENDMODE_ADD, 200);
 				}
 				DrawRotaGraph(x * info_.chipSize.x + (info_.chipSize.x / 2), y * info_.chipSize.y + (info_.chipSize.y / 2), 1.0, angle, lpImageMng.GetID("fire")[frame + offset], true);
 			}

@@ -18,6 +18,9 @@ Player::Player(Vector2 pos, Vector2 size,Vector2 ImageSize, int speed,int id, st
 	lpImageMng.GetID("player", "Image/bomberman.png", { ImageSize.x,ImageSize.y }, { 5,4 });
 	dir_ = DIR::DOWN;
 	state_ = AnimState::IDEL;
+	tag_ = OBJ_TAG::PLAYER;
+	offSetY_ = ImageSize.y / 2;
+	length_ = 3;
 	chipSize_ = mapMng_->GetChipSize();
 	input_ = std::make_unique<keyState>();
 	input_->Setting(0, DX_INPUT_PAD1);
@@ -119,8 +122,10 @@ bool Player::UpdateAuto(const Time& now)
 	const auto& chip = mapMng_->ChengeChip(pos_);
 	if (mapMng_->CheckHitFlame(chip))
 	{
+		data[0] = { static_cast<unsigned int>(id_) };
+		lpNetWork.SendMes(MES_TYPE::DETH, MesDataList{ data[0] });
 		dir_ = DIR::DETH;
-		state_ = AnimState::IDEL;
+		state_ = AnimState::DETH;
 		activ_ = false;
 	}
 	return true;
@@ -133,14 +138,34 @@ bool Player::UpdateDef(const Time& now)
 		animCnt_++;
 		return true;
 	}
+	std::list<shared_Obj> list;
+	
+	for (auto& obj : dynamic_cast<GameScene&>(scene_).GetObjList())
+	{
+		if (obj->GetTag() != OBJ_TAG::PLAYER)
+		{
+			list.emplace_back(obj);
+		}
+	}
+	if (list.size() > 1)
+	{
+		list.sort([](const shared_Obj& objA, const shared_Obj& objB) 
+		{
+			const auto& APos = objA->GetPos();
+			const auto& BPos = objB->GetPos();
+			return (APos.x * APos.x + APos.y * APos.y) > (BPos.x * BPos.x + BPos.y * BPos.y);
+		}
+		);
+	}
+
 	input_->Update();
 	state_ = AnimState::IDEL;
 	for (auto movePrg = moveFunc_.begin(); movePrg != moveFunc_.end(); movePrg++)
 	{
-		if ((*movePrg)(true))
+		if ((*movePrg)(true,list))
 		{
 			moveFunc_.splice(moveFunc_.begin(), moveFunc_, movePrg);
-			moveFunc_.sort([&](moveFunc funcA, moveFunc funcB) {return funcA(false) < funcB(false); });
+			moveFunc_.sort([&](moveFunc funcA, moveFunc funcB) {return funcA(false,list) < funcB(false,list); });
 			state_ = AnimState::WALK;
 			break;
 		}
@@ -151,7 +176,7 @@ bool Player::UpdateDef(const Time& now)
 		auto id = UseBomb();
 		if (id >= 0)
 		{
-			dynamic_cast<GameScene&>(scene_).SetBomb(pos_, id, id_, true, std::chrono::system_clock::now());
+			dynamic_cast<GameScene&>(scene_).SetBomb(pos_, id, id_, length_, true, now);
 		}
 	}
 	data[0] = { static_cast<unsigned int>(id_) };
@@ -163,9 +188,11 @@ bool Player::UpdateDef(const Time& now)
 	const auto& chip = mapMng_->ChengeChip(pos_);
 	if (mapMng_->CheckHitFlame(chip))
 	{
-		dir_ = DIR::DETH;
-		state_ = AnimState::IDEL;
-		activ_ = false;
+		//data[0] = { static_cast<unsigned int>(id_) };
+		//lpNetWork.SendMes(MES_TYPE::DETH, MesDataList{ data[0] });
+		//dir_ = DIR::DETH;
+		//state_ = AnimState::DETH;
+		//activ_ = false;
 	}
 	return true;
 }
@@ -183,15 +210,16 @@ bool Player::UpdataNet(const Time& now)
 		 auto mes = PickUpMes(MES_TYPE::POS);
 			auto& data = mes.second;
 			pos_ = Vector2{ static_cast<int>(data[1].uidata),static_cast<int>(data[2].uidata) };
+			dir_ = static_cast<DIR>(data[3].uidata);
 			test = true;
 	 }
 	 while (isPickMesList(MES_TYPE::SET_BOMB))
 	 {
 		 auto mes = PickUpMes(MES_TYPE::SET_BOMB);
 		 uinonTimeData time = { std::chrono::system_clock::now() };
-		 time.idata[0] = mes.second[4].idata;
-		 time.idata[1] = mes.second[5].idata;
-		 dynamic_cast<GameScene&>(scene_).SetBomb(Vector2{ mes.second[2].idata,mes.second[3].idata }, mes.second[1].idata, mes.second[0].idata, false, time.time);
+		 time.idata[0] = mes.second[5].idata;
+		 time.idata[1] = mes.second[6].idata;
+		 dynamic_cast<GameScene&>(scene_).SetBomb(Vector2{ mes.second[2].idata,mes.second[3].idata }, mes.second[1].idata, mes.second[0].idata, mes.second[4].idata, false, time.time);
 	 }
 	 if (!test)
 	 {
@@ -200,20 +228,45 @@ bool Player::UpdataNet(const Time& now)
 	 }
 	animCnt_++;
 	state_ = AnimState::WALK;
+	if (isPickMesList(MES_TYPE::DETH))
+	{
+		dir_ = DIR::DETH;
+		state_ = AnimState::DETH;
+		activ_ = false;
+	}
 	return true;
 }
 
 void Player::Draw(void)
 {
-	size_t anim = static_cast<size_t>((animCnt_ / 15) % 2) * 5;
-	size_t state = (static_cast<size_t>(state_) * 10);
-	size_t dir = static_cast<size_t>(dir_);
+	size_t anim = 0;
+	size_t state = 0;
+	size_t dir = 0;
+	if (state_ != AnimState::DETH)
+	{
+		anim = static_cast<size_t>((animCnt_ / 15) % 2) * 5;
+		state = (static_cast<size_t>(state_) * 10);
+		dir = static_cast<size_t>(dir_);
+	}
+	else
+	{
+		anim = static_cast<size_t>((animCnt_ / 15) % 4) * 5;
+		dir = static_cast<size_t>(dir_);
+		if (((animCnt_ / 15) % 4) == 0)
+		{
+			alive_ = false;
+		}
+	}
 	DrawGraph(pos_.x, pos_.y - offSetY_, lpImageMng.GetID("player")[anim + state + dir], true);
 	_dbgDrawBox(pos_.x, pos_.y, pos_.x + size_.x, pos_.y + size_.y, 0xffffff, false);
 }
 
 void Player::StockBomb(int id)
 {
+	if (!activ_)
+	{
+		return;
+	}
 	bombList_.emplace_back(id);
 }
 
@@ -230,20 +283,41 @@ int Player::UseBomb(void)
 
 void Player::FuncInit(void)
 {
-	moveFunc_.emplace_back([&](bool tmp)
+	auto CheckHitObj = [&](const Vector2& APos, const Vector2& ASize, const shared_Obj objB,std::shared_ptr<Map> mapMng)
+	{
+		const auto& BPos = objB->GetPos();
+
+		
+		const auto& Bchip = mapMng->ChengeChip(BPos);
+
+		return APos == Bchip;
+	};
+	
+	moveFunc_.emplace_back([&](bool tmp, std::list<shared_Obj> list)
 	{
 		if (input_->GetKeySty(INPUT_ID::DOWN))
 		{
 			if (tmp)
 			{
+				dir_ = DIR::DOWN;
 				if (!CheckHitWall(DIR::DOWN))
 				{
+					auto tmpPos = pos_ + speedVec_[DIR::DOWN];
+					if (list.size() != 0)
+					{
+						auto Achip = mapMng_->ChengeChip(tmpPos);
+						Achip.y++;
+						const auto& BPos = list.front()->GetPos();
+						if (CheckHitObj(Achip, size_, list.front(),mapMng_) && (tmpPos.y + size_.y < BPos.y))
+						{
+							return false;
+						}
+					}
 					pos_ += speedVec_[DIR::DOWN];
 					if (pos_.x % (size_.x) != 0)
 					{
 						pos_.x = ((pos_.x + (size_.x / 2)) / chipSize_.x) * chipSize_.x;
 					}
-					dir_ = DIR::DOWN;
 					return true;
 				}
 				return false;
@@ -252,20 +326,32 @@ void Player::FuncInit(void)
 		}
 		return false;
 	});
-	moveFunc_.emplace_back([&](bool tmp)
+	moveFunc_.emplace_back([&](bool tmp, std::list<shared_Obj> list)
 	{
 		if (input_->GetKeySty(INPUT_ID::LEFT))
 		{
 			if (tmp)
 			{
+				dir_ = DIR::LEFT;
 				if (!CheckHitWall(DIR::LEFT))
 				{
+					auto tmpPos = pos_ + speedVec_[DIR::LEFT];
+					if (list.size() != 0)
+					{
+						auto Achip = mapMng_->ChengeChip(tmpPos);
+						Achip.x--;
+						const auto& BPos = list.front()->GetPos();
+						const auto& BSize = list.front()->GetSize();
+						if (CheckHitObj(Achip, size_, list.front(), mapMng_) && (tmpPos.x < BPos.x + BSize.x))
+						{
+							return false;
+						}
+					}
 					pos_ += speedVec_[DIR::LEFT];
 					if (pos_.y % (32) != 0)
 					{
 						pos_.y = ((pos_.y + (size_.y / 2)) / chipSize_.y) * chipSize_.y;
 					}
-					dir_ = DIR::LEFT;
 					return true;
 				}
 				return false;
@@ -274,20 +360,31 @@ void Player::FuncInit(void)
 		}
 		return false;
 	});
-	moveFunc_.emplace_back([&](bool tmp)
+	moveFunc_.emplace_back([&](bool tmp, std::list<shared_Obj> list)
 	{
 		if (input_->GetKeySty(INPUT_ID::RIGHT))
 		{
 			if (tmp)
 			{
+				dir_ = DIR::RIGHT;
 				if (!CheckHitWall(DIR::RIGHT))
 				{
+					auto tmpPos = pos_ + speedVec_[DIR::RIGHT];
+					if (list.size() != 0)
+					{
+						auto Achip = mapMng_->ChengeChip(tmpPos);
+						Achip.x++;
+						const auto& BPos = list.front()->GetPos();
+						if (CheckHitObj(Achip, size_, list.front(), mapMng_) && (tmpPos.x + size_.x < BPos.x))
+						{
+							return false;
+						}
+					}
 					pos_ += speedVec_[DIR::RIGHT];
 					if (pos_.y % (32) != 0)
 					{
 						pos_.y = ((pos_.y + (size_.y / 2)) / chipSize_.y) * chipSize_.y;
 					}
-					dir_ = DIR::RIGHT;
 					return true;
 				}
 				return false;
@@ -296,20 +393,33 @@ void Player::FuncInit(void)
 		}
 		return false;
 	});
-	moveFunc_.emplace_back([&](bool tmp)
+	moveFunc_.emplace_back([&](bool tmp, std::list<shared_Obj> list)
 	{
 		if (input_->GetKeySty(INPUT_ID::UP))
 		{
 			if (tmp)
 			{
+				dir_ = DIR::UP;
 				if (!CheckHitWall(DIR::UP))
 				{
+
+					auto tmpPos = pos_ + speedVec_[DIR::UP];
+					if (list.size() != 0)
+					{
+						auto Achip = mapMng_->ChengeChip(tmpPos);
+						Achip.y++;
+						const auto& BSize = list.front()->GetSize();
+						const auto& BPos = list.front()->GetPos();
+						if (CheckHitObj(Achip, size_, list.front(), mapMng_) && (tmpPos.y < BPos.y + BSize.y))
+						{
+							return false;
+						}
+					}
 					pos_ += speedVec_[DIR::UP];
 					if (pos_.x % (size_.x) != 0)
 					{
 						pos_.x = ((pos_.x + (size_.x / 2)) / chipSize_.x) * chipSize_.x;
 					}
-					dir_ = DIR::UP;
 					return true;
 				}
 				return false;

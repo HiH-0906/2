@@ -20,7 +20,7 @@ union Length
 
 struct FlameData
 {
-	int endTimeCnt_;
+	__int64 endTimeCnt_;
 	Length length_;
 };
 
@@ -37,7 +37,7 @@ private:
 	Vector2 chipPos_;
 	bool alive_;
 	bool SetNextFlame(const Time& now);
-	int generatTime_;
+	__int64 generatTime_;
 	Length length_;
 	Length olgLength_;
 	Time oldTime_;

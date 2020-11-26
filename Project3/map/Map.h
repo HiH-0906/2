@@ -33,6 +33,7 @@ public:
 	bool CheckHitWall(const Vector2& pos);				// 渡された座標が壁に当たっているかどうか
 	bool CheckBreakWall(const Vector2& chip);
 	bool CheckHitFlame(const Vector2& pos);
+	bool CheckCircleFlame(const Vector2 pos);
 	Vector2 ChengeChip(const Vector2& pos);				// 渡された座標をチップに
 	void SetFlameData(const Vector2& chip, FlameData data);
 	const Vector2& GetChipSize(void)const;

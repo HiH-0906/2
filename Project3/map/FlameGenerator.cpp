@@ -3,7 +3,7 @@
 
 namespace
 {
-	constexpr unsigned int Next_Gene_Time = 1000 / 6;
+	constexpr __int64 Next_Gene_Time = 1000 / 6;
 }
 
 FlameGenerator::FlameGenerator(Vector2 chipPos, int length,Map& mapMng, std::vector<FlameData>& data, Time now)
@@ -49,7 +49,7 @@ bool FlameGenerator::SetNextFlame(const Time& now)
 		pos.x -= olgLength_.fLength.left - length_.fLength.left;
 
 		auto length = flameData_[pos.x + static_cast<size_t>(pos.y) * static_cast<size_t>(mapMng_.GetMapSize().x)].length_;
-		length.fLength.left = 1;
+		length.fLength.left = length_.fLength.left;
 		
 			
 		if (mapMng_.CheckBreakWall(pos))
@@ -76,7 +76,7 @@ bool FlameGenerator::SetNextFlame(const Time& now)
 		pos.x += olgLength_.fLength.right - length_.fLength.right;
 
 		auto length = flameData_[pos.x + static_cast<size_t>(pos.y) * static_cast<size_t>(mapMng_.GetMapSize().x)].length_;
-		length.fLength.right = 1;
+		length.fLength.right = length_.fLength.right;
 		
 		if (mapMng_.CheckBreakWall(pos))
 		{
@@ -102,7 +102,7 @@ bool FlameGenerator::SetNextFlame(const Time& now)
 		pos.y -= olgLength_.fLength.up - length_.fLength.up;
 
 		auto length = flameData_[pos.x + static_cast<size_t>(pos.y) * static_cast<size_t>(mapMng_.GetMapSize().x)].length_;
-		length.fLength.up = 1;
+		length.fLength.up = length_.fLength.up;
 		if (mapMng_.CheckBreakWall(pos))
 		{
 			length_.fLength.up = 0;
@@ -127,7 +127,7 @@ bool FlameGenerator::SetNextFlame(const Time& now)
 		pos.y += olgLength_.fLength.down - length_.fLength.down;
 
 		auto length = flameData_[pos.x + static_cast<size_t>(pos.y) * static_cast<size_t>(mapMng_.GetMapSize().x)].length_;
-		length.fLength.down = 1;
+		length.fLength.down = length_.fLength.down;
 		if (mapMng_.CheckBreakWall(pos))
 		{
 			length_.fLength.down = 0;

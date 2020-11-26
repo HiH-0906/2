@@ -6,11 +6,13 @@
 #include "../Input/Input.h"
 #include "../common/Vector2.h"
 #include "../State/DIR.h"
+#include "../Scene/GameScene.h"
 
 enum class AnimState
 {
 	IDEL,
 	WALK,
+	DETH,
 	MAX
 };
 
@@ -19,7 +21,7 @@ class Map;
 
 #define UNIT_ID_BASE 5
 
-using moveFunc = std::function<bool(bool)>;
+using moveFunc = std::function<bool(bool, std::list<shared_Obj>)>;
 
 class Player
 	:public Obj
@@ -36,6 +38,7 @@ public:
 	static int fallCnt_;
 private:
 	void FuncInit(void);
+	int length_;
 	sendData data[4];
 	std::map<DIR, Vector2> speedVec_;
 	Vector2 chipSize_;

@@ -17,6 +17,21 @@ bool Obj::UpdateDef(const Time& now)
 	return false;
 }
 
+const Vector2& Obj::GetPos(void) const
+{
+	return pos_;
+}
+
+const Vector2& Obj::GetSize(void) const
+{
+	return size_;
+}
+
+const OBJ_TAG& Obj::GetTag(void)
+{
+	return tag_;
+}
+
 bool Obj::CheckMesList(void)
 {
 	std::lock_guard<std::mutex> lock(mtx_);
