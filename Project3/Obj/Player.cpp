@@ -82,6 +82,7 @@ bool Player::UpdateAuto(const Time& now)
 		animCnt_++;
 		return true;
 	}
+	std::list<shared_Obj> list = GetHitObjList();
 	auto NextDir = [&](DIR dir)
 	{
 		if (dir == DIR::DOWN)
@@ -111,7 +112,23 @@ bool Player::UpdateAuto(const Time& now)
 		}
 	}
 	dir_ = dir;
-	pos_ += speedVec_[dir_];
+	if (list.size() != 0)
+	{
+		const auto& pos = list.front()->GetPos();
+		//_dbgDrawFormatString(pos.x, pos.y, 0xffffff, "AUTOÅFìñÇΩÇËîªíËëŒè€");
+		if (!CheckHitObj(list.front(), dir_))
+		{
+			pos_ += speedVec_[dir_];
+		}
+		else
+		{
+			dir_ = NextDir(dir_);
+		}
+	}
+	else
+	{
+		pos_ += speedVec_[dir_];
+	}
 	data[0] = { static_cast<unsigned int>(id_) };
 	data[1] = { static_cast<unsigned int>(pos_.x) };
 	data[2] = { static_cast<unsigned int>(pos_.y) };
@@ -138,24 +155,18 @@ bool Player::UpdateDef(const Time& now)
 		animCnt_++;
 		return true;
 	}
-	std::list<shared_Obj> list;
+	std::list<shared_Obj> list = GetHitObjList();
 	
-	for (auto& obj : dynamic_cast<GameScene&>(scene_).GetObjList())
+	if (list.size() != 0)
 	{
-		if (obj->GetTag() != OBJ_TAG::PLAYER)
+		
+		int i = 0;
+		for (auto& tmp : list)
 		{
-			list.emplace_back(obj);
+			const auto& pos = tmp->GetPos();
+			_dbgDrawFormatString(pos.x, pos.y, 0xff0000, "%d", i);
+			i++;
 		}
-	}
-	if (list.size() > 1)
-	{
-		list.sort([](const shared_Obj& objA, const shared_Obj& objB) 
-		{
-			const auto& APos = objA->GetPos();
-			const auto& BPos = objB->GetPos();
-			return (APos.x * APos.x + APos.y * APos.y) > (BPos.x * BPos.x + BPos.y * BPos.y);
-		}
-		);
 	}
 
 	input_->Update();
@@ -237,6 +248,47 @@ bool Player::UpdataNet(const Time& now)
 	return true;
 }
 
+bool Player::CheckHitObj(const shared_Obj& objB,DIR dir)
+{
+	if ((pos_.x % 32 == 0) && (pos_.y % 32 == 0))
+	{
+		auto APos = mapMng_->ChengeChip(pos_);
+		APos += +speedVec_[dir] / speed_;
+		const auto& BPos = objB->GetPos();
+		const auto& Bchip = mapMng_->ChengeChip(BPos);
+
+		return (APos == Bchip);
+	}
+	return false;
+}
+
+std::list<shared_Obj> Player::GetHitObjList(void)
+{
+	std::list<shared_Obj> list;
+	for (auto& obj : dynamic_cast<GameScene&>(scene_).GetObjList())
+	{
+		if (obj->GetTag() != OBJ_TAG::PLAYER)
+		{
+			list.emplace_back(obj);
+		}
+	}
+	if (list.size() > 1)
+	{
+		list.sort([&](const shared_Obj& objA, const shared_Obj& objB)
+		{
+			const auto& APos = objA->GetPos() - pos_;
+			const auto& BPos = objB->GetPos() - pos_;
+			if (APos.x == 0 && APos.y == 0)
+			{
+				return false;
+			}
+			return (APos.x * APos.x + APos.y * APos.y) < (BPos.x * BPos.x + BPos.y * BPos.y);
+		}
+		);
+	}
+	return std::move(list);
+}
+
 void Player::Draw(void)
 {
 	size_t anim = 0;
@@ -263,10 +315,6 @@ void Player::Draw(void)
 
 void Player::StockBomb(int id)
 {
-	if (!activ_)
-	{
-		return;
-	}
 	bombList_.emplace_back(id);
 }
 
@@ -283,14 +331,6 @@ int Player::UseBomb(void)
 
 void Player::FuncInit(void)
 {
-	auto CheckHitObj = [&](const Vector2& APos, const Vector2& ASize, const shared_Obj objB,std::shared_ptr<Map> mapMng)
-	{
-		const auto& BPos = objB->GetPos();
-		const auto& Bchip = mapMng->ChengeChip(BPos);
-
-		return (APos == Bchip);
-	};
-	
 	moveFunc_.emplace_back([&](bool tmp, std::list<shared_Obj> list)
 	{
 		if (input_->GetKeySty(INPUT_ID::DOWN))
@@ -300,13 +340,9 @@ void Player::FuncInit(void)
 				dir_ = DIR::DOWN;
 				if (!CheckHitWall(DIR::DOWN))
 				{
-					auto tmpPos = pos_ + speedVec_[DIR::DOWN];
 					if (list.size() != 0)
 					{
-						auto Achip = mapMng_->ChengeChip(tmpPos);
-						Achip.y++;
-						const auto& BPos = list.front()->GetPos();
-						if (CheckHitObj(Achip, size_, list.front(),mapMng_))
+						if (CheckHitObj(list.front(),DIR::DOWN))
 						{
 							return false;
 						}
@@ -333,14 +369,9 @@ void Player::FuncInit(void)
 				dir_ = DIR::LEFT;
 				if (!CheckHitWall(DIR::LEFT))
 				{
-					auto tmpPos = pos_ + speedVec_[DIR::LEFT];
 					if (list.size() != 0)
 					{
-						auto Achip = mapMng_->ChengeChip(tmpPos);
-						Achip.x--;
-						const auto& BPos = list.front()->GetPos();
-						const auto& BSize = list.front()->GetSize();
-						if (CheckHitObj(Achip, size_, list.front(), mapMng_))
+						if (CheckHitObj(list.front(), DIR::LEFT))
 						{
 							return false;
 						}
@@ -367,13 +398,9 @@ void Player::FuncInit(void)
 				dir_ = DIR::RIGHT;
 				if (!CheckHitWall(DIR::RIGHT))
 				{
-					auto tmpPos = pos_ + speedVec_[DIR::RIGHT];
 					if (list.size() != 0)
 					{
-						auto Achip = mapMng_->ChengeChip(tmpPos);
-						Achip.x++;
-						const auto& BPos = list.front()->GetPos();
-						if (CheckHitObj(Achip, size_, list.front(), mapMng_))
+						if (CheckHitObj(list.front(), DIR::RIGHT))
 						{
 							return false;
 						}
@@ -400,15 +427,9 @@ void Player::FuncInit(void)
 				dir_ = DIR::UP;
 				if (!CheckHitWall(DIR::UP))
 				{
-
-					auto tmpPos = pos_ + speedVec_[DIR::UP];
 					if (list.size() != 0)
 					{
-						auto Achip = mapMng_->ChengeChip(tmpPos);
-						Achip.y++;
-						const auto& BSize = list.front()->GetSize();
-						const auto& BPos = list.front()->GetPos();
-						if (CheckHitObj(Achip, size_, list.front(), mapMng_))
+						if (CheckHitObj(list.front(), DIR::UP))
 						{
 							return false;
 						}

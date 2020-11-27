@@ -28,7 +28,10 @@ bool Bomb::UpdateDef(const Time& now)
 	if (mapMng_->CheckHitFlame(chip)&& !explosion_)
 	{
 		auto player = dynamic_cast<GameScene&>(scene_).GetPlayer(owner_);
-		dynamic_cast<Player&>(*player).StockBomb(id_);
+		if (player != nullptr)
+		{
+			dynamic_cast<Player&>(*player).StockBomb(id_);
+		}
 		auto chip = mapMng_->ChengeChip(pos_);
 		mapMng_->GeneratoFlame(chip, length_, now);
 		explosion_ = true;
@@ -36,12 +39,15 @@ bool Bomb::UpdateDef(const Time& now)
 	if (elapsedTime_ >= 3000 && !explosion_)
 	{
 		auto player = dynamic_cast<GameScene&>(scene_).GetPlayer(owner_);
-		dynamic_cast<Player&>(*player).StockBomb(id_);
+		if (player != nullptr)
+		{
+			dynamic_cast<Player&>(*player).StockBomb(id_);
+		}
 		auto chip = mapMng_->ChengeChip(pos_);
 		mapMng_->GeneratoFlame(chip, length_, now);
 		explosion_ = true;
 	}
-	else if (elapsedTime_ >= 3000 + ((1000 / 6) * 7) || explosion_)
+	else if (explosion_)
 	{
 		alive_ = false;
 	}
@@ -71,7 +77,7 @@ void Bomb::Draw(void)
 	}
 	else
 	{
-		offset_ = ((elapsedTime_ - 3000) / (1000 / 6)) * 2 + 1;
+		offset_ = (((elapsedTime_ - 3000) * 2) / (1000 / 6)) + 1;
 		if (offset_ > 7)
 		{
 			offset_ = 7;

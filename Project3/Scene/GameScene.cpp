@@ -3,6 +3,7 @@
 #include <DxLib.h>
 #include "GameScene.h"
 #include "CrossOver.h"
+#include "CheckeredBlock.h"
 #include "LoginScene.h"
 #include "SceneMng.h"
 #include "../Obj/Player.h"
@@ -13,6 +14,12 @@
 
 uniqueBase GameScene::Update(uniqueBase own, const Time& now)
 {
+	if (lpNetWork.GetActive() == ACTIVE_STATE::NON || (objList_.size() == 0) || lpNetWork.GetActive() == ACTIVE_STATE::OFFLINE)
+	{
+		mapMng_->ResrtOfMap();
+		Player::fallCnt_ = 0;
+		return std::move(std::make_unique<CheckeredBlock>(std::move(own), std::make_unique<LoginScene>()));
+	}
 	objList_.sort([](shared_Obj objA, shared_Obj objB)
 	{
 		return objA->CheckMesList() > objB->CheckMesList();
@@ -27,12 +34,7 @@ uniqueBase GameScene::Update(uniqueBase own, const Time& now)
 	mapMng_->Update(now);
 	DrawOwnScene();
 	DrawFps(now);
-	if (lpNetWork.GetActive() == ACTIVE_STATE::NON || (objList_.size() == 0))
-	{
-		mapMng_->ResrtOfMap();
-		Player::fallCnt_ = 0;
-		return std::make_unique<CrossOver>(std::move(own), std::make_unique<LoginScene>());
-	}
+
 	return own;
 }
 
@@ -63,7 +65,7 @@ void GameScene::Init(void)
 	if (mode == NetWorkMode::HOST || mode == NetWorkMode::OFFLINE)
 	{
 
-		mapMng_->LoadMap("mapData/map2.tmx");
+		mapMng_->LoadMap("mapData/map.tmx");
 		const auto& cLayer = mapMng_->GetMapData(MapLayer::CHAR);
 		int cnt = 0;
 		int id = 0;

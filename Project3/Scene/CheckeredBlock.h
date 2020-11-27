@@ -8,12 +8,11 @@ class CheckeredBlock :
 {
 public:
     /// <summary>
-    /// チェック柄的にトランジションする
+    /// 左上から切り替わる
     /// </summary>
     /// <param name="old">前のscene</param>
     /// <param name="next">次のscene</param>
-    /// <param name="size">チェック柄分割数 縦横</param>
-    CheckeredBlock(uniqueBase old, uniqueBase next,Vector2 size);
+    CheckeredBlock(uniqueBase old, uniqueBase next);
     ~CheckeredBlock();
     uniqueBase Update(uniqueBase own, const Time& now)override;
     void TransitionUpdate(void)override;
@@ -21,11 +20,13 @@ public:
     void Init(void)override;
     void DrawOwnScene(void)override;
 private:
-    void MakeBlockImage(void);
+    void MakeBlockImage(const int& image,bool next, std::vector<int>& list);
 
     int cnt_;
-    int image_;
-    std::vector<int> blockList_;
+    int nextImage_;
+    int oldImage_;
+    std::vector<int> nextBlockList_;
+    std::vector<int> oldBlockList_;
     Vector2 divCnt_;
 };
 

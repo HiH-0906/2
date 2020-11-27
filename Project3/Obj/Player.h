@@ -32,6 +32,8 @@ public:
 	bool UpdateAuto(const Time& now);
 	bool UpdateDef(const Time& now)override;
 	bool UpdataNet(const Time& now);
+	bool CheckHitObj(const shared_Obj& objB, DIR dir);
+	std::list<shared_Obj> GetHitObjList(void);
 	void Draw(void)override;
 	void StockBomb(int id);
 	int UseBomb(void);

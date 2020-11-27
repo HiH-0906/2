@@ -49,7 +49,7 @@ uniqueBase LoginScene::Update(uniqueBase own, const Time& now)
 	DrawOwnScene();
 	if (!(this->*func_[state_])())
 	{
-		return std::move(std::make_unique<CheckeredBlock>(std::move(own), std::make_unique<GameScene>(), Vector2{5,5}));
+		return std::move(std::make_unique<CheckeredBlock>(std::move(own), std::make_unique<GameScene>()));
 	}
 	return own;
 }
@@ -157,7 +157,7 @@ bool LoginScene::StartInit(void)
 	{
 		if (lpNetWork.GetActive() == ACTIVE_STATE::INIT)
 		{
-			if (lpNetWork.SendTmxData("mapData/map2.tmx"))
+			if (lpNetWork.SendTmxData("mapData/map.tmx"))
 			{
 				lpNetWork.SendStanby();
 			}

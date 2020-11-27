@@ -15,10 +15,13 @@ void SceneMng::Run()
 	_dbgSetup(screenX, screenY, 255);
 	activeScene_ = std::make_unique<LoginScene>();
 	activeScene_->Init();
+	befora_= std::chrono::system_clock::now();
 	while (!ProcessMessage() && !CheckHitKey(KEY_INPUT_ESCAPE))
 	{
-		_dbgStartDraw();
 		now_ = std::chrono::system_clock::now();
+		_dbgStartDraw();
+		auto daluta = std::chrono::duration_cast<std::chrono::milliseconds>(now_ - befora_).count();
+
 		activeScene_ = (*activeScene_).Update(std::move(activeScene_), now_);
 		Draw();
 	}

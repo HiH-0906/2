@@ -45,5 +45,7 @@ private:
 	SceneMng();
 	~SceneMng();
 	static std::unique_ptr<SceneMng,SceneMngDeleter> s_instance_;
+
+	Time befora_;
 };
 
