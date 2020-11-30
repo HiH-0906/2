@@ -355,6 +355,38 @@ bool NetWork::SendTmxData(std::string filename)
 	return true;
 }
 
+bool NetWork::GetCountDownFlag(void)
+{
+	if (!state_)
+	{
+		return false;
+	}
+	return state_->GetCountStart();
+}
+
+const std::chrono::system_clock::time_point& NetWork::GetCountDownTime(void) const
+{
+	return state_->GetCountDownTime();
+}
+
+const int& NetWork::GetID(void) const
+{
+	if (!state_)
+	{
+		return -1;
+	}
+	return state_->GetID();
+}
+
+const int& NetWork::GetMax(void) const
+{
+	if (!state_)
+	{
+		return -1;
+	}
+	return state_->GetMax();
+}
+
 void NetWork::SaveTmx(void)
 {
 	std::ifstream tmx("mapData/tmp.tmx");
@@ -482,7 +514,6 @@ void NetWork::RevStanby(void)
 		std::cout << "スタンバイにデータ部があります" << std::endl;
 		MesDataList tmpData;
 		tmpData.resize(mes_.length);
-		//NetWorkRecv(handleList_, tmpData.data(), static_cast<int>(tmpData.size() * sizeof(tmpData[0])));
 	}
 	std::cout << "受信時間" << std::chrono::duration_cast<std::chrono::milliseconds>(end_ - strat_).count() << std::endl;
 
@@ -499,7 +530,6 @@ void NetWork::RevGameStart(void)
 		std::cout << "ゲームスタートにデータ部があります" << std::endl;
 		MesDataList tmpData;
 		tmpData.resize(mes_.length);
-		//NetWorkRecv(handleList_, tmpData.data(), static_cast<int>(tmpData.size() * sizeof(tmpData[0])));
 	}
 	std::lock_guard<std::mutex> lock(stMtx_);
 	gameStart_ = true;
@@ -535,13 +565,12 @@ NetWork::NetWork()
 	revFunc_[2] = (std::bind(&NetWork::RevID, this));
 	revFunc_[3] = (std::bind(&NetWork::RevStanby, this));
 	revFunc_[4] = (std::bind(&NetWork::RevGameStart, this));
-	revFunc_[5] = (std::bind(&NetWork::RevStartTime, this));
-	revFunc_[6] = (std::bind(&NetWork::RevTmxSize, this));
-	revFunc_[7] = (std::bind(&NetWork::RevTmxData, this));
+	revFunc_[5] = (std::bind(&NetWork::RevTmxSize, this));
+	revFunc_[6] = (std::bind(&NetWork::RevTmxData, this));
+	revFunc_[7] = (std::bind(&NetWork::RevData, this));
 	revFunc_[8] = (std::bind(&NetWork::RevData, this));
 	revFunc_[9] = (std::bind(&NetWork::RevData, this));
 	revFunc_[10] = (std::bind(&NetWork::RevData, this));
-	revFunc_[11] = (std::bind(&NetWork::RevData, this));
 
 	mes_ = {};
 	revDataList_.reserve(180);

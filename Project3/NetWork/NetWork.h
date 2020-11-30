@@ -57,6 +57,12 @@ public:
 	void SendMes(MES_TYPE type,int handle);
 	bool SendTmxData(std::string filename);
 
+	bool GetCountDownFlag(void);
+	const std::chrono::system_clock::time_point& GetCountDownTime(void)const;
+
+	const int& GetID(void)const;
+	const int& GetMax(void)const;
+
 	void SaveTmx(void);
 
 	void EndOfNetWork(void);

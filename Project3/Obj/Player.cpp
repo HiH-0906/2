@@ -39,22 +39,14 @@ Player::Player(Vector2 pos, Vector2 size,Vector2 ImageSize, int speed,int id, st
 	}
 	else
 	{
-		int checkID = mode == NetWorkMode::HOST ? 0 : 1;
-		if (id_ / UNIT_ID_BASE == checkID)
+		if (id_ == lpNetWork.GetID())
 		{
 			Update_ = std::bind(&Player::UpdateDef, this, std::placeholders::_1);
 			FuncInit();
 		}
 		else
 		{	
-			if (((id_ / UNIT_ID_BASE) % 2) != checkID)
-			{
-				Update_ = std::bind(&Player::UpdataNet, this, std::placeholders::_1);
-			}
-			else
-			{
-				Update_ = std::bind(&Player::UpdateAuto, this, std::placeholders::_1);
-			}
+			Update_ = std::bind(&Player::UpdataNet, this, std::placeholders::_1);
 		}
 	}
 	revList_.reserve(100);

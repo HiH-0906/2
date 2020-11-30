@@ -88,6 +88,7 @@ void GameScene::Init(void)
 		const auto& cLayer = mapMng_->GetMapData(MapLayer::CHAR);
 		int cnt = 0;
 		int id = 0;
+		int max = lpNetWork.GetMax();
 		auto chip = mapMng_->GetChipSize();
 		for (const auto& data : cLayer)
 		{
@@ -98,6 +99,11 @@ void GameScene::Init(void)
 				id += UNIT_ID_BASE;
 			}
 			cnt++;
+
+			if ((id / UNIT_ID_BASE) == max)
+			{
+				break;
+			}
 		}
 	}
 	lpImageMng.GetID("fire", "Image/fire.png", Vector2{ 32,32 }, Vector2{ 3,4 });

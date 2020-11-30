@@ -29,9 +29,19 @@ ACTIVE_STATE NetWorkState::GetActive(void)
 	return active_;
 }
 
-HandleList NetWorkState::GetNetHandle(void)
+const HandleList& NetWorkState::GetNetHandle(void)const
 {
 	return netHandleList_;
+}
+
+bool NetWorkState::GetCountStart(void)
+{
+	return countStart_;
+}
+
+const std::chrono::system_clock::time_point& NetWorkState::GetCountDownTime(void) const
+{
+	return countTime_;
 }
 
 bool NetWorkState::ConnectHost(IPDATA hostIP)
@@ -45,6 +55,16 @@ bool NetWorkState::SetActive(ACTIVE_STATE state)
 	return true;
 }
 
+const int& NetWorkState::GetID(void) const
+{
+	return playerID_;
+}
+
+const int& NetWorkState::GetMax(void) const
+{
+	return playerMax_;
+}
+
 void NetWorkState::CloseNetWork(void)
 {
 	DxLib::CloseNetWork(netHandleList_.front().first);
@@ -52,7 +72,7 @@ void NetWorkState::CloseNetWork(void)
 
 void NetWorkState::SetCountTime(std::chrono::system_clock::time_point time)
 {
-	if (!countStart_)
+	if (countStart_)
 	{
 		return;
 	}

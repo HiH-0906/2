@@ -59,6 +59,16 @@ void LoginScene::DrawOwnScene(void)
 	SetDrawScreen(drawScreen_);
 	ClsDrawScreen();
 	DrawGraph(0, 0, Image, true);
+	if (lpNetWork.GetCountDownFlag())
+	{
+		auto cnt = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - lpNetWork.GetCountDownTime()).count();
+		cnt = abs(INIT_COUNT_TIME - cnt);
+		DrawFormatString(300, 500, 0xffffff, "開始まであと：%d秒", cnt / 1000);
+	}
+	else
+	{
+		DrawFormatString(300, 500, 0xffffff, "待機中");
+	}
 }
 
 // ゲスト専用 ホストのIPアドレス入力させる関数 入力されたホストのIPアドレスで接続できない場合再入力

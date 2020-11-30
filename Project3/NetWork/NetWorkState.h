@@ -32,7 +32,6 @@ enum class MES_TYPE :unsigned char
 	ID,
 	STANBY,
 	GAME_START,
-	START_TIME,
 	TMX_SIZE,
 	TMX_DATA,
 	POS,
@@ -92,9 +91,13 @@ public:
 	void SetCountTime(std::chrono::system_clock::time_point time);
 	void SetPlayerID(int id, unsigned int max);
 	ACTIVE_STATE GetActive(void);
-	HandleList GetNetHandle(void);
+	const HandleList& GetNetHandle(void)const;
+	bool GetCountStart(void);
+	const std::chrono::system_clock::time_point& GetCountDownTime(void)const;
 	virtual bool ConnectHost(IPDATA hostIP);						// ホストやオフラインの時は必ずfalse
 	bool SetActive(ACTIVE_STATE state);
+	const int& GetID(void)const;
+	const int& GetMax(void)const;
 private:
 	virtual bool CheckNetState(void) { return false; };
 protected:
