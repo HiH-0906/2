@@ -13,10 +13,11 @@ GestState::~GestState()
 
 bool GestState::ConnectHost(IPDATA hostIP)
 {
+	auto handle = ConnectNetWork(hostIP, portNum_);
 	// ホストへ接続に行く 0以上なら接続確立
-	netHandleList_ = ConnectNetWork(hostIP, portNum_);
-	if (netHandleList_ >= 0)
+	if (handle >= 0)
 	{
+		netHandleList_.push_back({ handle, 0 });
 		active_ = ACTIVE_STATE::INIT;
 		std::cout << "初期化したい" << std::endl;
 		return true;

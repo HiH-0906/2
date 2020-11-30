@@ -136,6 +136,89 @@ NetWorkMode NetWork::GetMode(void)
 	return state_->GetMode();
 }
 
+void NetWork::SendMesAll(MES_TYPE type, MesDataList data)
+{
+	if (!state_)
+	{
+		return;
+	}
+	if (handleList_.size() == 0)
+	{
+		return;
+	}
+	mes_H tmpMes = {};
+	tmpMes.head = { type,0,0,0 };
+	data.insert(data.begin(), { tmpMes.ihead[1] });
+	data.insert(data.begin(), { tmpMes.ihead[0] });
+	auto tmp = data;
+	for (auto& handle:handleList_)
+	{
+		
+		do
+		{
+			unsigned int sendCnt = static_cast<unsigned int>(data.size()) > oneSendLength_ ? oneSendLength_ : static_cast<unsigned int>(data.size());
+			data[1].uidata = sendCnt - sizeof(tmpMes) / sizeof(sendData);
+			// 一度に送るデータ量と送れる上限が同じなら分割している
+			if (sendCnt == oneSendLength_)
+			{
+				/*TRACE("分割します\n");
+				TRACE("送信データint数：%d\n", data[1].idata);*/
+				tmpMes.head.next = 1;
+			}
+			else
+			{
+				/*	TRACE("分割しません\n");
+					TRACE("送信データint数：%d\n", data[1].idata);*/
+				tmpMes.head.next = 0;
+			}
+			data[0].uidata = tmpMes.ihead[0];
+			NetWorkSend(handle.first, data.data(), sendCnt * sizeof(sendData));
+			data.erase(data.begin() + sizeof(tmpMes) / sizeof(sendData), data.begin() + sendCnt);
+			tmpMes.head.sendID++;
+		} while (data.size() > (sizeof(mes_H) / sizeof(sendData)));
+		data = tmp;
+	}
+}
+
+void NetWork::SendMes(MES_TYPE type, MesDataList data)
+{
+	if (!state_)
+	{
+		return;
+	}
+	if (handleList_.size() == 0)
+	{
+		return;
+	}
+	mes_H tmpMes = {};
+	tmpMes.head = { type,0,0,0 };
+	data.insert(data.begin(), { tmpMes.ihead[1] });
+	data.insert(data.begin(), { tmpMes.ihead[0] });
+
+	do
+	{
+		unsigned int sendCnt = static_cast<unsigned int>(data.size()) > oneSendLength_ ? oneSendLength_ : static_cast<unsigned int>(data.size());
+		data[1].uidata = sendCnt - sizeof(tmpMes) / sizeof(sendData);
+		// 一度に送るデータ量と送れる上限が同じなら分割している
+		if (sendCnt == oneSendLength_)
+		{
+			/*TRACE("分割します\n");
+			TRACE("送信データint数：%d\n", data[1].idata);*/
+			tmpMes.head.next = 1;
+		}
+		else
+		{
+			/*	TRACE("分割しません\n");
+				TRACE("送信データint数：%d\n", data[1].idata);*/
+			tmpMes.head.next = 0;
+		}
+		data[0].uidata = tmpMes.ihead[0];
+		NetWorkSend(handleList_.front().first, data.data(), sendCnt * sizeof(sendData));
+		data.erase(data.begin() + sizeof(tmpMes) / sizeof(sendData), data.begin() + sendCnt);
+		tmpMes.head.sendID++;
+	} while (data.size() > (sizeof(mes_H) / sizeof(sendData)));
+}
+
 void NetWork::SendMes(MES_TYPE type, MesDataList data, int handle)
 {
 	if (!state_)
@@ -264,9 +347,9 @@ bool NetWork::SendTmxData(std::string filename)
 	size.cdata[1] = 17;
 	size.cdata[2] = 4;
 	sizeMes.emplace_back(size);
-	SendMes(MES_TYPE::TMX_SIZE, std::move(sizeMes));
+	SendMesAll(MES_TYPE::TMX_SIZE, std::move(sizeMes));
 	// 横縦レイヤーリザーブ
-	SendMes(MES_TYPE::TMX_DATA, std::move(sendMes));
+	SendMesAll(MES_TYPE::TMX_DATA, std::move(sendMes));
 
 	std::cout << id << std::endl;
 	return true;
@@ -399,7 +482,7 @@ void NetWork::RevStanby(void)
 		std::cout << "スタンバイにデータ部があります" << std::endl;
 		MesDataList tmpData;
 		tmpData.resize(mes_.length);
-		NetWorkRecv(handleList_, tmpData.data(), static_cast<int>(tmpData.size() * sizeof(tmpData[0])));
+		//NetWorkRecv(handleList_, tmpData.data(), static_cast<int>(tmpData.size() * sizeof(tmpData[0])));
 	}
 	std::cout << "受信時間" << std::chrono::duration_cast<std::chrono::milliseconds>(end_ - strat_).count() << std::endl;
 
@@ -416,7 +499,7 @@ void NetWork::RevGameStart(void)
 		std::cout << "ゲームスタートにデータ部があります" << std::endl;
 		MesDataList tmpData;
 		tmpData.resize(mes_.length);
-		NetWorkRecv(handleList_, tmpData.data(), static_cast<int>(tmpData.size() * sizeof(tmpData[0])));
+		//NetWorkRecv(handleList_, tmpData.data(), static_cast<int>(tmpData.size() * sizeof(tmpData[0])));
 	}
 	std::lock_guard<std::mutex> lock(stMtx_);
 	gameStart_ = true;
@@ -424,7 +507,6 @@ void NetWork::RevGameStart(void)
 
 void NetWork::RevTmxSize(void)
 {
-
 	revSize_ = (revDataList_[0].cdata[0] * revDataList_[0].cdata[1] * revDataList_[0].cdata[2]) / 8;
 	TRACE("TMXのデータｻｲｽﾞは%dです。\n", revSize_);
 	strat_ = std::chrono::system_clock::now();

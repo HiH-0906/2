@@ -159,7 +159,8 @@ bool LoginScene::StartInit(void)
 		{
 			if (lpNetWork.SendTmxData("mapData/map.tmx"))
 			{
-				lpNetWork.SendStanby();
+				MesDataList data;
+				lpNetWork.SendMesAll(MES_TYPE::STANBY, data);
 			}
 		}
 		if (lpNetWork.GetActive() == ACTIVE_STATE::STANBY && lpNetWork.GetGameStart())
@@ -175,8 +176,9 @@ bool LoginScene::StartInit(void)
 		if (lpNetWork.GetActive() == ACTIVE_STATE::INIT && lpNetWork.GetRevStanby())
 		{
 			state_ = UPDATE_STATE::PLAY;
+			MesDataList data;
+			lpNetWork.SendMes(MES_TYPE::GAME_START, data);
 			std::cout << "ŠJŽn" << std::endl;
-			lpNetWork.SendStart();
 		}
 	}
 	return true;

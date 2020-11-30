@@ -51,6 +51,8 @@ public:
 	IParray GetIP(void);
 	bool ConnectHost(IPDATA hostIP);					// 指定されたIPアドレスのホストへ接続しに行く
 	NetWorkMode GetMode(void);
+	void SendMesAll(MES_TYPE type, MesDataList data);
+	void SendMes(MES_TYPE type, MesDataList data);
 	void SendMes(MES_TYPE type, MesDataList data,int handle);
 	void SendMes(MES_TYPE type,int handle);
 	bool SendTmxData(std::string filename);
