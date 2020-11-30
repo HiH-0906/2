@@ -24,8 +24,8 @@ void NetWork::UpDate(void)
 		{
 			continue;
 		}
-		handle_ = state_->GetNetHandle();
-		if (handle_ != -1)
+		handleList_ = state_->GetNetHandle();
+		if (handleList_.size() != 0)
 		{
 			break;
 		}
@@ -33,27 +33,30 @@ void NetWork::UpDate(void)
 	
 	while (!ProcessMessage() && GetLostNetWork() == -1)
 	{
-		if (GetNetWorkDataLength(handle_) >= sizeof(MES_H))
+		for (auto handle : handleList_)
 		{
-			if (mes_.next == 0)
+			if (GetNetWorkDataLength(handle.first) >= sizeof(MES_H))
 			{
-				writePos = 0;
-			}
-			NetWorkRecv(handle_, &mes_, sizeof(MES_H));
-			
-			if (mes_.length != 0)
-			{
-				revDataList_.resize(static_cast<size_t>(writePos + mes_.length));
-				NetWorkRecv(handle_, revDataList_.data() + writePos, static_cast<int>(mes_.length * sizeof(revDataList_[0])));
-			}
+				if (mes_.next == 0)
+				{
+					writePos = 0;
+				}
+				NetWorkRecv(handle.first, &mes_, sizeof(MES_H));
 
-			if (mes_.next == 1)
-			{
-				TRACE("後続のデータがあります\n");
-				writePos = revDataList_.size();
-				continue;
+				if (mes_.length != 0)
+				{
+					revDataList_.resize(static_cast<size_t>(writePos + mes_.length));
+					NetWorkRecv(handle.first, revDataList_.data() + writePos, static_cast<int>(mes_.length * sizeof(revDataList_[0])));
+				}
+
+				if (mes_.next == 1)
+				{
+					TRACE("後続のデータがあります\n");
+					writePos = revDataList_.size();
+					continue;
+				}
+				revFunc_[static_cast<unsigned int>(mes_.type) - static_cast<unsigned int>(MES_TYPE::NON)]();
 			}
-			revFunc_[static_cast<unsigned int>(mes_.type) - static_cast<unsigned int>(MES_TYPE::NON)]();
 		}
 	}
 	if (state_)
@@ -133,13 +136,13 @@ NetWorkMode NetWork::GetMode(void)
 	return state_->GetMode();
 }
 
-void NetWork::SendMes(MES_TYPE type, MesDataList data)
+void NetWork::SendMes(MES_TYPE type, MesDataList data, int handle)
 {
 	if (!state_)
 	{
 		return;
 	}
-	if (handle_ == -1)
+	if (handleList_.size() == 0)
 	{
 		return;
 	}
@@ -166,40 +169,20 @@ void NetWork::SendMes(MES_TYPE type, MesDataList data)
 			tmpMes.head.next = 0;
 		}
 		data[0].uidata = tmpMes.ihead[0];
-		NetWorkSend(handle_, data.data(), sendCnt * sizeof(sendData));
+		NetWorkSend(handle, data.data(), sendCnt * sizeof(sendData));
 		data.erase(data.begin() + sizeof(tmpMes) / sizeof(sendData), data.begin() + sendCnt);
 		tmpMes.head.sendID++;
 	} while (data.size() > (sizeof(mes_H) / sizeof(sendData)));
 }
 
-void NetWork::SendMes(MES_TYPE type)
+void NetWork::SendMes(MES_TYPE type,int handle)
 {
 	if (!state_)
 	{
 		return;
 	}
 	MesDataList data;
-	SendMes(type, std::move(data));
-}
-
-void NetWork::SendStanby(void)
-{
-	if (!state_)
-	{
-		return;
-	}
-	SendMes(MES_TYPE::STANBY);
-	std::cout << "GUESTからのスタートメッセージ待ちです" << std::endl;
-	state_->SetActive(ACTIVE_STATE::STANBY);
-}
-
-void NetWork::SendStart(void)
-{
-	if (!state_)
-	{
-		return;
-	}
-	SendMes(MES_TYPE::GAME_START);
+	SendMes(type, std::move(data),handle);
 }
 
 bool NetWork::SendTmxData(std::string filename)
@@ -362,11 +345,14 @@ void NetWork::SaveTmx(void)
 
 void NetWork::EndOfNetWork(void)
 {
-	CloseNetWork(state_->GetNetHandle());
+	for (auto handdle: state_->GetNetHandle())
+	{
+		CloseNetWork(handdle.first);
+	}
 	state_ = nullptr;
 	gameStart_ = false;
 	revState_ = false;
-	handle_ = -1;
+	handleList_.clear();
 	objRevMap_.clear();
 }
 
@@ -383,6 +369,29 @@ bool NetWork::GetGameStart(void)
 }
 
 
+void NetWork::RevCountDown(void)
+{
+	if (!state_)
+	{
+		TRACE("RevCountDown時にNetStateがいないんですが");
+		return;
+	}
+	unionTimeData data = { std::chrono::system_clock::now() };
+	data.idata[0] = revDataList_[0].idata;
+	data.idata[1] = revDataList_[1].idata;
+	state_->SetCountTime(data.time);
+}
+
+void NetWork::RevID(void)
+{
+	if (!state_)
+	{
+		TRACE("RevID時にNetStateがいないんですが");
+		return;
+	}
+	state_->SetPlayerID(revDataList_[0].idata, revDataList_[1].idata);
+}
+
 void NetWork::RevStanby(void)
 {
 	if (mes_.length != 0)
@@ -390,10 +399,14 @@ void NetWork::RevStanby(void)
 		std::cout << "スタンバイにデータ部があります" << std::endl;
 		MesDataList tmpData;
 		tmpData.resize(mes_.length);
-		NetWorkRecv(handle_, tmpData.data(), static_cast<int>(tmpData.size() * sizeof(tmpData[0])));
+		NetWorkRecv(handleList_, tmpData.data(), static_cast<int>(tmpData.size() * sizeof(tmpData[0])));
 	}
 	std::cout << "受信時間" << std::chrono::duration_cast<std::chrono::milliseconds>(end_ - strat_).count() << std::endl;
 
+}
+
+void NetWork::RevStartTime(void)
+{
 }
 
 void NetWork::RevGameStart(void)
@@ -403,7 +416,7 @@ void NetWork::RevGameStart(void)
 		std::cout << "ゲームスタートにデータ部があります" << std::endl;
 		MesDataList tmpData;
 		tmpData.resize(mes_.length);
-		NetWorkRecv(handle_, tmpData.data(), static_cast<int>(tmpData.size() * sizeof(tmpData[0])));
+		NetWorkRecv(handleList_, tmpData.data(), static_cast<int>(tmpData.size() * sizeof(tmpData[0])));
 	}
 	std::lock_guard<std::mutex> lock(stMtx_);
 	gameStart_ = true;
@@ -435,15 +448,18 @@ NetWork::NetWork()
 	gameStart_ = false;
 	revState_ = false;
 	cntRev_ = 0;
-	handle_ = -1;
 	revFunc_[0] = nullptr;
-	revFunc_[1] = (std::bind(&NetWork::RevStanby, this));
-	revFunc_[2] = (std::bind(&NetWork::RevGameStart, this));
-	revFunc_[3] = (std::bind(&NetWork::RevTmxSize, this));
-	revFunc_[4] = (std::bind(&NetWork::RevTmxData, this));
-	revFunc_[5] = (std::bind(&NetWork::RevData, this));
-	revFunc_[6] = (std::bind(&NetWork::RevData, this));
-	revFunc_[7] = (std::bind(&NetWork::RevData, this));
+	revFunc_[1] = (std::bind(&NetWork::RevCountDown, this));
+	revFunc_[2] = (std::bind(&NetWork::RevID, this));
+	revFunc_[3] = (std::bind(&NetWork::RevStanby, this));
+	revFunc_[4] = (std::bind(&NetWork::RevGameStart, this));
+	revFunc_[5] = (std::bind(&NetWork::RevStartTime, this));
+	revFunc_[6] = (std::bind(&NetWork::RevTmxSize, this));
+	revFunc_[7] = (std::bind(&NetWork::RevTmxData, this));
+	revFunc_[8] = (std::bind(&NetWork::RevData, this));
+	revFunc_[9] = (std::bind(&NetWork::RevData, this));
+	revFunc_[10] = (std::bind(&NetWork::RevData, this));
+	revFunc_[11] = (std::bind(&NetWork::RevData, this));
 
 	mes_ = {};
 	revDataList_.reserve(180);

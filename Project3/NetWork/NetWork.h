@@ -51,10 +51,8 @@ public:
 	IParray GetIP(void);
 	bool ConnectHost(IPDATA hostIP);					// 指定されたIPアドレスのホストへ接続しに行く
 	NetWorkMode GetMode(void);
-	void SendMes(MES_TYPE type, MesDataList data);
-	void SendMes(MES_TYPE type);
-	void SendStanby(void);
-	void SendStart(void);
+	void SendMes(MES_TYPE type, MesDataList data,int handle);
+	void SendMes(MES_TYPE type,int handle);
 	bool SendTmxData(std::string filename);
 
 	void SaveTmx(void);
@@ -71,7 +69,7 @@ private:
 	MES_H mes_;
 	int revSize_;
 	int cntRev_;
-	int handle_;
+	HandleList handleList_;
 
 	unsigned int oneSendLength_;
 
@@ -95,7 +93,10 @@ private:
 	using RevFunc = std::function<void(void)>;
 	std::array<RevFunc, REv_FUNC_SIZE > revFunc_;
 
+	void RevCountDown(void);
+	void RevID(void);
 	void RevStanby(void);
+	void RevStartTime(void);
 	void RevGameStart(void);
 	void RevTmxSize(void);
 	void RevTmxData(void);

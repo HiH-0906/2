@@ -5,7 +5,6 @@
 CheckeredBlock::CheckeredBlock(uniqueBase old, uniqueBase next) 
 {
 	divCnt_ = Vector2{ 32,32 };
-	nextBlockList_ = {};
 	auto screensize = lpSceneMng.GetScreenSize();
 	oldScene_ = std::move(old);
 	nextScene_ = std::move(next);

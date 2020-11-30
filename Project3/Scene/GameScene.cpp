@@ -136,7 +136,7 @@ std::list<shared_Obj> GameScene::GetObjList(void)
 
 void GameScene::SetBomb(Vector2 pos, int& id, int& oid,  int length ,bool send, std::chrono::system_clock::time_point start)
 {
-	uinonTimeData time = { start };
+	unionTimeData time = { start };
 	auto chip = mapMng_->ChengeChip(pos);
 	auto chipSize = mapMng_->GetChipSize();
 	chip = chip * chipSize;

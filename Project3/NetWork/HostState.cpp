@@ -22,7 +22,7 @@ bool HostState::CheckNetState(void)
 	if (tmpID != -1)
 	{
 		// 今回は複数人を想定していないので一人接続してきたら新規受付を終了する
-		netHandle_ = tmpID;
+		netHandleList_ = tmpID;
 		active_ = ACTIVE_STATE::INIT;
 		std::cout << "接続されました" << std::endl;
 		StopListenNetWork();
@@ -33,7 +33,7 @@ bool HostState::CheckNetState(void)
 		// ゲストから切られた場合再接続待ち
 		PreparationListenNetWork(portNum_);
 		active_ = ACTIVE_STATE::WAIT;
-		netHandle_ = -1;
+		netHandleList_ = -1;
 		std::cout << "切断されました" << std::endl;
 		auto ipVec = lpNetWork.GetIP();
 		for (auto ip : ipVec)

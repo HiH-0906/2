@@ -28,13 +28,17 @@ enum class ACTIVE_STATE
 enum class MES_TYPE :unsigned char
 {
 	NON = 100,
+	COUNT_DOWN,
+	ID,
 	STANBY,
 	GAME_START,
+	START_TIME,
 	TMX_SIZE,
 	TMX_DATA,
 	POS,
 	SET_BOMB,
 	DETH,
+	LOST,
 	MAX
 };
 
@@ -65,11 +69,13 @@ union sendData
 	unsigned char cdata[4];
 };
 
-union uinonTimeData
+union unionTimeData
 {
 	std::chrono::system_clock::time_point time;
 	unsigned int idata[2];
 };
+
+using HandleList = std::list<std::pair<int, unsigned int>>;
 
 // ネット接続モジュールの基盤 OFFLINE時はこれがインスタンスされる
 class NetWorkState
@@ -83,8 +89,10 @@ public:
 		return NetWorkMode::OFFLINE;
 	}
 
+	void SetCountTime(std::chrono::system_clock::time_point time);
+	void SetPlayerID(int id, unsigned int max);
 	ACTIVE_STATE GetActive(void);
-	int GetNetHandle(void);
+	HandleList GetNetHandle(void);
 	virtual bool ConnectHost(IPDATA hostIP);						// ホストやオフラインの時は必ずfalse
 	bool SetActive(ACTIVE_STATE state);
 private:
@@ -92,7 +100,11 @@ private:
 protected:
 	void CloseNetWork(void);
 	const int portNum_ = 8086;										// 接続時ポート番号 数字は先生のお気に入りの番号
-	int netHandle_;
+	HandleList netHandleList_;
 	ACTIVE_STATE active_;											// 接続開始しているかどうか
+	std::chrono::system_clock::time_point countTime_;
+	bool countStart_;
+	int playerID_;
+	int playerMax_;
 };
 

@@ -227,7 +227,7 @@ bool Player::UpdataNet(const Time& now)
 	 while (isPickMesList(MES_TYPE::SET_BOMB))
 	 {
 		 auto mes = PickUpMes(MES_TYPE::SET_BOMB);
-		 uinonTimeData time = { std::chrono::system_clock::now() };
+		 unionTimeData time = { std::chrono::system_clock::now() };
 		 time.idata[0] = mes.second[5].idata;
 		 time.idata[1] = mes.second[6].idata;
 		 dynamic_cast<GameScene&>(scene_).SetBomb(Vector2{ mes.second[2].idata,mes.second[3].idata }, mes.second[1].idata, mes.second[0].idata, mes.second[4].idata, false, time.time);
@@ -239,7 +239,7 @@ bool Player::UpdataNet(const Time& now)
 	 }
 	animCnt_++;
 	state_ = AnimState::WALK;
-	if (isPickMesList(MES_TYPE::DETH))
+	if (isPickMesList(MES_TYPE::DETH) || isPickMesList(MES_TYPE::LOST))
 	{
 		dir_ = DIR::DETH;
 		state_ = AnimState::DETH;
