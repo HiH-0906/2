@@ -5,7 +5,8 @@ NetWorkState::NetWorkState()
 {
 	active_ = ACTIVE_STATE::OFFLINE;
 	countTime_ = {};
-	countStart_ = false;
+	countDown_ = false;
+	gameStart_ = false;
 	playerID_ = -1;
 	playerMax_ = -1;
 }
@@ -36,7 +37,12 @@ const HandleList& NetWorkState::GetNetHandle(void)const
 
 bool NetWorkState::GetCountStart(void)
 {
-	return countStart_;
+	return countDown_;
+}
+
+bool NetWorkState::GetGameStart(void)
+{
+	return gameStart_;
 }
 
 const std::chrono::system_clock::time_point& NetWorkState::GetCountDownTime(void) const
@@ -72,12 +78,8 @@ void NetWorkState::CloseNetWork(void)
 
 void NetWorkState::SetCountTime(std::chrono::system_clock::time_point time)
 {
-	if (countStart_)
-	{
-		return;
-	}
 	countTime_ = time;
-	countStart_ = true;
+	countDown_ = true;
 }
 
 void NetWorkState::SetPlayerID(int id, unsigned int max)

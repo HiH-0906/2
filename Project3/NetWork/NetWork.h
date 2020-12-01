@@ -52,6 +52,7 @@ public:
 	bool ConnectHost(IPDATA hostIP);					// 指定されたIPアドレスのホストへ接続しに行く
 	NetWorkMode GetMode(void);
 	void SendMesAll(MES_TYPE type, MesDataList data);
+	void SendMesAll(MES_TYPE type, MesDataList data,int noSendHandle);
 	void SendMes(MES_TYPE type, MesDataList data);
 	void SendMes(MES_TYPE type, MesDataList data,int handle);
 	void SendMes(MES_TYPE type,int handle);
@@ -60,8 +61,9 @@ public:
 	bool GetCountDownFlag(void);
 	const std::chrono::system_clock::time_point& GetCountDownTime(void)const;
 
-	const int& GetID(void)const;
-	const int& GetMax(void)const;
+	const int GetID(void)const;
+	const int GetMax(void)const;
+	const int& GetRevCount(void)const;
 
 	void SaveTmx(void);
 
@@ -77,6 +79,7 @@ private:
 	MES_H mes_;
 	int revSize_;
 	int cntRev_;
+	int revStanby_;
 	HandleList handleList_;
 
 	unsigned int oneSendLength_;
@@ -101,11 +104,11 @@ private:
 	using RevFunc = std::function<void(void)>;
 	std::array<RevFunc, REv_FUNC_SIZE > revFunc_;
 
-	void RevCountDown(void);
+	void RevCountDownRoom(void);
 	void RevID(void);
-	void RevStanby(void);
-	void RevStartTime(void);
-	void RevGameStart(void);
+	void RevStanbyHost(void);
+	void RevCountDownGame(void);
+	void RevStanbyGuest(void);
 	void RevTmxSize(void);
 	void RevTmxData(void);
 	void RevData(void);

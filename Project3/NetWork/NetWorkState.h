@@ -5,6 +5,8 @@
 #include <chrono>
 #include "../common/Vector2.h"
 
+#define INIT_COUNT_TIME 15000
+
 // ネット状態判断用
 enum class NetWorkMode
 {
@@ -28,10 +30,11 @@ enum class ACTIVE_STATE
 enum class MES_TYPE :unsigned char
 {
 	NON = 100,
-	COUNT_DOWN,
+	COUNT_DOWN_ROOM,
 	ID,
-	STANBY,
-	GAME_START,
+	STANBY_HOST,
+	STANBY_GUEST,
+	COUNT_DOWN_GAME,
 	TMX_SIZE,
 	TMX_DATA,
 	POS,
@@ -93,6 +96,7 @@ public:
 	ACTIVE_STATE GetActive(void);
 	const HandleList& GetNetHandle(void)const;
 	bool GetCountStart(void);
+	bool GetGameStart(void);
 	const std::chrono::system_clock::time_point& GetCountDownTime(void)const;
 	virtual bool ConnectHost(IPDATA hostIP);						// ホストやオフラインの時は必ずfalse
 	bool SetActive(ACTIVE_STATE state);
@@ -106,7 +110,8 @@ protected:
 	HandleList netHandleList_;
 	ACTIVE_STATE active_;											// 接続開始しているかどうか
 	std::chrono::system_clock::time_point countTime_;
-	bool countStart_;
+	bool countDown_;
+	bool gameStart_;
 	int playerID_;
 	int playerMax_;
 };

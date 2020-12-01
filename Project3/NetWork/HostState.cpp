@@ -9,6 +9,8 @@ HostState::HostState()
 	// 接続受付開始していたら0なのでこんな感じ
 	PreparationListenNetWork(portNum_);
 	active_ = ACTIVE_STATE::WAIT;
+	startTime_ = {};
+	playerMax_ = 0;
 	std::cout << "接続待機" << std::endl;
 }
 
@@ -18,34 +20,35 @@ HostState::~HostState()
 
 bool HostState::CheckNetState(void)
 {
-	//auto tmpID = GetNewAcceptNetWork();
-	//if (tmpID != -1)
-	//{
-	//	// 今回は複数人を想定していないので一人接続してきたら新規受付を終了する
-	//	netHandleList_ = tmpID;
-	//	active_ = ACTIVE_STATE::INIT;
-	//	std::cout << "接続されました" << std::endl;
-	//	StopListenNetWork();
-	//}
-
-	//if (GetLostNetWork() != -1)
-	//{
-	//	// ゲストから切られた場合再接続待ち
-	//	PreparationListenNetWork(portNum_);
-	//	active_ = ACTIVE_STATE::WAIT;
-	//	netHandleList_ = -1;
-	//	std::cout << "切断されました" << std::endl;
-	//	auto ipVec = lpNetWork.GetIP();
-	//	for (auto ip : ipVec)
-	//	{
-	//		if (ip.d1 != 0)
-	//		{
-	//			std::string mes = ip.d1 == 192 ? "グローバル" : "ローカル";
-	//			TRACE("自分の%sIPアドレスは%d.%d.%d.%dです\n", mes.c_str(), ip.d1, ip.d2, ip.d3, ip.d4);
-	//		}
-	//	}
-	//	// ホストから辞めたいときは手動でCloseNetWork呼ぼうネ
-	//	return false;
-	//}
+	auto handle = GetNewAcceptNetWork();
+	if (handle != -1)
+	{
+		if (netHandleList_.size() == 0)
+		{
+			startTime_ = std::chrono::system_clock::now();
+		}
+		netHandleList_.push_back({ handle, 0 });
+		sendData data[2];
+		unionTimeData time = { startTime_ };
+		countTime_ = startTime_;
+		countDown_ = true;
+		data[0].idata = time.idata[0];
+		data[1].idata = time.idata[1];
+		lpNetWork.SendMes(MES_TYPE::COUNT_DOWN_ROOM, MesDataList{ data[0],data[1] }, handle);
+		playerMax_++;
+		std::cout << "ゲストの接続" << std::endl;
+	}
+	auto timeCnt = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - startTime_).count();
+	if (timeCnt >= INIT_COUNT_TIME)
+	{
+		if (playerMax_ == lpNetWork.GetRevCount())
+		{
+			active_ = ACTIVE_STATE::STANBY;
+		}
+		else
+		{
+			active_ = ACTIVE_STATE::INIT;
+		}
+	}
 	return true;
 }

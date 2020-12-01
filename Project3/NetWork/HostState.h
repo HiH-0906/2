@@ -1,5 +1,7 @@
 #pragma once
+#include <chrono>
 #include "NetWorkState.h"
+
 
 class HostState :
 	public NetWorkState
@@ -13,5 +15,6 @@ public:
 	}
 private:
 	bool CheckNetState(void)override;
+	std::chrono::system_clock::time_point startTime_;
 };
 

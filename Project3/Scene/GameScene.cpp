@@ -25,15 +25,19 @@ uniqueBase GameScene::Update(uniqueBase own, const Time& now)
 		return objA->CheckMesList() > objB->CheckMesList();
 	}
 	);
-	for (auto& pl:objList_)
+	if (state_ == GameState::PLAY)
 	{
-		pl->Update_(now);
+		for (auto& pl : objList_)
+		{
+			pl->Update_(now);
+		}
 	}
 	auto delItr = std::remove_if(objList_.begin(), objList_.end(), [](shared_Obj& obj) {return !obj->Alive(); });
 	objList_.erase(delItr, objList_.end());
 	mapMng_->Update(now);
 	DrawOwnScene();
 	DrawFps(now);
+
 
 	return own;
 }
@@ -54,10 +58,12 @@ void GameScene::DrawOwnScene(void)
 	{
 		pl->Draw();
 	}
+	cntDownFunc_[state_]();
 }
 
 void GameScene::Init(void)
 {
+	state_ = GameState::STY;
 	mapMng_ = std::make_shared<Map>();
 	const auto& size = lpSceneMng.GetScreenSize();
 	drawScreen_ = MakeScreen(size.x, size.y, true);
@@ -107,6 +113,7 @@ void GameScene::Init(void)
 		}
 	}
 	lpImageMng.GetID("fire", "Image/fire.png", Vector2{ 32,32 }, Vector2{ 3,4 });
+	initFunc();
 	DrawOwnScene();
 }
 
@@ -160,4 +167,29 @@ void GameScene::SetBomb(Vector2 pos, int& id, int& oid,  int length ,bool send, 
 		lpNetWork.SendMes(MES_TYPE::SET_BOMB, { data[0],data[1],data[2],data[3],data[4],data[5],data[6] });
 	}
 	objList_.emplace_back(std::make_unique<Bomb>(chip, Vector2{ 32,32 }, length, id, oid, mapMng_, *this, start));
+}
+
+void GameScene::initFunc(void)
+{
+	cntDownFunc_.try_emplace(GameState::STY, [&]()
+	{
+		if (lpNetWork.GetGameStart())
+		{
+			state_ = GameState::COUNT;
+		}
+	});
+	cntDownFunc_.try_emplace(GameState::COUNT, [&]()
+	{
+		auto cnt = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - lpNetWork.GetCountDownTime()).count();
+		cnt = abs(START_CNT - cnt);
+		DrawFormatString(300, 500, 0xffffff, "äJénÇ‹Ç≈Ç†Ç∆ÅF%dïb", cnt / 1000);
+		if (cnt / 1000 <= 0)
+		{
+			state_ = GameState::PLAY;
+		}
+	});
+	cntDownFunc_.try_emplace(GameState::PLAY, [&]()
+	{
+
+	});
 }

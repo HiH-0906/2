@@ -191,12 +191,13 @@ bool Player::UpdateDef(const Time& now)
 	const auto& chip = mapMng_->ChengeChip(pos_);
 	if (mapMng_->CheckHitFlame(chip))
 	{
-		/*data[0] = { static_cast<unsigned int>(id_) };
+		data[0] = { static_cast<unsigned int>(id_) };
 		lpNetWork.SendMes(MES_TYPE::DETH, MesDataList{ data[0] });
 		dir_ = DIR::DETH;
 		state_ = AnimState::DETH;
-		activ_ = false;*/
+		activ_ = false;
 	}
+	_dbgDrawBox(pos_.x, pos_.y, pos_.x + size_.x, pos_.y + size_.y, 0xff0000, true);
 	return true;
 }
 
@@ -302,7 +303,6 @@ void Player::Draw(void)
 		}
 	}
 	DrawGraph(pos_.x, pos_.y - offSetY_, lpImageMng.GetID("player")[anim + state + dir], true);
-	_dbgDrawBox(pos_.x, pos_.y, pos_.x + size_.x, pos_.y + size_.y, 0xffffff, false);
 }
 
 void Player::StockBomb(int id)

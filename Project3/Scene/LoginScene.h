@@ -8,7 +8,7 @@
 #include "../Input/PadState.h"
 #include "../common/Vector2.h"
 
-#define INIT_COUNT_TIME 3000
+
 
 enum class UPDATE_STATE
 {
