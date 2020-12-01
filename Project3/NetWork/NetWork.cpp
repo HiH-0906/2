@@ -41,6 +41,7 @@ void NetWork::UpDate(void)
 				TRACE("IDF%d‚ÌØ’f", handle->second);
 				// ŽE‚·ˆ—‚ÆƒŠƒXƒg‚©‚çÁ‚·ˆ—
 				handleList_.erase(handle);
+				continue;
 			}
 			if (GetNetWorkDataLength(handle->first) >= sizeof(MES_H))
 			{
@@ -208,10 +209,6 @@ void NetWork::SendMes(MES_TYPE type, MesDataList data)
 void NetWork::SendMes(MES_TYPE type, MesDataList data, int handle)
 {
 	if (!state_)
-	{
-		return;
-	}
-	if (handleList_.size() == 0)
 	{
 		return;
 	}

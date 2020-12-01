@@ -38,16 +38,19 @@ bool HostState::CheckNetState(void)
 		playerMax_++;
 		std::cout << "ƒQƒXƒg‚ÌÚ‘±" << std::endl;
 	}
-	auto timeCnt = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - startTime_).count();
-	if (timeCnt >= INIT_COUNT_TIME)
+	if (netHandleList_.size() != 0)
 	{
-		if (playerMax_ == lpNetWork.GetRevCount())
+		auto timeCnt = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - startTime_).count();
+		if (timeCnt >= INIT_COUNT_TIME)
 		{
-			active_ = ACTIVE_STATE::STANBY;
-		}
-		else
-		{
-			active_ = ACTIVE_STATE::INIT;
+			if (playerMax_ == lpNetWork.GetRevCount())
+			{
+				active_ = ACTIVE_STATE::STANBY;
+			}
+			else
+			{
+				active_ = ACTIVE_STATE::INIT;
+			}
 		}
 	}
 	return true;

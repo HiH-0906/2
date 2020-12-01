@@ -74,7 +74,6 @@ public:
 private:
 	bool revState_;
 	bool gameStart_;
-	bool netEnd_;
 	MesDataList revDataList_;
 	MES_H mes_;
 	int revSize_;
