@@ -77,7 +77,12 @@ void NetWork::UpDate(void)
 					writePos = revDataList_.size();
 					continue;
 				}
-				revFunc_[static_cast<unsigned int>(mes_.type) - static_cast<unsigned int>(MES_TYPE::NON)]();
+				if (static_cast<unsigned int>(mes_.type) >= static_cast<unsigned int>(MES_TYPE::NON) &&
+					static_cast<unsigned int>(mes_.type) <= static_cast<unsigned int>(MES_TYPE::MAX))
+				{
+					const auto type = static_cast<unsigned int>(mes_.type) - static_cast<unsigned int>(MES_TYPE::NON);
+					revFunc_[type]();
+				}
 			}
 		}
 	}
@@ -444,7 +449,7 @@ void NetWork::SaveTmx(void)
 
 void NetWork::EndOfNetWork(void)
 {
-	for (auto handdle: state_->GetNetHandle())
+	for (const auto& handdle: state_->GetNetHandle())
 	{
 		CloseNetWork(handdle.first);
 	}

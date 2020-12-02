@@ -148,7 +148,7 @@ bool Player::UpdateDef(const Time& now)
 		return true;
 	}
 	std::list<shared_Obj> list = GetHitObjList();
-	
+
 	if (list.size() != 0)
 	{
 		
