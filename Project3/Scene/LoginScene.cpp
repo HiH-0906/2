@@ -29,6 +29,7 @@ LoginScene::LoginScene()
 	func_.try_emplace(UPDATE_STATE::START_INIT, &LoginScene::StartInit);
 	func_.try_emplace(UPDATE_STATE::SELECT_HOST, &LoginScene::SelectHost);
 	func_.try_emplace(UPDATE_STATE::READ_HOST, &LoginScene::ReadHost);
+	sendTmx_ = false;
 
 	tetHight_ = 400;
 
@@ -164,15 +165,25 @@ bool LoginScene::StartInit(void)
 	{
 		if (lpNetWork.GetActive() == ACTIVE_STATE::INIT)
 		{
-			if (lpNetWork.SendTmxData("mapData/map.tmx"))
+			if (lpNetWork.GetMax() == lpNetWork.GetRevCount())
 			{
+				lpNetWork.SetActivMode(ACTIVE_STATE::STANBY);
+				TRACE("スタンバイ完了");
+				return true;
+			}
+			if (!sendTmx_)
+			{
+				sendTmx_ = true;
+				lpNetWork.SendTmxData("mapData/map.tmx");
 				MesDataList list;
-				lpNetWork.SendMesAll(MES_TYPE::STANBY_HOST, list);
+
 				unionTimeData time = { std::chrono::system_clock::now() };
 				sendData data[2];
 				data[0].idata = time.idata[0];
 				data[1].idata = time.idata[1];
+				lpNetWork.SetCountDownTime(time.time);
 				lpNetWork.SendMesAll(MES_TYPE::COUNT_DOWN_GAME, MesDataList{ data[0],data[1] });
+				lpNetWork.SendMesAll(MES_TYPE::STANBY_HOST, list);
 			}
 		}
 		if (lpNetWork.GetActive() == ACTIVE_STATE::STANBY && lpNetWork.GetGameStart())

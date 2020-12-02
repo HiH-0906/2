@@ -32,6 +32,7 @@ bool HostState::CheckNetState(void)
 		unionTimeData time = { startTime_ };
 		countTime_ = startTime_;
 		countDown_ = true;
+		playerID_ = 0;
 		data[0].idata = time.idata[0];
 		data[1].idata = time.idata[1];
 		lpNetWork.SendMes(MES_TYPE::COUNT_DOWN_ROOM, MesDataList{ data[0],data[1] }, handle);
@@ -43,26 +44,24 @@ bool HostState::CheckNetState(void)
 		auto timeCnt = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - startTime_).count();
 		if (timeCnt >= INIT_COUNT_TIME)
 		{
-			if (playerMax_ == lpNetWork.GetRevCount())
-			{
-				active_ = ACTIVE_STATE::STANBY;
-			}
-			else if(active_ != ACTIVE_STATE::INIT)
+			StopListenNetWork();
+			auto aaaa = lpNetWork.GetRevCount();
+			
+			if (active_ != ACTIVE_STATE::INIT)
 			{
 				sendData data[2];
 				data[0].idata = 5;
-				data[1].idata = playerMax_;
+				data[1].idata = playerMax_ + 1;
 				for (auto handle = netHandleList_.begin(); handle != netHandleList_.end(); handle++)
 				{
 					lpNetWork.SendMes(MES_TYPE::ID, MesDataList{ data[0],data[1] }, handle->first);
+					handle->second = data[0].idata;
 					data[0].idata += 5;
 				}
 				active_ = ACTIVE_STATE::INIT;
-			}
-			else
-			{
 
 			}
+			
 		}
 	}
 	return true;

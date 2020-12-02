@@ -186,13 +186,13 @@ bool Player::UpdateDef(const Time& now)
 	data[1] = { static_cast<unsigned int>(pos_.x) };
 	data[2] = { static_cast<unsigned int>(pos_.y) };
 	data[3] = { static_cast<unsigned int>(dir_) };
-	lpNetWork.SendMes(MES_TYPE::POS, MesDataList{ data[0],data[1],data[2],data[3] });
+	lpNetWork.SendMesAll(MES_TYPE::POS, MesDataList{ data[0],data[1],data[2],data[3] });
 	animCnt_++;
 	const auto& chip = mapMng_->ChengeChip(pos_);
 	if (mapMng_->CheckHitFlame(chip))
 	{
 		data[0] = { static_cast<unsigned int>(id_) };
-		lpNetWork.SendMes(MES_TYPE::DETH, MesDataList{ data[0] });
+		lpNetWork.SendMesAll(MES_TYPE::DETH, MesDataList{ data[0] });
 		dir_ = DIR::DETH;
 		state_ = AnimState::DETH;
 		activ_ = false;

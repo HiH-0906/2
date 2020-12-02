@@ -20,6 +20,7 @@ void NetWork::UpDate(void)
 		{
 			continue;
 		}
+		handleList_ = state_->GetNetHandle();
 		if (!state_->Update())
 		{
 			continue;
@@ -38,9 +39,22 @@ void NetWork::UpDate(void)
 			if (tmp == handle->first)
 			{
 				TRACE("IDF%d‚ÌØ’f", handle->second);
+				sendData data;
+				data = { handle->second };
+				SendMesAll(MES_TYPE::LOST, MesDataList{ data }, handle->first);
+				std::lock_guard<std::mutex> lock2(objRevMap_[(handle->second) / UNIT_ID_BASE].first);
+				
+				objRevMap_[(handle->second) / UNIT_ID_BASE].second.emplace_back(MES_H{ MES_TYPE::LOST,0,0,0 } , MesDataList{ data });
 				// ŽE‚·ˆ—‚ÆƒŠƒXƒg‚©‚çÁ‚·ˆ—
 				handleList_.erase(handle);
-				continue;
+				if (handleList_.size())
+				{
+					continue;
+				}
+				else
+				{
+					break;
+				}
 			}
 			if (GetNetWorkDataLength(handle->first) >= sizeof(MES_H))
 			{
@@ -84,6 +98,15 @@ void NetWork::SetObjRevData(int id, std::mutex& mtx, std::vector<RevDataP>& mes)
 	objRevMap_.emplace_back(std::pair<std::mutex&, std::vector<RevDataP>&>{ mtx, mes });
 }
 
+bool NetWork::SetActivMode(ACTIVE_STATE state)
+{
+	if (!state_)
+	{
+		return false;
+	}
+	return state_->SetActive(state);
+}
+
 bool NetWork::SetNetWorkMode(NetWorkMode mode)
 {
 	switch (mode)
@@ -109,6 +132,16 @@ bool NetWork::SetNetWorkMode(NetWorkMode mode)
 		break;
 	}
 	return false;
+}
+
+bool NetWork::SetCountDownTime(const std::chrono::system_clock::time_point& time)
+{
+	if (!state_)
+	{
+		return false;
+	}
+	state_->SetCountTime(time);
+	return true;
 }
 
 ACTIVE_STATE NetWork::GetActive(void)
@@ -151,6 +184,7 @@ void NetWork::SendMesAll(MES_TYPE type, MesDataList data)
 
 void NetWork::SendMesAll(MES_TYPE type, MesDataList data, int noSendHandle)
 {
+	std::lock_guard lock(handleMtx_);
 	for (auto handle = handleList_.begin(); handle != handleList_.end(); handle++)
 	{
 		if (handle->first != noSendHandle)
@@ -162,6 +196,7 @@ void NetWork::SendMesAll(MES_TYPE type, MesDataList data, int noSendHandle)
 
 void NetWork::SendMes(MES_TYPE type, MesDataList data)
 {
+	std::lock_guard lock(handleMtx_);
 	if (handleList_.size() == 0)
 	{
 		return;

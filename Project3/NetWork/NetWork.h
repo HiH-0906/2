@@ -47,7 +47,9 @@ public:
 
 	void SetObjRevData(int id, std::mutex& mtx, std::vector<RevDataP>& mes);
 
+	bool SetActivMode(ACTIVE_STATE state);
 	bool SetNetWorkMode(NetWorkMode mode);
+	bool SetCountDownTime(const std::chrono::system_clock::time_point& time);
 	ACTIVE_STATE GetActive(void);
 	IParray GetIP(void);
 	bool ConnectHost(IPDATA hostIP);					// 指定されたIPアドレスのホストへ接続しに行く
@@ -122,6 +124,7 @@ private:
 	std::thread update_;
 	std::mutex stMtx_;
 	std::mutex revMtx_;
+	std::mutex handleMtx_;
 	// 各オブジェが持つ受信データ格納先への参照
 	ObjRevMap objRevMap_;
 

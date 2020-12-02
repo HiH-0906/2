@@ -14,7 +14,7 @@
 
 uniqueBase GameScene::Update(uniqueBase own, const Time& now)
 {
-	if (lpNetWork.GetActive() == ACTIVE_STATE::NON || (objList_.size() == 0) || lpNetWork.GetActive() == ACTIVE_STATE::OFFLINE)
+	if ((objList_.size() == 0) || lpNetWork.GetActive() == ACTIVE_STATE::OFFLINE)
 	{
 		mapMng_->ResrtOfMap();
 		Player::fallCnt_ = 0;
@@ -75,6 +75,7 @@ void GameScene::Init(void)
 		const auto& cLayer = mapMng_->GetMapData(MapLayer::CHAR);
 		int cnt = 0;
 		int id = 0;
+		int max = lpNetWork.GetMax() + 1;
 		const auto& chip = mapMng_->GetChipSize();
 		for (const auto& data : cLayer)
 		{
@@ -85,6 +86,11 @@ void GameScene::Init(void)
 				id += UNIT_ID_BASE;
 			}
 			cnt++;
+
+			if ((id / UNIT_ID_BASE) == max)
+			{
+				break;
+			}
 		}
 	}
 	else
@@ -164,7 +170,7 @@ void GameScene::SetBomb(Vector2 pos, int& id, int& oid,  int length ,bool send, 
 		data[5].uidata = time.idata[0];
 		data[6].uidata = time.idata[1];
 		
-		lpNetWork.SendMes(MES_TYPE::SET_BOMB, { data[0],data[1],data[2],data[3],data[4],data[5],data[6] });
+		lpNetWork.SendMesAll(MES_TYPE::SET_BOMB, { data[0],data[1],data[2],data[3],data[4],data[5],data[6] });
 	}
 	objList_.emplace_back(std::make_unique<Bomb>(chip, Vector2{ 32,32 }, length, id, oid, mapMng_, *this, start));
 }

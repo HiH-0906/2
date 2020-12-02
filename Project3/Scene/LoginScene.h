@@ -53,6 +53,7 @@ private:
 	int screenSize_X;
 	int screenSize_Y;
 	int Image;
+	bool sendTmx_;
 	Vector2 pos_;
 	IPDATA ipData_;
 	std::unique_ptr<Input> input_;
