@@ -73,9 +73,10 @@ UINT32 GetUINT32ColorFromVectorColor(const Color col)
 ///レイトレーシング
 ///@param eye 視点座標
 ///@param sphere 球オブジェクト(そのうち複数にする)
-void RayTracing(const Position3& eye,const Sphere& sphere) {
+void RayTracing(const Position3& eye,const Sphere& sphere,int& image) {
 	Vector3 Light = Vector3{ 1,-1,-1 };
 	float albedo[3] = { 0.5f , 0.5f, 1.0f };
+
 	for (int y = 0; y < screen_height; ++y) {//スクリーン縦方向
 		for (int x = 0; x < screen_width; ++x) {//スクリーン横方向
 			//①視点とスクリーン座標から視線ベクトルを作る
@@ -106,9 +107,6 @@ void RayTracing(const Position3& eye,const Sphere& sphere) {
 					deiffuse[i] = (deiffuseB * albedo[i]) + specular;
 					deiffuse[i] = Clamp(deiffuse[i]);
 				}
-				
-
-				
 
 				//※塗りつぶしはDrawPixelという関数を使う。
 				int color = 0xff * deiffuse[0];
@@ -134,10 +132,43 @@ void RayTracing(const Position3& eye,const Sphere& sphere) {
 				// 平面に当たる条件
 				// 仮に平面の法線を(0,1,0)
 				// 平面に当たる条件は視線と法線ベクトルが90度以上
-				auto P = Dot(-ray, Vector3(0, 1, 0));
-				if (P > 0)
+
+				// 視線と平面の交点
+				Plane plane(Vector3(0, 1, 0), 100);
+				auto dot = Dot(ray, plane.N);
+				if (dot < 0.0f)	// 地面に当たってる
 				{
-					DrawPixel(x, y, 0xffffff);
+					int r, g, b, a;
+					// 交点P=eye+ray*t
+					// t=w/u (wは平面からの距離　　uは一回当たり平面に近づく大きさ)
+					// w=eye・N u=-ray・N
+					// t=w/uにしたいけどdがあるので
+					// t=(w+d)/u
+					// あとはここからPを求めればよい
+					// まずｔを求める。多分tは４万くらい
+					auto w = Dot(eye, plane.N);
+					auto u = Dot(-ray, plane.N);
+					auto tmp = (w + plane.d) / u;
+					auto P = eye + ray * tmp;
+
+
+					Color col(255, 255, 255);
+					col *= Clamp(tmp / 3000.0f);
+
+					//GetPixelSoftImage(image, ((int)(P.x) % 40), ((int)(P.z) % 40), &r, &g, &b, &a);
+
+				
+					auto checker = (static_cast<int>(P.x / 40) + static_cast<int>(P.z / 40)) % 2 == 0;
+					checker = P.x < 0 ? !checker : checker;
+					checker = P.z < 0 ? !checker : checker;
+					if (checker)
+					{
+						DrawPixel(x, y, 0xffffff/*GetColor(r,g,b)*/);
+					}
+					else
+					{
+						DrawPixel(x, y, 0x000000/*GetColor(r, g, b)*/);
+					}
 				}
 				else
 				{
@@ -156,13 +187,13 @@ int WINAPI WinMain(HINSTANCE , HINSTANCE,LPSTR,int ) {
 	SetGraphMode(screen_width, screen_height, 32);
 	SetMainWindowText(_T("簡易版のレイトレでっせ"));
 	DxLib_Init();
-
+	int image = LoadSoftImage(L"image/test.png");
 	auto eye = Vector3(0, 0, 300);
 	auto sphere = Sphere(100, Position3(0, 0, -100));
 	while (!ProcessMessage() && !CheckHitKey(KEY_INPUT_ESCAPE))
 	{
 		ClsDrawScreen();
-		RayTracing(eye, sphere);
+		RayTracing(eye, sphere, image);
 		ScreenFlip();
 	}
 	DxLib_End();
