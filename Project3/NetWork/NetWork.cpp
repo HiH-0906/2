@@ -47,14 +47,7 @@ void NetWork::UpDate(void)
 				objRevMap_[(handle->second) / UNIT_ID_BASE].second.emplace_back(MES_H{ MES_TYPE::LOST,0,0,0 } , MesDataList{ data });
 				// ŽE‚·ˆ—‚ÆƒŠƒXƒg‚©‚çÁ‚·ˆ—
 				handleList_.erase(handle);
-				if (handleList_.size())
-				{
-					continue;
-				}
-				else
-				{
-					break;
-				}
+				break;
 			}
 			if (GetNetWorkDataLength(handle->first) >= sizeof(MES_H))
 			{
@@ -81,7 +74,10 @@ void NetWork::UpDate(void)
 					static_cast<unsigned int>(mes_.type) <= static_cast<unsigned int>(MES_TYPE::MAX))
 				{
 					const auto type = static_cast<unsigned int>(mes_.type) - static_cast<unsigned int>(MES_TYPE::NON);
-					revFunc_[type]();
+					if (checkData_[mes_.type] == revDataList_.size())
+					{
+						revFunc_[type]();
+					}
 				}
 			}
 		}
@@ -593,6 +589,21 @@ NetWork::NetWork()
 		std::getline(inistr, str);
 	} while (!inistr.eof());
 	oneSendLength_ /= sizeof(sendData);
+
+	checkData_.try_emplace(MES_TYPE::NON, 0);
+	checkData_.try_emplace(MES_TYPE::COUNT_DOWN_GAME, 2);
+	checkData_.try_emplace(MES_TYPE::COUNT_DOWN_ROOM, 2);
+	checkData_.try_emplace(MES_TYPE::DETH, 1);
+	checkData_.try_emplace(MES_TYPE::ID, 2);
+	checkData_.try_emplace(MES_TYPE::LOST, 1);
+	checkData_.try_emplace(MES_TYPE::MAX, 0);
+	checkData_.try_emplace(MES_TYPE::POS, 4);
+	checkData_.try_emplace(MES_TYPE::SET_BOMB, 7);
+	checkData_.try_emplace(MES_TYPE::STANBY_GUEST,0 );
+	checkData_.try_emplace(MES_TYPE::STANBY_HOST, 0);
+	checkData_.try_emplace(MES_TYPE::TMX_DATA, 179);
+	checkData_.try_emplace(MES_TYPE::TMX_SIZE, 3);
+
 }
 
 NetWork::~NetWork()

@@ -128,6 +128,8 @@ private:
 	// 各オブジェが持つ受信データ格納先への参照
 	ObjRevMap objRevMap_;
 
+	std::map<MES_TYPE, int> checkData_;
+
 	NetWork();
 	~NetWork();
 };
