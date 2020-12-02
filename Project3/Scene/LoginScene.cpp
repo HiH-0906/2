@@ -27,7 +27,6 @@ LoginScene::LoginScene()
 	func_.try_emplace(UPDATE_STATE::SET_NET, &LoginScene::SetNetWork);
 	func_.try_emplace(UPDATE_STATE::HOST_IP, &LoginScene::HostIPInput);
 	func_.try_emplace(UPDATE_STATE::START_INIT, &LoginScene::StartInit);
-	func_.try_emplace(UPDATE_STATE::PLAY, &LoginScene::PlayUpdate);
 	func_.try_emplace(UPDATE_STATE::SELECT_HOST, &LoginScene::SelectHost);
 	func_.try_emplace(UPDATE_STATE::READ_HOST, &LoginScene::ReadHost);
 
@@ -62,7 +61,11 @@ void LoginScene::DrawOwnScene(void)
 	if (lpNetWork.GetCountDownFlag())
 	{
 		auto cnt = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - lpNetWork.GetCountDownTime()).count();
-		cnt = abs(INIT_COUNT_TIME - cnt);
+		cnt = INIT_COUNT_TIME - cnt;
+		if (cnt <= 0)
+		{
+			cnt = 0;
+		}
 		DrawFormatString(300, 500, 0xffffff, "開始まであと：%d秒", cnt / 1000);
 	}
 	else
@@ -105,11 +108,6 @@ bool LoginScene::HostIPInput(void)
 	return true;
 }
 
-// 共用 ゲーム本編
-bool LoginScene::PlayUpdate(void)
-{
-	return false;
-}
 // 共用 ネット使うかどうか、ホストかゲストか選択
 bool LoginScene::SetNetWork(void)
 {
@@ -134,7 +132,6 @@ bool LoginScene::SetNetWork(void)
 			lpNetWork.SetNetWorkMode(NetWorkMode::OFFLINE);
 			
 			std::cout << "オフラインです\n" << std::endl;
-			state_ = UPDATE_STATE::PLAY;
 			loop = false;
 		}
 		else if (num == "1")
@@ -169,14 +166,19 @@ bool LoginScene::StartInit(void)
 		{
 			if (lpNetWork.SendTmxData("mapData/map.tmx"))
 			{
-				MesDataList data;
-				lpNetWork.SendMesAll(MES_TYPE::STANBY_HOST, data);
+				MesDataList list;
+				lpNetWork.SendMesAll(MES_TYPE::STANBY_HOST, list);
+				unionTimeData time = { std::chrono::system_clock::now() };
+				sendData data[2];
+				data[0].idata = time.idata[0];
+				data[1].idata = time.idata[1];
+				lpNetWork.SendMesAll(MES_TYPE::COUNT_DOWN_GAME, MesDataList{ data[0],data[1] });
 			}
 		}
 		if (lpNetWork.GetActive() == ACTIVE_STATE::STANBY && lpNetWork.GetGameStart())
 		{
 			std::cout << "開始" << std::endl;
-			state_ = UPDATE_STATE::PLAY;
+			return false;
 		}
 	}
 
@@ -184,10 +186,10 @@ bool LoginScene::StartInit(void)
 	{
 		if (lpNetWork.GetActive() == ACTIVE_STATE::INIT && lpNetWork.GetRevStanby())
 		{
-			state_ = UPDATE_STATE::PLAY;
 			MesDataList data;
 			lpNetWork.SendMes(MES_TYPE::STANBY_GUEST, data);
 			std::cout << "開始" << std::endl;
+			return false;
 		}
 	}
 	return true;

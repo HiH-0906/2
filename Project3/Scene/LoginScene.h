@@ -17,7 +17,6 @@ enum class UPDATE_STATE
 	READ_HOST,				// ゲスト専用 前回接続者につなぐ
 	HOST_IP,				// ゲスト専用 IP入力待機
 	START_INIT,				// 共用 初期化
-	PLAY,
 };
 
 // 現状ネットを試す場になっている 是非もナイネ
@@ -38,7 +37,6 @@ private:
 	std::map<UPDATE_STATE, TitleFuncT> func_;
 	// ステートパターンにぶち込まれる予定関数
 	bool HostIPInput(void);						// IPアドレスの入力
-	bool PlayUpdate(void);						// ゲーム本編 最終的になくなると思う
 	bool SetNetWork(void);						// ホスト、ゲスト、オフラインの選択
 	bool StartInit(void);						// 初期化
 	bool SelectHost(void);						// IPアドレスを入力するか読み込むか

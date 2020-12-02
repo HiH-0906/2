@@ -24,13 +24,12 @@ void NetWork::UpDate(void)
 		{
 			continue;
 		}
-		handleList_ = state_->GetNetHandle();
-		if (handleList_.size() != 0)
+		if (state_->GetActive() == ACTIVE_STATE::INIT)
 		{
 			break;
 		}
 	}
-	
+	handleList_ = state_->GetNetHandle();
 	while (!ProcessMessage() && handleList_.size())
 	{
 		auto tmp = GetLostNetWork();
@@ -152,48 +151,12 @@ void NetWork::SendMesAll(MES_TYPE type, MesDataList data)
 
 void NetWork::SendMesAll(MES_TYPE type, MesDataList data, int noSendHandle)
 {
-	if (!state_)
-	{
-		return;
-	}
-	if (handleList_.size() == 0)
-	{
-		return;
-	}
-	mes_H tmpMes = {};
-	tmpMes.head = { type,0,0,0 };
-	data.insert(data.begin(), { tmpMes.ihead[1] });
-	data.insert(data.begin(), { tmpMes.ihead[0] });
-	auto tmp = data;
 	for (auto handle = handleList_.begin(); handle != handleList_.end(); handle++)
 	{
-		if (handle->first == noSendHandle)
+		if (handle->first != noSendHandle)
 		{
-			continue;
+			SendMes(type, data, handle->first);
 		}
-		do
-		{
-			unsigned int sendCnt = static_cast<unsigned int>(data.size()) > oneSendLength_ ? oneSendLength_ : static_cast<unsigned int>(data.size());
-			data[1].uidata = sendCnt - sizeof(tmpMes) / sizeof(sendData);
-			// 一度に送るデータ量と送れる上限が同じなら分割している
-			if (sendCnt == oneSendLength_)
-			{
-				/*TRACE("分割します\n");
-				TRACE("送信データint数：%d\n", data[1].idata);*/
-				tmpMes.head.next = 1;
-			}
-			else
-			{
-				/*	TRACE("分割しません\n");
-					TRACE("送信データint数：%d\n", data[1].idata);*/
-				tmpMes.head.next = 0;
-			}
-			data[0].uidata = tmpMes.ihead[0];
-			NetWorkSend(handle->first, data.data(), sendCnt * sizeof(sendData));
-			data.erase(data.begin() + sizeof(tmpMes) / sizeof(sendData), data.begin() + sendCnt);
-			tmpMes.head.sendID++;
-		} while (data.size() > (sizeof(mes_H) / sizeof(sendData)));
-		data = tmp;
 	}
 }
 
@@ -427,8 +390,6 @@ void NetWork::SaveTmx(void)
 							std::cout << std::endl;
 							if (writTmxTmp())
 							{
-								revState_ = true;
-								std::cout << "スタンバイMES受信" << std::endl;
 								return;
 							}
 						}
@@ -501,6 +462,8 @@ void NetWork::RevStanbyHost(void)
 	{
 		std::cout << "スタンバイにデータ部があります" << std::endl;
 	}
+	revState_ = true;
+	std::cout << "スタンバイMES受信" << std::endl;
 	std::cout << "受信時間" << std::chrono::duration_cast<std::chrono::milliseconds>(end_ - strat_).count() << std::endl;
 }
 

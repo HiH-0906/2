@@ -47,9 +47,21 @@ bool HostState::CheckNetState(void)
 			{
 				active_ = ACTIVE_STATE::STANBY;
 			}
+			else if(active_ != ACTIVE_STATE::INIT)
+			{
+				sendData data[2];
+				data[0].idata = 5;
+				data[1].idata = playerMax_;
+				for (auto handle = netHandleList_.begin(); handle != netHandleList_.end(); handle++)
+				{
+					lpNetWork.SendMes(MES_TYPE::ID, MesDataList{ data[0],data[1] }, handle->first);
+					data[0].idata += 5;
+				}
+				active_ = ACTIVE_STATE::INIT;
+			}
 			else
 			{
-				active_ = ACTIVE_STATE::INIT;
+
 			}
 		}
 	}

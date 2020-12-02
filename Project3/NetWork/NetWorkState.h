@@ -76,7 +76,7 @@ union unionTimeData
 	std::chrono::system_clock::time_point time;
 	unsigned int idata[2];
 };
-
+// 構造体ﾊﾝﾄﾞﾙIdSTATE-1切断0ニュートラル1完了
 using HandleList = std::list<std::pair<int, unsigned int>>;
 
 // ネット接続モジュールの基盤 OFFLINE時はこれがインスタンスされる

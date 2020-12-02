@@ -32,6 +32,7 @@ using IParray = std::array<IPDATA, 5>;
 using RevDataP = std::pair<MES_H, MesDataList>;
 using ObjRevMap = std::vector< std::pair<std::mutex&, std::vector<RevDataP>&>>;
 
+
 // いつものシングルトンクラス
 class NetWork
 {
@@ -51,6 +52,7 @@ public:
 	IParray GetIP(void);
 	bool ConnectHost(IPDATA hostIP);					// 指定されたIPアドレスのホストへ接続しに行く
 	NetWorkMode GetMode(void);
+
 	void SendMesAll(MES_TYPE type, MesDataList data);
 	void SendMesAll(MES_TYPE type, MesDataList data,int noSendHandle);
 	void SendMes(MES_TYPE type, MesDataList data);
@@ -65,12 +67,14 @@ public:
 	const int GetMax(void)const;
 	const int& GetRevCount(void)const;
 
+	bool GetRevStanby(void);
+	bool GetGameStart(void);
+
 	void SaveTmx(void);
 
 	void EndOfNetWork(void);
 
-	bool GetRevStanby(void);
-	bool GetGameStart(void);
+
 private:
 	bool revState_;
 	bool gameStart_;
