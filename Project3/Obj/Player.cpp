@@ -222,20 +222,20 @@ bool Player::UpdataNet(const Time& now)
 		 auto mes = PickUpMes(MES_TYPE::SET_BOMB);
 		 auto pos = Vector2{ mes.second[2].idata,mes.second[3].idata };
 		 unionTimeData time = { std::chrono::system_clock::now() };
-		 if (mes.second[4].idata != length_)
-		 {
-			 TRACE("ボムのlength異変：%d\n", mes.second[4].idata);
-			 mes.second[4].idata = length_;
-		 }
 		 if (mes.second[0].idata != id_)
 		 {
-			 TRACE("ボムonwerID異変%d", mes.second[0].idata);
-			 mes.second[0].idata = id_;
+			 TRACE("ボムonwerID異変%d\n", mes.second[0].idata);
+			 break;
 		 }
 		 if (mes.second[1].idata < id_ || mes.second[1].idata > id_ + 4)
 		 {
-			 TRACE("ボムonwerID異変%d", mes.second[0].idata);
-			 return;
+			 TRACE("ボムID異変%d\n", mes.second[0].idata);
+			 break;
+		 }
+		 if (mes.second[4].idata != length_)
+		 {
+			 TRACE("ボムのlength異変：%d\n", mes.second[4].idata);
+			 break;
 		 }
 		 time.idata[0] = mes.second[5].idata;
 		 time.idata[1] = mes.second[6].idata;
