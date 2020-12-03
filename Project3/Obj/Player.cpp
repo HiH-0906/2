@@ -219,22 +219,41 @@ bool Player::UpdataNet(const Time& now)
 	 }
 	 while (isPickMesList(MES_TYPE::SET_BOMB))
 	 {
+		 auto checkBombPos = [](const Vector2&player, const Vector2& bomb)
+		 {
+			 for (int x = -1; x < 2; x++)
+			 {
+				 for (int y = -1; y < 2; y++)
+				 {
+					 if (Vector2{ player.x + x,player.y + y } == bomb)
+					 {
+						 return true;
+					 }
+				 }
+			 }
+			 return false;
+		 };
 		 auto mes = PickUpMes(MES_TYPE::SET_BOMB);
 		 auto pos = Vector2{ mes.second[2].idata,mes.second[3].idata };
 		 unionTimeData time = { std::chrono::system_clock::now() };
 		 if (mes.second[0].idata != id_)
 		 {
-			 TRACE("ボムonwerID異変%d\n", mes.second[0].idata);
+			 TRACE("ボムonwerID異常%d\n", mes.second[0].idata);
 			 break;
 		 }
 		 if (mes.second[1].idata < id_ || mes.second[1].idata > id_ + 4)
 		 {
-			 TRACE("ボムID異変%d\n", mes.second[0].idata);
+			 TRACE("ボムID異常%d\n", mes.second[0].idata);
 			 break;
 		 }
 		 if (mes.second[4].idata != length_)
 		 {
-			 TRACE("ボムのlength異変：%d\n", mes.second[4].idata);
+			 TRACE("ボムのlength異常：%d\n", mes.second[4].idata);
+			 break;
+		 }
+		 if (!checkBombPos(mapMng_->ChengeChip(pos_), mapMng_->ChengeChip(pos)))
+		 {
+			 TRACE("ボムがプレイヤーの周り以外から生成されようとしている	ID：%d", id_);
 			 break;
 		 }
 		 time.idata[0] = mes.second[5].idata;

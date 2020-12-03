@@ -52,11 +52,11 @@ uniqueBase LoginScene::Update(uniqueBase own, const Time& now)
 	{
 		return std::move(std::make_unique<CheckeredBlock>(std::move(own), std::make_unique<GameScene>()));
 	}
-	/*if (reset_)
+	if (reset_)
 	{
 		lpNetWork.EndOfNetWork();
 		return std::move(std::make_unique<CheckeredBlock>(std::move(own), std::make_unique<LoginScene>()));
-	}*/
+	}
 	return own;
 }
 
@@ -64,10 +64,10 @@ void LoginScene::DrawOwnScene(void)
 {
 	SetDrawScreen(drawScreen_);
 	ClsDrawScreen();
-	DrawGraph(0, 0, Image, true);
-	if (lpNetWork.GetActive() == ACTIVE_STATE::STANBY && !lpNetWork.GetGameStart())
+
+	if (sendTmx_)
 	{
-		auto cnt = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - lpNetWork.GetCountDownTime()).count();
+		auto cnt = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - lpNetWork.GetCountDownRoomTime()).count();
 		cnt = ResetTime - cnt;
 		DrawFormatString(300, 500, 0xffffff, "応答待ち：%d秒", cnt / 1000);
 		if (cnt <= 0)
@@ -77,9 +77,10 @@ void LoginScene::DrawOwnScene(void)
 	}
 	else
 	{
+		DrawGraph(0, 0, Image, true);
 		if (lpNetWork.GetCountDownFlag())
 		{
-			auto cnt = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - lpNetWork.GetCountDownTime()).count();
+			auto cnt = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - lpNetWork.GetCountDownRoomTime()).count();
 			cnt = INIT_COUNT_TIME - cnt;
 			if (cnt <= 0)
 			{
@@ -198,14 +199,14 @@ bool LoginScene::StartInit(void)
 				sendData data[2];
 				data[0].idata = time.idata[0];
 				data[1].idata = time.idata[1];
-				lpNetWork.SetCountDownTime(time.time);
+				lpNetWork.SetCountDownRoomTime(time.time);
 				lpNetWork.SendMesAll(MES_TYPE::COUNT_DOWN_GAME, MesDataList{ data[0],data[1] });
 				lpNetWork.SetActivMode(ACTIVE_STATE::STANBY);
 				TRACE("スタンバイ完了\n");
 				return true;
 			}
 		}
-		if (lpNetWork.GetActive() == ACTIVE_STATE::STANBY)
+		if (lpNetWork.GetActive() == ACTIVE_STATE::STANBY && lpNetWork.GetStanbyPlayerNum() != 0)
 		{
 			std::cout << "開始" << std::endl;
 			return false;

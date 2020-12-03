@@ -50,7 +50,8 @@ public:
 
 	bool SetActivMode(ACTIVE_STATE state);
 	bool SetNetWorkMode(NetWorkMode mode);
-	bool SetCountDownTime(const std::chrono::system_clock::time_point& time);
+	bool SetCountDownRoomTime(const std::chrono::system_clock::time_point& time);
+	bool SetCountDownGameTime(const std::chrono::system_clock::time_point& time);
 	ACTIVE_STATE GetActive(void);
 	IParray GetIP(void);
 	bool ConnectHost(IPDATA hostIP);					// 指定されたIPアドレスのホストへ接続しに行く
@@ -64,12 +65,12 @@ public:
 	bool SendTmxData(std::string filename);
 
 	bool GetCountDownFlag(void);
-	const std::chrono::system_clock::time_point& GetCountDownTime(void)const;
+	const std::chrono::system_clock::time_point& GetCountDownRoomTime(void)const;
+	const std::chrono::system_clock::time_point& GetCountDownGameTime(void)const;
 
 	const int GetStanbyPlayerNum(void)const;
 	const int GetID(void)const;
 	const int GetMax(void)const;
-	const int& GetRevCount(void)const;
 
 	bool GetRevStanby(void);
 	bool GetGameStart(void);

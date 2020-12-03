@@ -31,7 +31,7 @@ bool HostState::CheckNetState(void)
 		netHandleList_.push_back({ handle, 0,0 });
 		sendData data[2];
 		unionTimeData time = { startTime_ };
-		countTime_ = startTime_;
+		countDownRoomTime_ = startTime_;
 		countDown_ = true;
 		playerID_ = 0;
 		data[0].idata = time.idata[0];

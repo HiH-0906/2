@@ -4,7 +4,8 @@
 NetWorkState::NetWorkState()
 {
 	active_ = ACTIVE_STATE::OFFLINE;
-	countTime_ = {};
+	countDownRoomTime_ = {};
+	countDownGameTime_ = {};
 	countDown_ = false;
 	gameStart_ = false;
 	playerID_ = -1;
@@ -45,9 +46,15 @@ bool NetWorkState::GetGameStart(void)
 	return gameStart_;
 }
 
-const std::chrono::system_clock::time_point& NetWorkState::GetCountDownTime(void) const
+const std::chrono::system_clock::time_point& NetWorkState::GetCountDownRoomTime(void) const
 {
-	return countTime_;
+	//std::lock_guard<std::mutex> lock(downMtx_);
+	return countDownRoomTime_;
+}
+
+const std::chrono::system_clock::time_point& NetWorkState::GetCountDownGameTime(void) const
+{
+	return countDownGameTime_;
 }
 
 bool NetWorkState::ConnectHost(IPDATA hostIP)
@@ -80,10 +87,15 @@ void NetWorkState::CloseNetWork(void)
 	DxLib::CloseNetWork(netHandleList_.front().handle);
 }
 
-void NetWorkState::SetCountTime(std::chrono::system_clock::time_point time)
+void NetWorkState::SetCountDownRoomTime(std::chrono::system_clock::time_point time)
 {
-	countTime_ = time;
+	countDownRoomTime_ = time;
 	countDown_ = true;
+}
+
+void NetWorkState::SetCountDownGameTime(std::chrono::system_clock::time_point time)
+{
+	countDownGameTime_ = time;
 }
 
 void NetWorkState::SetPlayerID(int id, unsigned int max)

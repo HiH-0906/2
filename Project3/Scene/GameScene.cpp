@@ -103,7 +103,7 @@ void GameScene::Init(void)
 		int cnt = 0;
 		int id = 0;
 		int max = lpNetWork.GetMax();
-		auto chip = mapMng_->GetChipSize();
+		const auto& chip = mapMng_->GetChipSize();
 		for (const auto& data : cLayer)
 		{
 			if (data != -1)
@@ -164,7 +164,7 @@ void GameScene::SetBomb(Vector2 pos, int& id, int& oid,  int length ,bool send, 
 {
 	unionTimeData time = { start };
 	auto chip = mapMng_->ChengeChip(pos);
-	auto chipSize = mapMng_->GetChipSize();
+	const auto& chipSize = mapMng_->GetChipSize();
 	chip = chip * chipSize;
 	if (send)
 	{
@@ -194,7 +194,10 @@ void GameScene::initFunc(void)
 	});
 	cntDownFunc_.try_emplace(GameState::COUNT, [&]()
 	{
-		auto cnt = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - lpNetWork.GetCountDownTime()).count();
+		const auto& count = lpNetWork.GetCountDownGameTime();
+		const auto& now = std::chrono::system_clock::now();
+		auto cnt = std::chrono::duration_cast<std::chrono::milliseconds>(now - count).count();
+
 		cnt = abs(START_CNT - cnt);
 		DrawFormatString(300, 500, 0xffffff, "äJénÇ‹Ç≈Ç†Ç∆ÅF%dïb", cnt / 1000);
 		if (cnt / 1000 <= 0)

@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <algorithm>
 #include "NetWork.h"
 #include "HostState.h"
 #include "GestState.h"
@@ -38,18 +39,20 @@ void NetWork::UpDate(void)
 		{
 			if (tmp == handle->handle)
 			{
-				TRACE("ID：%dの切断", handle->id);
+				TRACE("ID：%dの切断\n", handle->id);
+				
+				handle->state = -1;
+				
+			}
+			if (handle->state == -1 && playNow_)
+			{
 				sendData data;
 				data = { handle->id };
 				SendMesAll(MES_TYPE::LOST, MesDataList{ data }, handle->handle);
-				// ゲーム開始前切断対策用コード
-				if (handle->state != -1)
-				{
-					std::lock_guard<std::mutex> lock2(objRevMap_[(handle->id) / UNIT_ID_BASE].first);
-					objRevMap_[(handle->id) / UNIT_ID_BASE].second.emplace_back(MES_H{ MES_TYPE::LOST,0,0,0 }, MesDataList{ data });
-					// 殺す処理とリストから消す処理
-					handleList_.erase(handle);
-				}
+				std::lock_guard<std::mutex> lock2(objRevMap_[(handle->id) / UNIT_ID_BASE].first);
+				objRevMap_[(handle->id) / UNIT_ID_BASE].second.emplace_back(MES_H{ MES_TYPE::LOST,0,0,0 }, MesDataList{ data });
+				// 殺す処理とリストから消す処理
+				handleList_.erase(handle);
 				break;
 			}
 			if (GetNetWorkDataLength(handle->handle) >= sizeof(MES_H))
@@ -150,14 +153,24 @@ bool NetWork::SetNetWorkMode(NetWorkMode mode)
 	return false;
 }
 
-bool NetWork::SetCountDownTime(const std::chrono::system_clock::time_point& time)
+bool NetWork::SetCountDownRoomTime(const std::chrono::system_clock::time_point& time)
+{
+	if (!state_)
+	{
+		return false;
+	}
+	state_->SetCountDownRoomTime(time);
+	return true;
+}
+
+bool NetWork::SetCountDownGameTime(const std::chrono::system_clock::time_point& time)
 {
 	if (!state_)
 	{
 		return false;
 	}
 	gameStart_ = true;
-	state_->SetCountTime(time);
+	state_->SetCountDownGameTime(time);
 	return true;
 }
 
@@ -366,22 +379,29 @@ bool NetWork::GetCountDownFlag(void)
 	return state_->GetCountStart();
 }
 
-const std::chrono::system_clock::time_point& NetWork::GetCountDownTime(void) const
+const std::chrono::system_clock::time_point& NetWork::GetCountDownRoomTime(void) const
 {
-	return state_->GetCountDownTime();
+	if (!state_)
+	{
+		std::chrono::system_clock::time_point time;
+		return time;
+	}
+	return state_->GetCountDownRoomTime();
+}
+
+const std::chrono::system_clock::time_point& NetWork::GetCountDownGameTime(void) const
+{
+	if (!state_)
+	{
+		std::chrono::system_clock::time_point time;
+		return time;
+	}
+	return state_->GetCountDownGameTime();
 }
 
 const int NetWork::GetStanbyPlayerNum(void) const
 {
-	int num = 0;
-	for (const auto& handle : handleList_)
-	{
-		if (handle.state == 1)
-		{
-			num++;
-		}
-	}
-	return num;
+	return std::count_if(handleList_.begin(), handleList_.end(), [](HANDLE_DATA handle) {return handle.state == 1; });
 }
 
 const int NetWork::GetID(void) const
@@ -402,10 +422,6 @@ const int NetWork::GetMax(void) const
 	return state_->GetMax();
 }
 
-const int& NetWork::GetRevCount(void) const
-{
-	return revStanby_;
-}
 
 void NetWork::SaveTmx(void)
 {
@@ -520,13 +536,19 @@ void NetWork::RevCountDownRoom(void)
 	}
 	if (!state_)
 	{
-		TRACE("RevCountDown時にNetStateがいないんですが");
+		TRACE("RevCountDown時にNetStateがいないんですが\n");
 		return;
 	}
+	if (state_->GetCountStart())
+	{
+		TRACE("RevCountDownRoom再び\n");
+		return;
+	}
+	TRACE("RevCountDownRoom受信\n");
 	unionTimeData data = { std::chrono::system_clock::now() };
 	data.idata[0] = revDataList_[0].idata;
 	data.idata[1] = revDataList_[1].idata;
-	state_->SetCountTime(data.time);
+	state_->SetCountDownRoomTime(data.time);
 }
 
 void NetWork::RevID(void)
@@ -541,7 +563,7 @@ void NetWork::RevID(void)
 	}
 	if (!state_)
 	{
-		TRACE("RevID時にNetStateがいないんですが");
+		TRACE("RevID時にNetStateがいないんですが\n");
 		return;
 	}
 	TRACE("PlayerID：%d	PlayerMax：%d\n", revDataList_[0].idata, revDataList_[1].idata);
@@ -577,10 +599,16 @@ void NetWork::RevCountDownGame(void)
 			return;
 		}
 	}
+	if ((!revState_ && !gameStart_))
+	{
+		TRACE("タイミング違いのCountDownGameデータ受信\n");
+		return;
+	}
+	TRACE("CountDownGameデータ受信\n");
 	unionTimeData time{ std::chrono::system_clock::now() };
 	time.idata[0] = revDataList_[0].idata;
 	time.idata[1] = revDataList_[1].idata;
-	state_->SetCountTime(time.time);
+	state_->SetCountDownGameTime(time.time);
 	gameStart_ = true;
 }
 
