@@ -32,6 +32,8 @@ public:
 	GameScene();
 	~GameScene();
 
+	const GameState& GetGameState(void)const;
+
 	shared_Obj GetPlayer(int id);
 	std::list<shared_Obj> GetObjList(void);
 	void SetBomb(Vector2 pos, int& id, int& oid,int length, bool send,std::chrono::system_clock::time_point start);

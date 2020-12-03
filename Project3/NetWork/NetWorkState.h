@@ -58,6 +58,13 @@ struct TMX_SIZE
 	unsigned int size;
 };
 
+struct IP_DATA
+{
+	int handle;
+	unsigned int id;
+	int state;
+};
+
 union mes_H
 {
 	MES_H head;
@@ -77,7 +84,7 @@ union unionTimeData
 	unsigned int idata[2];
 };
 // 構造体ﾊﾝﾄﾞﾙIdSTATE-1切断0ニュートラル1完了
-using HandleList = std::list<std::pair<int, unsigned int>>;
+using HandleList = std::list<IP_DATA>;
 
 // ネット接続モジュールの基盤 OFFLINE時はこれがインスタンスされる
 class NetWorkState

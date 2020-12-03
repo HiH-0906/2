@@ -1,5 +1,6 @@
 #include "Obj.h"
 #include"../map/Map.h"
+#include "../_debug/_DebugConOut.h"
 
 Obj::Obj(Vector2 pos, Vector2 size, int id, int speed, std::shared_ptr<Map> mapMng, BaseScene& scene)
 	:pos_(pos), size_(size),id_(id), speed_(speed), mapMng_(mapMng), scene_(scene)

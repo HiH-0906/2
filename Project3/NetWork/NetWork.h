@@ -23,7 +23,7 @@
 #define CSV_LAYER 4
 #define ALL_CSV_SIZE (CSV_SIZE*CSV_LAYER)
 
-#define REv_FUNC_SIZE (static_cast<size_t>(MES_TYPE::MAX) - static_cast<int>(MES_TYPE::NON))
+#define REV_FUNC_SIZE (static_cast<size_t>(MES_TYPE::MAX) - static_cast<int>(MES_TYPE::NON))
 
 #define BIT_NUM 8
 
@@ -46,6 +46,7 @@ public:
 	void RunUpdate(void);
 
 	void SetObjRevData(int id, std::mutex& mtx, std::vector<RevDataP>& mes);
+	void SetPlayNow(bool flag);
 
 	bool SetActivMode(ACTIVE_STATE state);
 	bool SetNetWorkMode(NetWorkMode mode);
@@ -65,6 +66,7 @@ public:
 	bool GetCountDownFlag(void);
 	const std::chrono::system_clock::time_point& GetCountDownTime(void)const;
 
+	const int GetStanbyPlayerNum(void)const;
 	const int GetID(void)const;
 	const int GetMax(void)const;
 	const int& GetRevCount(void)const;
@@ -80,6 +82,7 @@ public:
 private:
 	bool revState_;
 	bool gameStart_;
+	bool playNow_;
 	MesDataList revDataList_;
 	MES_H mes_;
 	int revSize_;
@@ -107,7 +110,7 @@ private:
 
 	// レシーブ部メンバ関数ポインタ
 	using RevFunc = std::function<void(void)>;
-	std::array<RevFunc, REv_FUNC_SIZE > revFunc_;
+	std::array<RevFunc, REV_FUNC_SIZE > revFunc_;
 
 	void RevCountDownRoom(void);
 	void RevID(void);
@@ -117,6 +120,7 @@ private:
 	void RevTmxSize(void);
 	void RevTmxData(void);
 	void RevData(void);
+	void RevLostData(void);
 
 	std::chrono::system_clock::time_point strat_;
 	std::chrono::system_clock::time_point end_;
@@ -125,6 +129,7 @@ private:
 	std::mutex stMtx_;
 	std::mutex revMtx_;
 	std::mutex handleMtx_;
+	std::mutex nowMtx_;
 	// 各オブジェが持つ受信データ格納先への参照
 	ObjRevMap objRevMap_;
 

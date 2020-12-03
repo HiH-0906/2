@@ -30,6 +30,7 @@ LoginScene::LoginScene()
 	func_.try_emplace(UPDATE_STATE::SELECT_HOST, &LoginScene::SelectHost);
 	func_.try_emplace(UPDATE_STATE::READ_HOST, &LoginScene::ReadHost);
 	sendTmx_ = false;
+	reset_ = false;
 
 	tetHight_ = 400;
 
@@ -51,6 +52,11 @@ uniqueBase LoginScene::Update(uniqueBase own, const Time& now)
 	{
 		return std::move(std::make_unique<CheckeredBlock>(std::move(own), std::make_unique<GameScene>()));
 	}
+	/*if (reset_)
+	{
+		lpNetWork.EndOfNetWork();
+		return std::move(std::make_unique<CheckeredBlock>(std::move(own), std::make_unique<LoginScene>()));
+	}*/
 	return own;
 }
 
@@ -59,20 +65,34 @@ void LoginScene::DrawOwnScene(void)
 	SetDrawScreen(drawScreen_);
 	ClsDrawScreen();
 	DrawGraph(0, 0, Image, true);
-	if (lpNetWork.GetCountDownFlag())
+	if (lpNetWork.GetActive() == ACTIVE_STATE::STANBY && !lpNetWork.GetGameStart())
 	{
 		auto cnt = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - lpNetWork.GetCountDownTime()).count();
-		cnt = INIT_COUNT_TIME - cnt;
+		cnt = ResetTime - cnt;
+		DrawFormatString(300, 500, 0xffffff, "応答待ち：%d秒", cnt / 1000);
 		if (cnt <= 0)
 		{
-			cnt = 0;
+			reset_ = true;
 		}
-		DrawFormatString(300, 500, 0xffffff, "開始まであと：%d秒", cnt / 1000);
 	}
 	else
 	{
-		DrawFormatString(300, 500, 0xffffff, "待機中");
+		if (lpNetWork.GetCountDownFlag())
+		{
+			auto cnt = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - lpNetWork.GetCountDownTime()).count();
+			cnt = INIT_COUNT_TIME - cnt;
+			if (cnt <= 0)
+			{
+				cnt = 0;
+			}
+			DrawFormatString(300, 500, 0xffffff, "開始まであと：%d秒", cnt / 1000);
+		}
+		else
+		{
+			DrawFormatString(300, 500, 0xffffff, "待機中");
+		}
 	}
+	
 }
 
 // ゲスト専用 ホストのIPアドレス入力させる関数 入力されたホストのIPアドレスで接続できない場合再入力
@@ -165,28 +185,27 @@ bool LoginScene::StartInit(void)
 	{
 		if (lpNetWork.GetActive() == ACTIVE_STATE::INIT)
 		{
-			if (lpNetWork.GetMax() == lpNetWork.GetRevCount())
-			{
-				lpNetWork.SetActivMode(ACTIVE_STATE::STANBY);
-				TRACE("スタンバイ完了");
-				return true;
-			}
 			if (!sendTmx_)
 			{
 				sendTmx_ = true;
 				lpNetWork.SendTmxData("mapData/map.tmx");
 				MesDataList list;
-
+				lpNetWork.SendMesAll(MES_TYPE::STANBY_HOST, list);
+			}
+			if (lpNetWork.GetMax() == lpNetWork.GetStanbyPlayerNum())
+			{
 				unionTimeData time = { std::chrono::system_clock::now() };
 				sendData data[2];
 				data[0].idata = time.idata[0];
 				data[1].idata = time.idata[1];
 				lpNetWork.SetCountDownTime(time.time);
 				lpNetWork.SendMesAll(MES_TYPE::COUNT_DOWN_GAME, MesDataList{ data[0],data[1] });
-				lpNetWork.SendMesAll(MES_TYPE::STANBY_HOST, list);
+				lpNetWork.SetActivMode(ACTIVE_STATE::STANBY);
+				TRACE("スタンバイ完了\n");
+				return true;
 			}
 		}
-		if (lpNetWork.GetActive() == ACTIVE_STATE::STANBY && lpNetWork.GetGameStart())
+		if (lpNetWork.GetActive() == ACTIVE_STATE::STANBY)
 		{
 			std::cout << "開始" << std::endl;
 			return false;

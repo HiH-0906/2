@@ -21,13 +21,14 @@ HostState::~HostState()
 bool HostState::CheckNetState(void)
 {
 	auto handle = GetNewAcceptNetWork();
+	auto lost = GetLostNetWork();
 	if (handle != -1)
 	{
 		if (netHandleList_.size() == 0)
 		{
 			startTime_ = std::chrono::system_clock::now();
 		}
-		netHandleList_.push_back({ handle, 0 });
+		netHandleList_.push_back({ handle, 0,0 });
 		sendData data[2];
 		unionTimeData time = { startTime_ };
 		countTime_ = startTime_;
@@ -39,13 +40,25 @@ bool HostState::CheckNetState(void)
 		playerMax_++;
 		std::cout << "ƒQƒXƒg‚ÌÚ‘±" << std::endl;
 	}
+	if (lost != -1)
+	{
+		for (auto handle = netHandleList_.begin(); handle != netHandleList_.end(); handle++)
+		{
+			if (handle->handle != lost)
+			{
+				continue;
+			}
+			TRACE("GUEST‚ÌØ’fF%d", handle->id);
+			playerMax_--;
+			handle->state = -1;
+		}
+	}
 	if (netHandleList_.size() != 0)
 	{
 		auto timeCnt = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - startTime_).count();
 		if (timeCnt >= INIT_COUNT_TIME)
 		{
 			StopListenNetWork();
-			auto aaaa = lpNetWork.GetRevCount();
 			
 			if (active_ != ACTIVE_STATE::INIT)
 			{
@@ -54,8 +67,12 @@ bool HostState::CheckNetState(void)
 				data[1].idata = playerMax_ + 1;
 				for (auto handle = netHandleList_.begin(); handle != netHandleList_.end(); handle++)
 				{
-					lpNetWork.SendMes(MES_TYPE::ID, MesDataList{ data[0],data[1] }, handle->first);
-					handle->second = data[0].idata;
+					if (handle->state == -1)
+					{
+						continue;
+					}
+					lpNetWork.SendMes(MES_TYPE::ID, MesDataList{ data[0],data[1] }, handle->handle);
+					handle->id = data[0].idata;
 					data[0].idata += 5;
 				}
 				active_ = ACTIVE_STATE::INIT;

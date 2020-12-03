@@ -14,10 +14,11 @@
 
 uniqueBase GameScene::Update(uniqueBase own, const Time& now)
 {
-	if ((objList_.size() == 0) || lpNetWork.GetActive() == ACTIVE_STATE::OFFLINE)
+	if (lpNetWork.GetActive() == ACTIVE_STATE::OFFLINE)
 	{
 		mapMng_->ResrtOfMap();
 		Player::fallCnt_ = 0;
+		lpNetWork.SetPlayNow(false);
 		return std::move(std::make_unique<CheckeredBlock>(std::move(own), std::make_unique<LoginScene>()));
 	}
 	objList_.sort([](shared_Obj objA, shared_Obj objB)
@@ -25,6 +26,7 @@ uniqueBase GameScene::Update(uniqueBase own, const Time& now)
 		return objA->CheckMesList() > objB->CheckMesList();
 	}
 	);
+	
 	if (state_ == GameState::PLAY)
 	{
 		for (auto& pl : objList_)
@@ -32,7 +34,7 @@ uniqueBase GameScene::Update(uniqueBase own, const Time& now)
 			pl->Update_(now);
 		}
 	}
-	auto delItr = std::remove_if(objList_.begin(), objList_.end(), [](shared_Obj& obj) {return !obj->Alive(); });
+	auto delItr = std::remove_if(objList_.begin(), objList_.end(), [](shared_Obj& obj) {return !obj->Alive() && obj->GetTag() != OBJ_TAG::PLAYER; });
 	objList_.erase(delItr, objList_.end());
 	mapMng_->Update(now);
 	DrawOwnScene();
@@ -134,6 +136,11 @@ GameScene::~GameScene()
 	objList_.clear();
 }
 
+const GameState& GameScene::GetGameState(void) const
+{
+	return state_;
+}
+
 shared_Obj GameScene::GetPlayer(int id)
 {
 	shared_Obj tmp = nullptr;
@@ -179,6 +186,7 @@ void GameScene::initFunc(void)
 {
 	cntDownFunc_.try_emplace(GameState::STY, [&]()
 	{
+		DrawFormatString(300, 500, 0xffffff, "待機中");
 		if (lpNetWork.GetGameStart())
 		{
 			state_ = GameState::COUNT;
@@ -191,6 +199,7 @@ void GameScene::initFunc(void)
 		DrawFormatString(300, 500, 0xffffff, "開始まであと：%d秒", cnt / 1000);
 		if (cnt / 1000 <= 0)
 		{
+			lpNetWork.SetPlayNow(true);
 			state_ = GameState::PLAY;
 		}
 	});

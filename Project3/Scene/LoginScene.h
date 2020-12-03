@@ -8,7 +8,7 @@
 #include "../Input/PadState.h"
 #include "../common/Vector2.h"
 
-
+#define ResetTime 30000
 
 enum class UPDATE_STATE
 {
@@ -54,6 +54,7 @@ private:
 	int screenSize_Y;
 	int Image;
 	bool sendTmx_;
+	bool reset_;
 	Vector2 pos_;
 	IPDATA ipData_;
 	std::unique_ptr<Input> input_;

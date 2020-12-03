@@ -68,12 +68,16 @@ const int& NetWorkState::GetID(void) const
 
 const int& NetWorkState::GetMax(void) const
 {
+	if (playerMax_ == -1)
+	{
+		return INT_MAX;
+	}
 	return playerMax_;
 }
 
 void NetWorkState::CloseNetWork(void)
 {
-	DxLib::CloseNetWork(netHandleList_.front().first);
+	DxLib::CloseNetWork(netHandleList_.front().handle);
 }
 
 void NetWorkState::SetCountTime(std::chrono::system_clock::time_point time)
