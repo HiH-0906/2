@@ -55,6 +55,7 @@ private:
 	int Image;
 	bool sendTmx_;
 	bool reset_;
+	bool wait_;
 	Vector2 pos_;
 	IPDATA ipData_;
 	std::unique_ptr<Input> input_;

@@ -35,57 +35,60 @@ void NetWork::UpDate(void)
 	while (!ProcessMessage() && handleList_.size())
 	{
 		auto tmp = GetLostNetWork();
-		for (auto handle = handleList_.begin(); handle != handleList_.end(); handle++)
 		{
-			if (tmp == handle->handle)
+			std::lock_guard<std::mutex> lock(handleMtx_);
+			for (auto handle = handleList_.begin(); handle != handleList_.end(); handle++)
 			{
-				TRACE("ID：%dの切断\n", handle->id);
-				
-				handle->state = -1;
-				
-			}
-			if (handle->state == -1 && playNow_)
-			{
-				sendData data;
-				data = { handle->id };
-				SendMesAll(MES_TYPE::LOST, MesDataList{ data }, handle->handle);
-				std::lock_guard<std::mutex> lock2(objRevMap_[(handle->id) / UNIT_ID_BASE].first);
-				objRevMap_[(handle->id) / UNIT_ID_BASE].second.emplace_back(MES_H{ MES_TYPE::LOST,0,0,0 }, MesDataList{ data });
-				// 殺す処理とリストから消す処理
-				handleList_.erase(handle);
-				break;
-			}
-			if (GetNetWorkDataLength(handle->handle) >= sizeof(MES_H))
-			{
-				if (mes_.next == 0)
+				if (tmp == handle->handle)
 				{
-					writePos = 0;
-				}
-				NetWorkRecv(handle->handle, &mes_, sizeof(MES_H));
+					TRACE("ID：%dの切断\n", handle->id);
 
-				if (mes_.length != 0)
-				{
-					revDataList_.resize(static_cast<size_t>(writePos + mes_.length));
-					NetWorkRecv(handle->handle, revDataList_.data() + writePos, static_cast<int>(mes_.length * sizeof(revDataList_[0])));
-					SendMesAll(mes_.type, revDataList_, handle->handle);
-				}
+					handle->state = -1;
 
-				if (mes_.next == 1)
-				{
-					TRACE("後続のデータがあります\n");
-					writePos = revDataList_.size();
-					continue;
 				}
-				if (static_cast<unsigned int>(mes_.type) >= static_cast<unsigned int>(MES_TYPE::NON) &&
-					static_cast<unsigned int>(mes_.type) <= static_cast<unsigned int>(MES_TYPE::MAX))
+				if (handle->state == -1 && playNow_)
 				{
-					const auto type = static_cast<unsigned int>(mes_.type) - static_cast<unsigned int>(MES_TYPE::NON);
-					if (checkData_[mes_.type] == revDataList_.size())
+					sendData data;
+					data = { handle->id };
+					SendMesAll(MES_TYPE::LOST, MesDataList{ data }, handle->handle);
+					std::lock_guard<std::mutex> lock2(objRevMap_[(handle->id) / UNIT_ID_BASE].first);
+					objRevMap_[(handle->id) / UNIT_ID_BASE].second.emplace_back(MES_H{ MES_TYPE::LOST,0,0,0 }, MesDataList{ data });
+					// 殺す処理とリストから消す処理
+					handleList_.erase(handle);
+					break;
+				}
+				if (GetNetWorkDataLength(handle->handle) >= sizeof(MES_H))
+				{
+					if (mes_.next == 0)
 					{
-						revFunc_[type](handle);
+						writePos = 0;
 					}
-					revDataList_.resize(0);
-					mes_ = {};
+					NetWorkRecv(handle->handle, &mes_, sizeof(MES_H));
+
+					if (mes_.length != 0)
+					{
+						revDataList_.resize(static_cast<size_t>(writePos + mes_.length));
+						NetWorkRecv(handle->handle, revDataList_.data() + writePos, static_cast<int>(mes_.length * sizeof(revDataList_[0])));
+						SendMesAll(mes_.type, revDataList_, handle->handle);
+					}
+
+					if (mes_.next == 1)
+					{
+						TRACE("後続のデータがあります\n");
+						writePos = revDataList_.size();
+						continue;
+					}
+					if (static_cast<unsigned int>(mes_.type) >= static_cast<unsigned int>(MES_TYPE::NON) &&
+						static_cast<unsigned int>(mes_.type) <= static_cast<unsigned int>(MES_TYPE::MAX))
+					{
+						const auto type = static_cast<unsigned int>(mes_.type) - static_cast<unsigned int>(MES_TYPE::NON);
+						if (checkData_[mes_.type] == revDataList_.size())
+						{
+							revFunc_[type](handle);
+						}
+						revDataList_.resize(0);
+						mes_ = {};
+					}
 				}
 			}
 		}
@@ -210,8 +213,8 @@ void NetWork::SendMesAll(MES_TYPE type, MesDataList data)
 
 void NetWork::SendMesAll(MES_TYPE type, MesDataList data, int noSendHandle)
 {
-	std::lock_guard lock(handleMtx_);
-	if (handleList_.size()==0)
+	//std::lock_guard lock(handleMtx_);
+	if (handleList_.size() == 0)
 	{
 		return;
 	}
@@ -226,7 +229,7 @@ void NetWork::SendMesAll(MES_TYPE type, MesDataList data, int noSendHandle)
 
 void NetWork::SendMes(MES_TYPE type, MesDataList data)
 {
-	std::lock_guard lock(handleMtx_);
+	//std::lock_guard lock(handleMtx_);
 	if (handleList_.size() == 0)
 	{
 		return;
@@ -506,10 +509,22 @@ void NetWork::EndOfNetWork(void)
 		CloseNetWork(handdle.handle);
 	}
 	state_ = nullptr;
-	startGame_ = false;
-	revState_ = false;
-	playNow_ = false;
-	handleList_.clear();
+	{
+		std::lock_guard <std::mutex> lock(stMtx_);
+		startGame_ = false;
+	}
+	{
+		std::lock_guard< std::mutex> lock(revMtx_);
+		revState_ = false;
+	}
+	{
+		std::lock_guard < std::mutex> lock(nowMtx_);
+		playNow_ = false;
+	}
+	{
+		std::lock_guard<std::mutex> lock(handleMtx_);
+		handleList_.clear();
+	}
 	objRevMap_.clear();
 }
 

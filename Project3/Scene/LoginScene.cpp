@@ -31,6 +31,7 @@ LoginScene::LoginScene()
 	func_.try_emplace(UPDATE_STATE::READ_HOST, &LoginScene::ReadHost);
 	sendTmx_ = false;
 	reset_ = false;
+	wait_ = false;
 	waitTime_ = {};
 	tetHight_ = 400;
 
@@ -65,7 +66,7 @@ void LoginScene::DrawOwnScene(void)
 	SetDrawScreen(drawScreen_);
 	ClsDrawScreen();
 
-	if (sendTmx_)
+	if (wait_)
 	{
 		auto cnt = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - waitTime_).count();
 		DrawFormatString(300, 500, 0xffffff, "応答待ち：%d秒", cnt / 1000);
@@ -83,6 +84,8 @@ void LoginScene::DrawOwnScene(void)
 			cnt = INIT_COUNT_TIME - cnt;
 			if (cnt <= 0)
 			{
+				wait_ = true;
+				waitTime_ = std::chrono::system_clock::now();
 				cnt = 0;
 			}
 			DrawFormatString(300, 500, 0xffffff, "開始まであと：%d秒", cnt / 1000);
@@ -192,7 +195,6 @@ bool LoginScene::StartInit(void)
 				lpNetWork.SendTmxData("mapData/map.tmx");
 				MesDataList list;
 				lpNetWork.SendMesAll(MES_TYPE::STANBY_HOST, list);
-				waitTime_ = std::chrono::system_clock::now();
 			}
 			if (lpNetWork.GetMax() == lpNetWork.GetStanbyPlayerNum())
 			{
