@@ -107,15 +107,14 @@ public:
 	const HandleList& GetNetHandle(void)const;
 	bool GetCountStart(void);
 	bool GetGameStart(void);
-	const std::chrono::system_clock::time_point& GetCountDownRoomTime(void)const;
-	const std::chrono::system_clock::time_point& GetCountDownGameTime(void)const;
+	const std::chrono::system_clock::time_point& GetCountDownRoomTime(void);
+	const std::chrono::system_clock::time_point& GetCountDownGameTime(void);
 	virtual bool ConnectHost(IPDATA hostIP);						// ホストやオフラインの時は必ずfalse
 	bool SetActive(ACTIVE_STATE state);
 	const int& GetID(void)const;
-	const int& GetMax(void)const;
+	const int GetMax(void)const;
+	void SetGameStart(bool flag);
 private:
-	std::mutex downMtx_;
-	std::mutex gameMtx_;
 	virtual bool CheckNetState(void) { return false; };
 protected:
 	void CloseNetWork(void);
@@ -128,5 +127,7 @@ protected:
 	bool gameStart_;
 	int playerID_;
 	int playerMax_;
+	std::mutex downMtx_;
+	std::mutex gameMtx_;
 };
 

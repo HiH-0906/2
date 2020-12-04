@@ -14,13 +14,13 @@
 
 uniqueBase GameScene::Update(uniqueBase own, const Time& now)
 {
-	if (lpNetWork.GetActive() == ACTIVE_STATE::OFFLINE)
-	{
-		mapMng_->ResrtOfMap();
-		Player::fallCnt_ = 0;
-		lpNetWork.SetPlayNow(false);
-		return std::move(std::make_unique<CheckeredBlock>(std::move(own), std::make_unique<LoginScene>()));
-	}
+	//if (lpNetWork.GetActive() == ACTIVE_STATE::OFFLINE)
+	//{
+	//	mapMng_->ResrtOfMap();
+	//	Player::fallCnt_ = 0;
+	//	lpNetWork.SetPlayNow(false);
+	//	return std::move(std::make_unique<CheckeredBlock>(std::move(own), std::make_unique<LoginScene>()));
+	//}
 	objList_.sort([](shared_Obj objA, shared_Obj objB)
 	{
 		return objA->CheckMesList() > objB->CheckMesList();
@@ -65,7 +65,14 @@ void GameScene::DrawOwnScene(void)
 
 void GameScene::Init(void)
 {
-	state_ = GameState::STY;
+	if (lpNetWork.GetActive() == ACTIVE_STATE::OFFLINE)
+	{
+		state_ = GameState::PLAY;
+	}
+	else
+	{
+		state_ = GameState::STY;
+	}
 	mapMng_ = std::make_shared<Map>();
 	const auto& size = lpSceneMng.GetScreenSize();
 	drawScreen_ = MakeScreen(size.x, size.y, true);
@@ -187,7 +194,7 @@ void GameScene::initFunc(void)
 	cntDownFunc_.try_emplace(GameState::STY, [&]()
 	{
 		DrawFormatString(300, 500, 0xffffff, "‘Ò‹@’†");
-		if (lpNetWork.GetGameStart())
+		if (lpNetWork.GetStartGame())
 		{
 			state_ = GameState::COUNT;
 		}

@@ -59,6 +59,8 @@ private:
 	IPDATA ipData_;
 	std::unique_ptr<Input> input_;
 
+
+	Time waitTime_;
 	int tetHight_;
 };
 

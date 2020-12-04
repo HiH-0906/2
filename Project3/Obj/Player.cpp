@@ -3,6 +3,7 @@
 #include "Player.h"
 #include "../Scene/BaseScene.h"
 #include "../Scene/GameScene.h"
+#include "../Scene/SceneMng.h"
 #include "../NetWork/NetWork.h"
 #include "../common/ImageMng.h"
 #include "../_debug/_DebugConOut.h"
@@ -107,7 +108,6 @@ bool Player::UpdateAuto(const Time& now)
 	if (list.size() != 0)
 	{
 		const auto& pos = list.front()->GetPos();
-		//_dbgDrawFormatString(pos.x, pos.y, 0xffffff, "AUTO：当たり判定対象");
 		if (!CheckHitObj(list.front(), dir_))
 		{
 			pos_ += speedVec_[dir_];
@@ -212,10 +212,26 @@ bool Player::UpdataNet(const Time& now)
 	 while (isPickMesList(MES_TYPE::POS))
 	 {
 		 auto mes = PickUpMes(MES_TYPE::POS);
-			auto& data = mes.second;
-			pos_ = Vector2{ static_cast<int>(data[1].uidata),static_cast<int>(data[2].uidata) };
-			dir_ = static_cast<DIR>(data[3].uidata);
-			test = true;
+		 auto& data = mes.second;
+		 if (data[3].uidata >= 0 && data[3].uidata < static_cast<unsigned int>(DIR::MAX))
+		 {
+			 dir_ = static_cast<DIR>(data[3].uidata);
+		 }
+		 else
+		 {
+			 TRACE("DIR異常	ID：%d\n", id_);
+		 }
+		 auto pos = Vector2{ static_cast<int>(data[1].uidata),static_cast<int>(data[2].uidata) };
+		 if (pos >= Vector2(0, 0) && pos < lpSceneMng.GetScreenSize())
+		 {
+			 pos_ = pos;
+		 }
+		 else
+		 {
+			 TRACE("画面外pos(%d,%d) ID:%d", pos.x, pos.y, id_);
+		 }
+		 
+		 test = true;
 	 }
 	 while (isPickMesList(MES_TYPE::SET_BOMB))
 	 {
@@ -253,8 +269,8 @@ bool Player::UpdataNet(const Time& now)
 		 }
 		 if (!checkBombPos(mapMng_->ChengeChip(pos_), mapMng_->ChengeChip(pos)))
 		 {
-			 TRACE("ボムがプレイヤーの周り以外から生成されようとしている	ID：%d", id_);
-			 break;
+			 TRACE("ボムがプレイヤーの周り以外から生成されようとしている	ID：%d\n", id_);
+			 //break;
 		 }
 		 time.idata[0] = mes.second[5].idata;
 		 time.idata[1] = mes.second[6].idata;
@@ -262,7 +278,7 @@ bool Player::UpdataNet(const Time& now)
 	 }
 	 if (!test)
 	 {
-		 TRACE("データ未受信ID:%d\n", id_);
+		 //TRACE("データ未受信ID:%d\n", id_);
 		 fallCnt_++;
 	 }
 	animCnt_++;

@@ -48,7 +48,7 @@ bool HostState::CheckNetState(void)
 			{
 				continue;
 			}
-			TRACE("GUEST‚ÌØ’fF%d", handle->id);
+			TRACE("GUEST‚ÌØ’fF%d\n", handle->id);
 			playerMax_--;
 			handle->state = -1;
 		}

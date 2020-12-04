@@ -62,18 +62,19 @@ public:
 	void SendMes(MES_TYPE type, MesDataList data);
 	void SendMes(MES_TYPE type, MesDataList data,int handle);
 	void SendMes(MES_TYPE type,int handle);
+	void SetStartGame(bool flag);
 	bool SendTmxData(std::string filename);
 
 	bool GetCountDownFlag(void);
-	const std::chrono::system_clock::time_point& GetCountDownRoomTime(void)const;
-	const std::chrono::system_clock::time_point& GetCountDownGameTime(void)const;
+	const std::chrono::system_clock::time_point GetCountDownRoomTime(void)const;
+	const std::chrono::system_clock::time_point GetCountDownGameTime(void)const;
 
 	const int GetStanbyPlayerNum(void)const;
 	const int GetID(void)const;
 	const int GetMax(void)const;
 
 	bool GetRevStanby(void);
-	bool GetGameStart(void);
+	bool GetStartGame(void);
 
 	void SaveTmx(void);
 
@@ -82,8 +83,9 @@ public:
 
 private:
 	bool revState_;
-	bool gameStart_;
+	bool startGame_;
 	bool playNow_;
+	bool revID_;
 	MesDataList revDataList_;
 	MES_H mes_;
 	int revSize_;
@@ -110,18 +112,20 @@ private:
 	std::unique_ptr<NetWorkState> state_;
 
 	// レシーブ部メンバ関数ポインタ
-	using RevFunc = std::function<void(void)>;
+	using RevFunc = std::function<void(HandleList::iterator& itr)>;
 	std::array<RevFunc, REV_FUNC_SIZE > revFunc_;
 
-	void RevCountDownRoom(void);
-	void RevID(void);
-	void RevStanbyHost(void);
-	void RevCountDownGame(void);
-	void RevStanbyGuest(void);
-	void RevTmxSize(void);
-	void RevTmxData(void);
-	void RevData(void);
-	void RevLostData(void);
+	void RevCountDownRoom(HandleList::iterator& itr);
+	void RevID(HandleList::iterator& itr);
+	void RevStanbyHost(HandleList::iterator& itr);
+	void RevStanbyGuest(HandleList::iterator& itr);
+	void RevCountDownGame(HandleList::iterator& itr);
+	void RevTmxSize(HandleList::iterator& itr);
+	void RevTmxData(HandleList::iterator& itr);
+	void RevPosData(HandleList::iterator& itr);
+	void RevSetBombData(HandleList::iterator& itr);
+	void RevDethData(HandleList::iterator& itr);
+	void RevLostData(HandleList::iterator& itr);
 
 	std::chrono::system_clock::time_point strat_;
 	std::chrono::system_clock::time_point end_;

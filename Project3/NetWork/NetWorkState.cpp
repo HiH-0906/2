@@ -46,14 +46,15 @@ bool NetWorkState::GetGameStart(void)
 	return gameStart_;
 }
 
-const std::chrono::system_clock::time_point& NetWorkState::GetCountDownRoomTime(void) const
+const std::chrono::system_clock::time_point& NetWorkState::GetCountDownRoomTime(void)
 {
-	//std::lock_guard<std::mutex> lock(downMtx_);
+	std::lock_guard<std::mutex> lock(downMtx_);
 	return countDownRoomTime_;
 }
 
-const std::chrono::system_clock::time_point& NetWorkState::GetCountDownGameTime(void) const
+const std::chrono::system_clock::time_point& NetWorkState::GetCountDownGameTime(void)
 {
+	std::lock_guard<std::mutex> lock(gameMtx_);
 	return countDownGameTime_;
 }
 
@@ -73,13 +74,18 @@ const int& NetWorkState::GetID(void) const
 	return playerID_;
 }
 
-const int& NetWorkState::GetMax(void) const
+const int NetWorkState::GetMax(void) const
 {
 	if (playerMax_ == -1)
 	{
 		return INT_MAX;
 	}
 	return playerMax_;
+}
+
+void NetWorkState::SetGameStart(bool flag)
+{
+	gameStart_ = flag;
 }
 
 void NetWorkState::CloseNetWork(void)
@@ -89,12 +95,14 @@ void NetWorkState::CloseNetWork(void)
 
 void NetWorkState::SetCountDownRoomTime(std::chrono::system_clock::time_point time)
 {
+	std::lock_guard lock(downMtx_);
 	countDownRoomTime_ = time;
 	countDown_ = true;
 }
 
 void NetWorkState::SetCountDownGameTime(std::chrono::system_clock::time_point time)
 {
+	std::lock_guard lock(gameMtx_);
 	countDownGameTime_ = time;
 }
 

@@ -82,11 +82,7 @@ void NetWork::UpDate(void)
 					const auto type = static_cast<unsigned int>(mes_.type) - static_cast<unsigned int>(MES_TYPE::NON);
 					if (checkData_[mes_.type] == revDataList_.size())
 					{
-						revFunc_[type]();
-						if (mes_.type == MES_TYPE::STANBY_GUEST)
-						{
-							handle->state = 1;
-						}
+						revFunc_[type](handle);
 					}
 					revDataList_.resize(0);
 					mes_ = {};
@@ -169,7 +165,7 @@ bool NetWork::SetCountDownGameTime(const std::chrono::system_clock::time_point& 
 	{
 		return false;
 	}
-	gameStart_ = true;
+	state_->SetGameStart(true);
 	state_->SetCountDownGameTime(time);
 	return true;
 }
@@ -283,6 +279,12 @@ void NetWork::SendMes(MES_TYPE type,int handle)
 	SendMes(type, std::move(data),handle);
 }
 
+void NetWork::SetStartGame(bool flag)
+{
+	std::lock_guard lock(stMtx_);
+	startGame_ = flag;
+}
+
 bool NetWork::SendTmxData(std::string filename)
 {
 	MesDataList sendMes;
@@ -379,7 +381,7 @@ bool NetWork::GetCountDownFlag(void)
 	return state_->GetCountStart();
 }
 
-const std::chrono::system_clock::time_point& NetWork::GetCountDownRoomTime(void) const
+const std::chrono::system_clock::time_point NetWork::GetCountDownRoomTime(void) const
 {
 	if (!state_)
 	{
@@ -389,7 +391,7 @@ const std::chrono::system_clock::time_point& NetWork::GetCountDownRoomTime(void)
 	return state_->GetCountDownRoomTime();
 }
 
-const std::chrono::system_clock::time_point& NetWork::GetCountDownGameTime(void) const
+const std::chrono::system_clock::time_point NetWork::GetCountDownGameTime(void) const
 {
 	if (!state_)
 	{
@@ -504,7 +506,7 @@ void NetWork::EndOfNetWork(void)
 		CloseNetWork(handdle.handle);
 	}
 	state_ = nullptr;
-	gameStart_ = false;
+	startGame_ = false;
 	revState_ = false;
 	playNow_ = false;
 	handleList_.clear();
@@ -517,14 +519,14 @@ bool NetWork::GetRevStanby(void)
 	return revState_;
 }
 
-bool NetWork::GetGameStart(void)
+bool NetWork::GetStartGame(void)
 {
 	std::lock_guard<std::mutex> lock(stMtx_);
-	return gameStart_;
+	return startGame_;
 }
 
 
-void NetWork::RevCountDownRoom(void)
+void NetWork::RevCountDownRoom(HandleList::iterator& itr)
 {
 	{
 		std::lock_guard<std::mutex> lock(nowMtx_);
@@ -551,7 +553,7 @@ void NetWork::RevCountDownRoom(void)
 	state_->SetCountDownRoomTime(data.time);
 }
 
-void NetWork::RevID(void)
+void NetWork::RevID(HandleList::iterator& itr)
 {
 	{
 		std::lock_guard<std::mutex> lock(nowMtx_);
@@ -566,11 +568,31 @@ void NetWork::RevID(void)
 		TRACE("RevID時にNetStateがいないんですが\n");
 		return;
 	}
+	if (revID_)
+	{
+		TRACE("RevID時2回目\n");
+		TRACE("PlayerID：%d	PlayerMax：%d\n", revDataList_[0].idata, revDataList_[1].idata);
+		return;
+	}
+	auto tmpID = revDataList_[0].idata % UNIT_ID_BASE;
+	if (tmpID != 0)
+	{
+		TRACE("PlayerID異常：%d\n", revDataList_[0].idata);
+		TRACE("PlayerID：%d	PlayerMax：%d\n", revDataList_[0].idata, revDataList_[1].idata);
+		return;
+	}
+	if (revDataList_[0].idata >= revDataList_[1].idata * UNIT_ID_BASE || revDataList_[0].idata < 0)
+	{
+		TRACE("PlayerID異常：%d\n", revDataList_[0].idata);
+		TRACE("PlayerID：%d	PlayerMax：%d\n", revDataList_[0].idata, revDataList_[1].idata);
+		return;
+	}
 	TRACE("PlayerID：%d	PlayerMax：%d\n", revDataList_[0].idata, revDataList_[1].idata);
 	state_->SetPlayerID(revDataList_[0].idata, revDataList_[1].idata);
+	revID_ = true;
 }
 
-void NetWork::RevStanbyHost(void)
+void NetWork::RevStanbyHost(HandleList::iterator& itr)
 {
 	{
 		std::lock_guard<std::mutex> lock(nowMtx_);
@@ -589,7 +611,7 @@ void NetWork::RevStanbyHost(void)
 	std::cout << "受信時間" << std::chrono::duration_cast<std::chrono::milliseconds>(end_ - strat_).count() << std::endl;
 }
 
-void NetWork::RevCountDownGame(void)
+void NetWork::RevCountDownGame(HandleList::iterator& itr)
 {
 	{
 		std::lock_guard<std::mutex> lock(nowMtx_);
@@ -599,7 +621,7 @@ void NetWork::RevCountDownGame(void)
 			return;
 		}
 	}
-	if ((!revState_ && !gameStart_))
+	if ((!revState_ && !startGame_))
 	{
 		TRACE("タイミング違いのCountDownGameデータ受信\n");
 		return;
@@ -609,10 +631,10 @@ void NetWork::RevCountDownGame(void)
 	time.idata[0] = revDataList_[0].idata;
 	time.idata[1] = revDataList_[1].idata;
 	state_->SetCountDownGameTime(time.time);
-	gameStart_ = true;
+	startGame_ = true;
 }
 
-void NetWork::RevStanbyGuest(void)
+void NetWork::RevStanbyGuest(HandleList::iterator& itr)
 {
 	{
 		std::lock_guard<std::mutex> lock(nowMtx_);
@@ -626,9 +648,10 @@ void NetWork::RevStanbyGuest(void)
 	{
 		std::cout << "ゲームスタートにデータ部があります" << std::endl;
 	}
+	itr->state = 1;
 }
 
-void NetWork::RevTmxSize(void)
+void NetWork::RevTmxSize(HandleList::iterator& itr)
 {
 	{
 		std::lock_guard<std::mutex> lock(nowMtx_);
@@ -643,7 +666,7 @@ void NetWork::RevTmxSize(void)
 	strat_ = std::chrono::system_clock::now();
 }
 
-void NetWork::RevTmxData(void)
+void NetWork::RevTmxData(HandleList::iterator& itr)
 {
 	{
 		std::lock_guard<std::mutex> lock(nowMtx_);
@@ -657,29 +680,89 @@ void NetWork::RevTmxData(void)
 	SaveTmx();
 }
 
-void NetWork::RevData(void)
+void NetWork::RevPosData(HandleList::iterator& itr)
 {
 	{
 		std::lock_guard<std::mutex> lock(nowMtx_);
 		if (!playNow_)
 		{
-			TRACE("まだ始まってないよ\n");
+			TRACE("PosData まだ始まってないよ\n");
 			return;
 		}
 	}
 	auto tmpID = (revDataList_[0].uidata) / UNIT_ID_BASE;
 	if (tmpID < objRevMap_.size() && tmpID >= 0)
 	{
+		if ((revDataList_[0].uidata) != itr->id && state_->GetMode() == NetWorkMode::HOST)
+		{
+			TRACE("他人のIDのPosMes ID：%d\n", (revDataList_[0].uidata));
+			return;
+		}
 		std::lock_guard<std::mutex> lock2(objRevMap_[tmpID].first);
 		objRevMap_[tmpID].second.emplace_back(mes_, revDataList_);
 	}
 	else
 	{
-		TRACE("Rev時ID異変\n");
+		TRACE("PosRev時ID異常 ID：%d\n", tmpID);
 	}
 }
 
-void NetWork::RevLostData(void)
+void NetWork::RevSetBombData(HandleList::iterator& itr)
+{
+	{
+		std::lock_guard<std::mutex> lock(nowMtx_);
+		if (!playNow_)
+		{
+			TRACE("BombData まだ始まってないよ\n");
+			return;
+		}
+	}
+	auto tmpID = (revDataList_[0].uidata) / UNIT_ID_BASE;
+	if (tmpID < objRevMap_.size() && tmpID >= 0)
+	{
+		if ((revDataList_[0].uidata) != itr->id && state_->GetMode() == NetWorkMode::HOST)
+		{
+			TRACE("他人のIDのBombMes ID：%d\n", (revDataList_[0].uidata));
+			return;
+		}
+		std::lock_guard<std::mutex> lock2(objRevMap_[tmpID].first);
+		objRevMap_[tmpID].second.emplace_back(mes_, revDataList_);
+		TRACE("BombRev ID：%d\n", tmpID);
+	}
+	else
+	{
+		TRACE("BombRev時ID異常 ID：%d\n", tmpID);
+	}
+}
+
+void NetWork::RevDethData(HandleList::iterator& itr)
+{
+	{
+		std::lock_guard<std::mutex> lock(nowMtx_);
+		if (!playNow_)
+		{
+			TRACE("DethData まだ始まってないよ\n");
+			return;
+		}
+	}
+	auto tmpID = (revDataList_[0].uidata) / UNIT_ID_BASE;
+	if (tmpID < objRevMap_.size() && tmpID >= 0)
+	{
+		if ((revDataList_[0].uidata) != itr->id && state_->GetMode() == NetWorkMode::HOST)
+		{
+			TRACE("他人のIDのdethMes ID：%d\n", (revDataList_[0].uidata));
+			return;
+		}
+		std::lock_guard<std::mutex> lock2(objRevMap_[tmpID].first);
+		objRevMap_[tmpID].second.emplace_back(mes_, revDataList_);
+	}
+	else
+	{
+		TRACE("DethRev時ID異常 ID：%d\n", tmpID);
+	}
+}
+
+void NetWork::RevLostData(HandleList::iterator& itr)
 {
 	auto tmpID = (revDataList_[0].uidata) / UNIT_ID_BASE;
 	if (tmpID < objRevMap_.size() && tmpID >= 0)
@@ -689,7 +772,7 @@ void NetWork::RevLostData(void)
 	}
 	else
 	{
-		TRACE("Rev時ID異変\n");
+		TRACE("LostRev時ID異常\n");
 	}
 }
 
@@ -697,21 +780,22 @@ NetWork::NetWork()
 {
 	revStanby_ = 0;
 	state_ = nullptr;
-	gameStart_ = false;
+	startGame_ = false;
 	revState_ = false;
+	revID_ = false;
 	cntRev_ = 0;
 	revFunc_[0] = nullptr;
-	revFunc_[1] = (std::bind(&NetWork::RevCountDownRoom, this));
-	revFunc_[2] = (std::bind(&NetWork::RevID, this));
-	revFunc_[3] = (std::bind(&NetWork::RevStanbyHost, this));
-	revFunc_[4] = (std::bind(&NetWork::RevStanbyGuest, this));
-	revFunc_[5] = (std::bind(&NetWork::RevCountDownGame, this));
-	revFunc_[6] = (std::bind(&NetWork::RevTmxSize, this));
-	revFunc_[7] = (std::bind(&NetWork::RevTmxData, this));
-	revFunc_[8] = (std::bind(&NetWork::RevData, this));
-	revFunc_[9] = (std::bind(&NetWork::RevData, this));
-	revFunc_[10] = (std::bind(&NetWork::RevData, this));
-	revFunc_[11] = (std::bind(&NetWork::RevLostData, this));
+	revFunc_[1] = (std::bind(&NetWork::RevCountDownRoom, this, std::placeholders::_1));
+	revFunc_[2] = (std::bind(&NetWork::RevID, this, std::placeholders::_1));
+	revFunc_[3] = (std::bind(&NetWork::RevStanbyHost, this, std::placeholders::_1));
+	revFunc_[4] = (std::bind(&NetWork::RevStanbyGuest, this, std::placeholders::_1));
+	revFunc_[5] = (std::bind(&NetWork::RevCountDownGame, this, std::placeholders::_1));
+	revFunc_[6] = (std::bind(&NetWork::RevTmxSize, this, std::placeholders::_1));
+	revFunc_[7] = (std::bind(&NetWork::RevTmxData, this, std::placeholders::_1));
+	revFunc_[8] = (std::bind(&NetWork::RevPosData, this, std::placeholders::_1));
+	revFunc_[9] = (std::bind(&NetWork::RevSetBombData, this, std::placeholders::_1));
+	revFunc_[10] = (std::bind(&NetWork::RevDethData, this, std::placeholders::_1));
+	revFunc_[11] = (std::bind(&NetWork::RevLostData, this, std::placeholders::_1));
 
 	mes_ = {};
 	revDataList_.reserve(180);

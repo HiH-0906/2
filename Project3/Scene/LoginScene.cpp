@@ -31,7 +31,7 @@ LoginScene::LoginScene()
 	func_.try_emplace(UPDATE_STATE::READ_HOST, &LoginScene::ReadHost);
 	sendTmx_ = false;
 	reset_ = false;
-
+	waitTime_ = {};
 	tetHight_ = 400;
 
 	DrawOwnScene();
@@ -67,10 +67,9 @@ void LoginScene::DrawOwnScene(void)
 
 	if (sendTmx_)
 	{
-		auto cnt = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - lpNetWork.GetCountDownRoomTime()).count();
-		cnt = ResetTime - cnt;
+		auto cnt = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - waitTime_).count();
 		DrawFormatString(300, 500, 0xffffff, "応答待ち：%d秒", cnt / 1000);
-		if (cnt <= 0)
+		if (cnt >= (ResetTime))
 		{
 			reset_ = true;
 		}
@@ -155,6 +154,7 @@ bool LoginScene::SetNetWork(void)
 			
 			std::cout << "オフラインです\n" << std::endl;
 			loop = false;
+			return false;
 		}
 		else if (num == "1")
 		{
@@ -192,6 +192,7 @@ bool LoginScene::StartInit(void)
 				lpNetWork.SendTmxData("mapData/map.tmx");
 				MesDataList list;
 				lpNetWork.SendMesAll(MES_TYPE::STANBY_HOST, list);
+				waitTime_ = std::chrono::system_clock::now();
 			}
 			if (lpNetWork.GetMax() == lpNetWork.GetStanbyPlayerNum())
 			{
@@ -199,7 +200,7 @@ bool LoginScene::StartInit(void)
 				sendData data[2];
 				data[0].idata = time.idata[0];
 				data[1].idata = time.idata[1];
-				lpNetWork.SetCountDownRoomTime(time.time);
+				lpNetWork.SetCountDownGameTime(time.time);
 				lpNetWork.SendMesAll(MES_TYPE::COUNT_DOWN_GAME, MesDataList{ data[0],data[1] });
 				lpNetWork.SetActivMode(ACTIVE_STATE::STANBY);
 				TRACE("スタンバイ完了\n");
@@ -209,6 +210,7 @@ bool LoginScene::StartInit(void)
 		if (lpNetWork.GetActive() == ACTIVE_STATE::STANBY && lpNetWork.GetStanbyPlayerNum() != 0)
 		{
 			std::cout << "開始" << std::endl;
+			lpNetWork.SetStartGame(true);
 			return false;
 		}
 	}
