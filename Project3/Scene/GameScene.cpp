@@ -14,13 +14,6 @@
 
 uniqueBase GameScene::Update(uniqueBase own, const Time& now)
 {
-	//if (lpNetWork.GetActive() == ACTIVE_STATE::OFFLINE)
-	//{
-	//	mapMng_->ResrtOfMap();
-	//	Player::fallCnt_ = 0;
-	//	lpNetWork.SetPlayNow(false);
-	//	return std::move(std::make_unique<CheckeredBlock>(std::move(own), std::make_unique<LoginScene>()));
-	//}
 	objList_.sort([](shared_Obj objA, shared_Obj objB)
 	{
 		return objA->CheckMesList() > objB->CheckMesList();

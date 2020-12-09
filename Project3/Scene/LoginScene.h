@@ -45,7 +45,14 @@ private:
 	// ファイル関連
 	bool ReadFile(void);
 	bool WritFile(void);
-
+	/// <summary>
+	/// IPDATAを各桁ごとの数字に変換して第三引数のVectorに格納する
+	/// 156->number[0]=1,number[1]=5,number[2]=6
+	/// </summary>
+	/// <param name="ch">変換元のchar</param>
+	/// <param name="dig">桁数</param>
+	/// <param name="number">結果格納先vector</param>
+	void ChengeIntToChar(const unsigned char& ch, std::vector<int>& number);
 
 	UPDATE_STATE state_;						// Update管理用変数
 

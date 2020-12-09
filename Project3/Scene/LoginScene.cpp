@@ -10,18 +10,21 @@
 #include "SceneMng.h"
 #include "../NetWork/NetWork.h"
 #include "../State/INPUT_ID.h"
+#include "../common/ImageMng.h"
 #include "../_debug/_DebugConOut.h"
 #include "../TmxLoader/TmxLoader.h"
 
 // 現状とりあえず出ぶち込まれている感満載
 LoginScene::LoginScene()
 {
-	screenSize_X = 0;
-	screenSize_Y = 0;
+	screenSize_X = lpSceneMng.GetScreenSize().x;
+	screenSize_Y = lpSceneMng.GetScreenSize().y;
 	drawScreen_ = MakeScreen(lpSceneMng.GetScreenSize().x, lpSceneMng.GetScreenSize().y, true);
 	pos_ = Vector2{};
 	ipData_ = {};
 	Image = LoadGraph("Image/game.png", true);
+	lpImageMng.GetID("LBG", "Image/game.png");
+	lpImageMng.GetID("Num", "Image/Number.png", { 33,49 }, { 5,3 });
 	input_ = std::make_unique<PadState>();
 	state_ = UPDATE_STATE::SET_NET;
 	func_.try_emplace(UPDATE_STATE::SET_NET, &LoginScene::SetNetWork);
@@ -65,7 +68,17 @@ void LoginScene::DrawOwnScene(void)
 {
 	SetDrawScreen(drawScreen_);
 	ClsDrawScreen();
+	DrawGraph(0, 0, lpImageMng.GetID("LBG")[0], true);
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 128);
+	DrawBox(0, 0, screenSize_X, screenSize_Y, 0x000000, true);
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 128);
 
+	std::sort(DrawQue_.begin(), DrawQue_.end(), [](DrawQue& queA, DrawQue& queB) {return queA.zOder < queB.zOder; });
+
+	for (auto& que : DrawQue_)
+	{
+		DrawRotaGraph(que.pos.x + (que.size.x / 2), que.pos.y + (que.size.y / 2), que.extRate, que.angle, que.handle, true);
+	}
 	if (wait_)
 	{
 		auto cnt = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - waitTime_).count();
@@ -77,7 +90,6 @@ void LoginScene::DrawOwnScene(void)
 	}
 	else
 	{
-		DrawGraph(0, 0, Image, true);
 		if (lpNetWork.GetCountDownFlag())
 		{
 			auto cnt = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - lpNetWork.GetCountDownRoomTime()).count();
@@ -135,6 +147,23 @@ bool LoginScene::HostIPInput(void)
 // 共用 ネット使うかどうか、ホストかゲストか選択
 bool LoginScene::SetNetWork(void)
 {
+	std::vector<int> ipInt;
+	Vector2 pos = { 0,0 };
+	Vector2 size = { 33,49 };
+	auto IPDraw = [&](bool comma)
+	{
+		for (const auto& num : ipInt)
+		{
+			DrawQue_.emplace_back(DrawQue{ pos ,size,1.0,0.0,lpImageMng.GetID("Num")[num],0 });
+			pos.x += size.x;
+		}
+		ipInt.clear();
+		if (comma)
+		{
+			DrawQue_.emplace_back(DrawQue{ pos ,size,1.0,0.0,lpImageMng.GetID("Num")[10],0 });
+			pos.x += size.x;
+		}
+	};
 	auto ipVec = lpNetWork.GetIP();
 	for (auto& ip : ipVec)
 	{
@@ -142,6 +171,15 @@ bool LoginScene::SetNetWork(void)
 		{
 			std::string mes = ip.d1 == 192 ? "グローバル" : "ローカル";
 			TRACE("自分の%sIPアドレスは%d.%d.%d.%dです\n", mes.c_str(), ip.d1, ip.d2, ip.d3, ip.d4);
+			
+			ChengeIntToChar(ip.d1, ipInt);
+			IPDraw(true);
+			ChengeIntToChar(ip.d2, ipInt);
+			IPDraw(true);
+			ChengeIntToChar(ip.d3, ipInt);
+			IPDraw(true);
+			ChengeIntToChar(ip.d4, ipInt);
+			IPDraw(false);
 		}
 	}
 	bool loop = true;
@@ -304,4 +342,37 @@ bool LoginScene::WritFile(void)
 	file.close();
 
 	return true;
+}
+
+void LoginScene::ChengeIntToChar(const unsigned char& ch,std::vector<int>& number)
+{
+	auto CheckDigit = [](const int& num)
+	{
+		int digit = 100;
+		while (true)
+		{
+			if (num >= digit)
+			{
+				break;
+			}
+			digit /= 10;
+			if (digit <= 0)
+			{
+				break;
+			}
+		}
+		return digit;
+	};
+	int num = ch;
+	auto dig = CheckDigit(num);
+	while (true)
+	{
+		number.emplace_back(num / dig);
+		num %= dig;
+		dig /= 10;
+		if (dig <= 0)
+		{
+			break;
+		}
+	}
 }

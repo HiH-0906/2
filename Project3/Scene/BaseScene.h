@@ -14,6 +14,16 @@ using Time = std::chrono::system_clock::time_point;
 
 using NowTime = std::chrono::system_clock::time_point;
 
+struct DrawQue
+{
+	Vector2 pos;
+	Vector2 size;
+	double extRate;
+	double angle;
+	int handle;
+	int zOder;
+};
+
 class BaseScene
 {
 public:
@@ -28,6 +38,7 @@ protected:
 	int drawScreen_;
 	Time strat_;				// fps‘ª’è—p
 	Time end_;
+	std::vector<DrawQue> DrawQue_;
 	unsigned int fpsCnt_;
 	unsigned int fps_;
 	unsigned int secondCnt_;
