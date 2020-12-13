@@ -284,7 +284,7 @@ void NetWork::SendMes(MES_TYPE type,int handle)
 
 void NetWork::SetStartGame(bool flag)
 {
-	std::lock_guard lock(stMtx_);
+	std::lock_guard<std::mutex> lock(stMtx_);
 	startGame_ = flag;
 }
 

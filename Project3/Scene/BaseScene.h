@@ -34,6 +34,7 @@ public:
 	virtual void DrawOwnScene(void) = 0;
 	virtual void Init(void) = 0;
 	void DrawFps(const Time& now);
+	void AddDrawQue(const DrawQue& que);
 protected:
 	int drawScreen_;
 	Time strat_;				// fps‘ª’è—p

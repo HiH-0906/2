@@ -17,27 +17,7 @@
 // 現状とりあえず出ぶち込まれている感満載
 LoginScene::LoginScene()
 {
-	screenSize_X = lpSceneMng.GetScreenSize().x;
-	screenSize_Y = lpSceneMng.GetScreenSize().y;
-	drawScreen_ = MakeScreen(lpSceneMng.GetScreenSize().x, lpSceneMng.GetScreenSize().y, true);
-	pos_ = Vector2{};
-	ipData_ = {};
-	Image = LoadGraph("Image/game.png", true);
-	lpImageMng.GetID("LBG", "Image/game.png");
-	lpImageMng.GetID("Num", "Image/Number.png", { 33,49 }, { 5,3 });
-	input_ = std::make_unique<PadState>();
-	state_ = UPDATE_STATE::SET_NET;
-	func_.try_emplace(UPDATE_STATE::SET_NET, &LoginScene::SetNetWork);
-	func_.try_emplace(UPDATE_STATE::HOST_IP, &LoginScene::HostIPInput);
-	func_.try_emplace(UPDATE_STATE::START_INIT, &LoginScene::StartInit);
-	func_.try_emplace(UPDATE_STATE::SELECT_HOST, &LoginScene::SelectHost);
-	func_.try_emplace(UPDATE_STATE::READ_HOST, &LoginScene::ReadHost);
-	sendTmx_ = false;
-	reset_ = false;
-	wait_ = false;
-	waitTime_ = {};
-	tetHight_ = 400;
-
+	Init();
 	DrawOwnScene();
 }
 
@@ -47,11 +27,28 @@ LoginScene::~LoginScene()
 
 void LoginScene::Init(void)
 {
+	screenSize_X = lpSceneMng.GetScreenSize().x;
+	screenSize_Y = lpSceneMng.GetScreenSize().y;
+	drawScreen_ = MakeScreen(lpSceneMng.GetScreenSize().x, lpSceneMng.GetScreenSize().y, true);
+	pos_ = Vector2{};
+	ipData_ = {};
+	Image = LoadGraph("Image/game.png", true);
+	lpImageMng.GetID("LBG", "Image/game.png");
+	lpImageMng.GetID("Num", "Image/Number.png", { 33,49 }, { 5,3 });
+	lpImageMng.GetID("Calcu", "Image/calcu.png", { 33,49 }, { 5,3 });
+	input_ = std::make_unique<PadState>();
+	state_ = UPDATE_STATE::SET_NET;
+	FuncInit();
+	sendTmx_ = false;
+	reset_ = false;
+	wait_ = false;
+	waitTime_ = {};
+	ImageInit();
+	ButtonInit();
 }
 
 uniqueBase LoginScene::Update(uniqueBase own, const Time& now)
 {
-	DrawOwnScene();
 	if (!(this->*func_[state_])())
 	{
 		return std::move(std::make_unique<CheckeredBlock>(std::move(own), std::make_unique<GameScene>()));
@@ -61,6 +58,7 @@ uniqueBase LoginScene::Update(uniqueBase own, const Time& now)
 		lpNetWork.EndOfNetWork();
 		return std::move(std::make_unique<CheckeredBlock>(std::move(own), std::make_unique<LoginScene>()));
 	}
+	DrawOwnScene();
 	return own;
 }
 
@@ -68,10 +66,6 @@ void LoginScene::DrawOwnScene(void)
 {
 	SetDrawScreen(drawScreen_);
 	ClsDrawScreen();
-	DrawGraph(0, 0, lpImageMng.GetID("LBG")[0], true);
-	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 128);
-	DrawBox(0, 0, screenSize_X, screenSize_Y, 0x000000, true);
-	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 128);
 
 	std::sort(DrawQue_.begin(), DrawQue_.end(), [](DrawQue& queA, DrawQue& queB) {return queA.zOder < queB.zOder; });
 
@@ -107,7 +101,68 @@ void LoginScene::DrawOwnScene(void)
 			DrawFormatString(300, 500, 0xffffff, "待機中");
 		}
 	}
-	
+	DrawQue_.clear();
+}
+
+void LoginScene::FuncInit(void)
+{
+	func_.try_emplace(UPDATE_STATE::SET_NET, &LoginScene::SetNetWork);
+	func_.try_emplace(UPDATE_STATE::HOST_IP, &LoginScene::HostIPInput);
+	func_.try_emplace(UPDATE_STATE::START_INIT, &LoginScene::StartInit);
+	func_.try_emplace(UPDATE_STATE::SELECT_HOST, &LoginScene::SelectHost);
+	func_.try_emplace(UPDATE_STATE::READ_HOST, &LoginScene::ReadHost);
+	func_.try_emplace(UPDATE_STATE::SELECT_INIT, &LoginScene::SelectInit);
+}
+
+void LoginScene::ButtonInit(void)
+{
+	btn_.emplace_back(
+		std::make_unique<Button>(Rect{ 268,100,264,90 },
+			[&]() {
+					lpNetWork.SetNetWorkMode(NetWorkMode::HOST);
+					state_ = UPDATE_STATE::START_INIT;
+					return true;
+				},
+			BTN_TYPE::HOST, *this)
+	);
+	btn_.emplace_back(
+		std::make_unique<Button>(Rect{ 268,200,264,90 },
+			[&]() {
+					lpNetWork.SetNetWorkMode(NetWorkMode::GEST);
+					state_ = UPDATE_STATE::SELECT_INIT;
+					return true;
+				},
+			BTN_TYPE::GUEST, *this)
+	);
+	btn_.emplace_back(
+		std::make_unique<Button>(Rect{ 268,300,264,90 },
+			[&]() {
+						lpNetWork.SetNetWorkMode(NetWorkMode::OFFLINE);
+						return false;
+				},
+			BTN_TYPE::OFFLINE, *this)
+	);
+}
+
+void LoginScene::CalculatorInit(Vector2 pos)
+{
+}
+
+void LoginScene::ImageInit(void)
+{
+	lpImageMng.GetID("IPBG", "Image/IPBG.png");
+
+	lpImageMng.GetID("HBtn", "Image/btn/Hbtn.png");
+	lpImageMng.GetID("HBtnR", "Image/btn/Hbtn_ride.png");
+	lpImageMng.GetID("HBtnD", "Image/btn/Hbtn_push.png");
+
+	lpImageMng.GetID("GBtn", "Image/btn/Gbtn.png");
+	lpImageMng.GetID("GBtnR", "Image/btn/Gbtn_ride.png");
+	lpImageMng.GetID("GBtnD", "Image/btn/Gbtn_push.png");
+
+	lpImageMng.GetID("OBtn", "Image/btn/Obtn.png");
+	lpImageMng.GetID("OBtnR", "Image/btn/Obtn_ride.png");
+	lpImageMng.GetID("OBtnD", "Image/btn/Obtn_push.png");
 }
 
 // ゲスト専用 ホストのIPアドレス入力させる関数 入力されたホストのIPアドレスで接続できない場合再入力
@@ -144,79 +199,31 @@ bool LoginScene::HostIPInput(void)
 	return true;
 }
 
+bool LoginScene::SelectInit(void)
+{
+	btn_.clear();
+	if (!ReadFile())
+	{
+		std::cout << "ファイルを読み込めませんでした。入力へ移行します。" << std::endl;
+		state_ = UPDATE_STATE::HOST_IP;
+		return true;
+	}
+	state_ = UPDATE_STATE::SELECT_HOST;
+	return true;
+}
+
 // 共用 ネット使うかどうか、ホストかゲストか選択
 bool LoginScene::SetNetWork(void)
 {
-	std::vector<int> ipInt;
-	Vector2 pos = { 0,0 };
-	Vector2 size = { 33,49 };
-	auto IPDraw = [&](bool comma)
+	int x, y;
+	GetMousePoint(&x, &y);
+	Vector2 tst(x, y);
+	bool flag = true;
+	for (const auto& btn : btn_)
 	{
-		for (const auto& num : ipInt)
-		{
-			DrawQue_.emplace_back(DrawQue{ pos ,size,1.0,0.0,lpImageMng.GetID("Num")[num],0 });
-			pos.x += size.x;
-		}
-		ipInt.clear();
-		if (comma)
-		{
-			DrawQue_.emplace_back(DrawQue{ pos ,size,1.0,0.0,lpImageMng.GetID("Num")[10],0 });
-			pos.x += size.x;
-		}
-	};
-	auto ipVec = lpNetWork.GetIP();
-	for (auto& ip : ipVec)
-	{
-		if (ip.d1 != 0)
-		{
-			std::string mes = ip.d1 == 192 ? "グローバル" : "ローカル";
-			TRACE("自分の%sIPアドレスは%d.%d.%d.%dです\n", mes.c_str(), ip.d1, ip.d2, ip.d3, ip.d4);
-			
-			ChengeIntToChar(ip.d1, ipInt);
-			IPDraw(true);
-			ChengeIntToChar(ip.d2, ipInt);
-			IPDraw(true);
-			ChengeIntToChar(ip.d3, ipInt);
-			IPDraw(true);
-			ChengeIntToChar(ip.d4, ipInt);
-			IPDraw(false);
-		}
+		flag &= btn->Update(tst, (GetMouseInput() & MOUSE_INPUT_LEFT));
 	}
-	bool loop = true;
-	do
-	{
-		std::cout << "キーを入力してネットモードを指定してください" << std::endl;
-		std::cout << "0:OffLine\n1:Host\n2:Gest\n" << std::endl;
-		std::string num = {};
-		std::cin >> num;
-		if (num == "0")
-		{
-			lpNetWork.SetNetWorkMode(NetWorkMode::OFFLINE);
-			
-			std::cout << "オフラインです\n" << std::endl;
-			loop = false;
-			return false;
-		}
-		else if (num == "1")
-		{
-			lpNetWork.SetNetWorkMode(NetWorkMode::HOST);
-			std::cout << "ホストです\n" << std::endl;
-			state_ = UPDATE_STATE::START_INIT;
-			loop = false;
-		}
-		else if (num == "2")
-		{
-			lpNetWork.SetNetWorkMode(NetWorkMode::GEST);
-			std::cout << "ゲストです\n" << std::endl;
-			state_ = UPDATE_STATE::SELECT_HOST;
-			loop = false;
-		}
-		else
-		{
-			std::cout << "指定された値を入力してください\n" << std::endl;
-		}
-	} while (loop);
-	return true;
+	return flag;
 }
 
 // 共用 初期化してメッセージ飛ばす ホスト、ゲスト分けてもよかったけど大した量でもないし、ステート増えるしで分けなくていいかなって
@@ -225,6 +232,24 @@ bool LoginScene::StartInit(void)
 
 	if (lpNetWork.GetMode() == NetWorkMode::HOST)
 	{
+		std::vector<int> ipInt;
+		Vector2 pos(150, 150);
+		DrawQue_.emplace_back(DrawQue{ pos ,{500,45}, 1.0,0,lpImageMng.GetID("IPBG")[0],0 });
+		auto ipVec = lpNetWork.GetIP();
+		for (auto& ip : ipVec)
+		{
+			if (ip.d1 != 0)
+			{
+				ChengeIntToChar(ip.d1, ipInt);
+				IPDraw(ipInt, pos, true);
+				ChengeIntToChar(ip.d2, ipInt);
+				IPDraw(ipInt, pos, true);
+				ChengeIntToChar(ip.d3, ipInt);
+				IPDraw(ipInt, pos, true);
+				ChengeIntToChar(ip.d4, ipInt);
+				IPDraw(ipInt, pos, false);
+			}
+		}
 		if (lpNetWork.GetActive() == ACTIVE_STATE::INIT)
 		{
 			if (!sendTmx_)
@@ -294,12 +319,6 @@ bool LoginScene::SelectHost(void)
 // ゲスト専用 ファイルからのホストの読み込み ファイルがなかった場合、読み込んだIPアドレスで接続できなかった場合入力へ移行
 bool LoginScene::ReadHost(void)
 {
-	if(!ReadFile())
-	{
-		std::cout << "ファイルを読み込めませんでした。入力へ移行します。" << std::endl;
-		state_ = UPDATE_STATE::HOST_IP;
-		return true;
-	}
 	if (lpNetWork.ConnectHost(ipData_))
 	{
 		std::cout << "接続完了。" << std::endl;
@@ -363,6 +382,7 @@ void LoginScene::ChengeIntToChar(const unsigned char& ch,std::vector<int>& numbe
 		}
 		return digit;
 	};
+	number.clear();
 	int num = ch;
 	auto dig = CheckDigit(num);
 	while (true)
@@ -374,5 +394,20 @@ void LoginScene::ChengeIntToChar(const unsigned char& ch,std::vector<int>& numbe
 		{
 			break;
 		}
+	}
+}
+
+void LoginScene::IPDraw(const std::vector<int>& ipInt, Vector2& pos, bool comma)
+{
+	Vector2 size = { 33,49 };
+	for (const auto& num : ipInt)
+	{
+		DrawQue_.emplace_back(DrawQue{ pos ,size,1.0,0.0,lpImageMng.GetID("Num")[num],1 });
+		pos.x += size.x;
+	}
+	if (comma)
+	{
+		DrawQue_.emplace_back(DrawQue{ pos ,size,1.0,0.0,lpImageMng.GetID("Num")[10],1 });
+		pos.x += size.x;
 	}
 }

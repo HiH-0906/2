@@ -95,14 +95,14 @@ void NetWorkState::CloseNetWork(void)
 
 void NetWorkState::SetCountDownRoomTime(std::chrono::system_clock::time_point time)
 {
-	std::lock_guard lock(downMtx_);
+	std::lock_guard<std::mutex> lock(downMtx_);
 	countDownRoomTime_ = time;
 	countDown_ = true;
 }
 
 void NetWorkState::SetCountDownGameTime(std::chrono::system_clock::time_point time)
 {
-	std::lock_guard lock(gameMtx_);
+	std::lock_guard<std::mutex> lock(gameMtx_);
 	countDownGameTime_ = time;
 }
 

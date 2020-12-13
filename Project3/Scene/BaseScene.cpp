@@ -44,3 +44,8 @@ void BaseScene::DrawFps(const Time& now)
 	DrawBox(128, 0, 300, 16, 0x000000, true);
 	DrawFormatString(128, 0, 0xffffff, "データ欠落平均値：%d", (Player::fallCnt_ / secondCnt_));
 }
+
+void BaseScene::AddDrawQue(const DrawQue& que)
+{
+	DrawQue_.emplace_back(que);
+}

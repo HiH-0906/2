@@ -7,12 +7,14 @@
 #include "../map/Map.h"
 #include "../Input/PadState.h"
 #include "../common/Vector2.h"
+#include "../common/Button.h"
 
 #define ResetTime 30000
 
 enum class UPDATE_STATE
 {
 	SET_NET,				// 共用 ホストかゲストか
+	SELECT_INIT,
 	SELECT_HOST,			// ゲスト専用 前回接続者につなぐかどうか 
 	READ_HOST,				// ゲスト専用 前回接続者につなぐ
 	HOST_IP,				// ゲスト専用 IP入力待機
@@ -30,13 +32,17 @@ public:
 	uniqueBase Update(uniqueBase own, const Time& now)override final;
 	void DrawOwnScene(void)override final;
 private:
+	void FuncInit(void);
+	void ButtonInit(void);
+	void CalculatorInit(Vector2 pos);
+	void ImageInit(void);
 
 	// ステートパターンで管理したい感
 	using TitleFuncT = bool(LoginScene::*)();
-
 	std::map<UPDATE_STATE, TitleFuncT> func_;
 	// ステートパターンにぶち込まれる予定関数
 	bool HostIPInput(void);						// IPアドレスの入力
+	bool SelectInit(void);
 	bool SetNetWork(void);						// ホスト、ゲスト、オフラインの選択
 	bool StartInit(void);						// 初期化
 	bool SelectHost(void);						// IPアドレスを入力するか読み込むか
@@ -53,10 +59,11 @@ private:
 	/// <param name="dig">桁数</param>
 	/// <param name="number">結果格納先vector</param>
 	void ChengeIntToChar(const unsigned char& ch, std::vector<int>& number);
+	void IPDraw(const std::vector<int>& ipInt,Vector2& pos, bool comma);
 
 	UPDATE_STATE state_;						// Update管理用変数
 
-	// 見りゃわかる系 一部タイトルで持つのこれ…？ってのがあるけどいずれなくなるでしょう現状TitleSceneしかないので是非もナイネ
+	// 見りゃわかる系
 	int screenSize_X;
 	int screenSize_Y;
 	int Image;
@@ -66,9 +73,8 @@ private:
 	Vector2 pos_;
 	IPDATA ipData_;
 	std::unique_ptr<Input> input_;
-
+	std::vector<std::unique_ptr<Button>> btn_;
 
 	Time waitTime_;
-	int tetHight_;
 };
 
