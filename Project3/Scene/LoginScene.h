@@ -5,9 +5,10 @@
 #include <vector>
 #include "BaseScene.h"
 #include "../map/Map.h"
-#include "../Input/PadState.h"
+#include "../Input/Input.h"
 #include "../common/Vector2.h"
 #include "../common/Button.h"
+#include "../common/NumPad.h"
 
 #define ResetTime 30000
 
@@ -34,7 +35,6 @@ public:
 private:
 	void FuncInit(void);
 	void ButtonInit(void);
-	void CalculatorInit(Vector2 pos);
 	void ImageInit(void);
 
 	// ステートパターンで管理したい感
@@ -58,7 +58,7 @@ private:
 	/// <param name="ch">変換元のchar</param>
 	/// <param name="dig">桁数</param>
 	/// <param name="number">結果格納先vector</param>
-	void ChengeIntToChar(const unsigned char& ch, std::vector<int>& number);
+	void ChengeIPDATAToIntVector(const unsigned char& ch, std::vector<int>& number);
 	void IPDraw(const std::vector<int>& ipInt,Vector2& pos, bool comma);
 
 	UPDATE_STATE state_;						// Update管理用変数
@@ -66,13 +66,13 @@ private:
 	// 見りゃわかる系
 	int screenSize_X;
 	int screenSize_Y;
-	int Image;
 	bool sendTmx_;
 	bool reset_;
 	bool wait_;
 	Vector2 pos_;
 	IPDATA ipData_;
 	std::unique_ptr<Input> input_;
+	std::unique_ptr<NumPad> numPad_;
 	std::vector<std::unique_ptr<Button>> btn_;
 
 	Time waitTime_;

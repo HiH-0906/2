@@ -10,9 +10,17 @@
 #include "SceneMng.h"
 #include "../NetWork/NetWork.h"
 #include "../State/INPUT_ID.h"
+#include "../Input/PadState.h"
+#include "../Input/keyState.h"
 #include "../common/ImageMng.h"
 #include "../_debug/_DebugConOut.h"
 #include "../TmxLoader/TmxLoader.h"
+
+namespace
+{
+	bool old = false;
+	bool now = false;
+}
 
 // 現状とりあえず出ぶち込まれている感満載
 LoginScene::LoginScene()
@@ -32,11 +40,10 @@ void LoginScene::Init(void)
 	drawScreen_ = MakeScreen(lpSceneMng.GetScreenSize().x, lpSceneMng.GetScreenSize().y, true);
 	pos_ = Vector2{};
 	ipData_ = {};
-	Image = LoadGraph("Image/game.png", true);
 	lpImageMng.GetID("LBG", "Image/game.png");
 	lpImageMng.GetID("Num", "Image/Number.png", { 33,49 }, { 5,3 });
 	lpImageMng.GetID("Calcu", "Image/calcu.png", { 33,49 }, { 5,3 });
-	input_ = std::make_unique<PadState>();
+	input_ = std::make_unique<keyState>();
 	state_ = UPDATE_STATE::SET_NET;
 	FuncInit();
 	sendTmx_ = false;
@@ -144,10 +151,6 @@ void LoginScene::ButtonInit(void)
 	);
 }
 
-void LoginScene::CalculatorInit(Vector2 pos)
-{
-}
-
 void LoginScene::ImageInit(void)
 {
 	lpImageMng.GetID("IPBG", "Image/IPBG.png");
@@ -202,6 +205,7 @@ bool LoginScene::HostIPInput(void)
 bool LoginScene::SelectInit(void)
 {
 	btn_.clear();
+	numPad_ = std::make_unique<NumPad>(Vector2{ 400, 400 },*this);
 	if (!ReadFile())
 	{
 		std::cout << "ファイルを読み込めませんでした。入力へ移行します。" << std::endl;
@@ -240,13 +244,13 @@ bool LoginScene::StartInit(void)
 		{
 			if (ip.d1 != 0)
 			{
-				ChengeIntToChar(ip.d1, ipInt);
+				ChengeIPDATAToIntVector(ip.d1, ipInt);
 				IPDraw(ipInt, pos, true);
-				ChengeIntToChar(ip.d2, ipInt);
+				ChengeIPDATAToIntVector(ip.d2, ipInt);
 				IPDraw(ipInt, pos, true);
-				ChengeIntToChar(ip.d3, ipInt);
+				ChengeIPDATAToIntVector(ip.d3, ipInt);
 				IPDraw(ipInt, pos, true);
-				ChengeIntToChar(ip.d4, ipInt);
+				ChengeIPDATAToIntVector(ip.d4, ipInt);
 				IPDraw(ipInt, pos, false);
 			}
 		}
@@ -296,11 +300,22 @@ bool LoginScene::StartInit(void)
 // ゲスト専用 前回入力したホストに接続するか新たに入力するかの選択
 bool LoginScene::SelectHost(void)
 {
-	int select;
-	std::cout << "前回接続したホストに接続しますか？" << std::endl;
+	int select = 0;
+	/*std::cout << "前回接続したホストに接続しますか？" << std::endl;
 	std::cout << "1：前回接続したホストに接続する" << std::endl;
-	std::cout << "2：新たにIPを入力する" << std::endl;
-	std::cin >> select;
+	std::cout << "2：新たにIPを入力する" << std::endl;*/
+	/*std::cin >> select;*/
+	int x, y;
+	old = now;
+	now = (GetMouseInput() & MOUSE_INPUT_LEFT);
+	GetMousePoint(&x, &y);
+	Vector2 tst(x, y);
+	if (!numPad_->UpDate(tst, ((!old) && now)))
+	{
+		return true;
+	}
+	auto str = numPad_->GetInputStr();
+	select = atoi(str.c_str());
 	if (select == 1)
 	{
 		state_ = UPDATE_STATE::READ_HOST;
@@ -308,10 +323,12 @@ bool LoginScene::SelectHost(void)
 	else if (select == 2)
 	{
 		state_ = UPDATE_STATE::HOST_IP;
+		numPad_->init();
 	}
 	else
 	{
 		std::cout << "1または2を入力してください" << std::endl;
+		numPad_->init();
 	}
 	return true;
 }
@@ -363,7 +380,7 @@ bool LoginScene::WritFile(void)
 	return true;
 }
 
-void LoginScene::ChengeIntToChar(const unsigned char& ch,std::vector<int>& number)
+void LoginScene::ChengeIPDATAToIntVector(const unsigned char& ch,std::vector<int>& number)
 {
 	auto CheckDigit = [](const int& num)
 	{

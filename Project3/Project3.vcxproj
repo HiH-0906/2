@@ -154,6 +154,7 @@
   <ItemGroup>
     <ClCompile Include="common\Button.cpp" />
     <ClCompile Include="map\FlameGenerator.cpp" />
+    <ClCompile Include="common\NumPad.cpp" />
     <ClCompile Include="Obj\Bomb.cpp" />
     <ClCompile Include="common\ImageMng.cpp" />
     <ClCompile Include="Input\keyState.cpp" />
@@ -182,6 +183,8 @@
   <ItemGroup>
     <ClInclude Include="common\Button.h" />
     <ClInclude Include="map\FlameGenerator.h" />
+    <ClInclude Include="common\NumPad.h" />
+    <ClInclude Include="common\Rect.h" />
     <ClInclude Include="State\DIR.h" />
     <ClInclude Include="Obj\Bomb.h" />
     <ClInclude Include="common\details\Vector2.h" />

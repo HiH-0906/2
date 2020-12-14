@@ -42,9 +42,7 @@ void NetWork::UpDate(void)
 				if (tmp == handle->handle)
 				{
 					TRACE("IDF%d‚ÌØ’f\n", handle->id);
-
 					handle->state = -1;
-
 				}
 				if (handle->state == -1 && playNow_)
 				{
@@ -213,7 +211,7 @@ void NetWork::SendMesAll(MES_TYPE type, MesDataList data)
 
 void NetWork::SendMesAll(MES_TYPE type, MesDataList data, int noSendHandle)
 {
-	//std::lock_guard lock(handleMtx_);
+	//std::lock_guard<std::mutex> lock(handleMtx_);
 	if (handleList_.size() == 0)
 	{
 		return;
