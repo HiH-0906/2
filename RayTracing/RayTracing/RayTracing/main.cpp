@@ -155,19 +155,19 @@ void RayTracing(const Position3& eye,const Sphere& sphere,int& image) {
 					Color col(255, 255, 255);
 					col *= Clamp(tmp / 3000.0f);
 
-					//GetPixelSoftImage(image, ((int)(P.x) % 40), ((int)(P.z) % 40), &r, &g, &b, &a);
+					GetPixelSoftImage(image, abs(((int)(P.x) % 120)), abs((int)(P.z) % 120), &r, &g, &b, &a);
 
 				
-					auto checker = (static_cast<int>(P.x / 40) + static_cast<int>(P.z / 40)) % 2 == 0;
+					auto checker = (static_cast<int>(P.x / 120) + static_cast<int>(P.z / 120)) % 2 == 0;
 					checker = P.x < 0 ? !checker : checker;
 					checker = P.z < 0 ? !checker : checker;
 					if (checker)
 					{
-						DrawPixel(x, y, 0xffffff/*GetColor(r,g,b)*/);
+						DrawPixel(x, y, /*0xffffff*/GetColor(r,g,b));
 					}
 					else
 					{
-						DrawPixel(x, y, 0x000000/*GetColor(r, g, b)*/);
+						DrawPixel(x, y, /*0x000000*/GetColor(r, g, b));
 					}
 				}
 				else
@@ -187,7 +187,7 @@ int WINAPI WinMain(HINSTANCE , HINSTANCE,LPSTR,int ) {
 	SetGraphMode(screen_width, screen_height, 32);
 	SetMainWindowText(_T("ŠÈˆÕ”Å‚ÌƒŒƒCƒgƒŒ‚Å‚Á‚¹"));
 	DxLib_Init();
-	int image = LoadSoftImage(L"image/test.png");
+	int image = LoadSoftImage(L"image/image.png");
 	auto eye = Vector3(0, 0, 300);
 	auto sphere = Sphere(100, Position3(0, 0, -100));
 	while (!ProcessMessage() && !CheckHitKey(KEY_INPUT_ESCAPE))
