@@ -59,7 +59,7 @@ private:
 	/// <param name="dig">Œ…”</param>
 	/// <param name="number">Œ‹‰ÊŠi”[ævector</param>
 	void ChengeIPDATAToIntVector(const unsigned char& ch, std::vector<int>& number);
-	void IPDraw(const std::vector<int>& ipInt,Vector2& pos, bool comma);
+	void IPDraw(const std::vector<int>& ipInt,Vector2& pos,const double& rate, bool comma);
 
 	UPDATE_STATE state_;						// UpdateŠÇ——p•Ï”
 

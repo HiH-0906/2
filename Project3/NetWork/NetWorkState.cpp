@@ -93,6 +93,10 @@ void NetWorkState::CloseNetWork(void)
 	DxLib::CloseNetWork(netHandleList_.front().handle);
 }
 
+void NetWorkState::SetResultData(const int& plID)
+{
+}
+
 void NetWorkState::SetCountDownRoomTime(std::chrono::system_clock::time_point time)
 {
 	std::lock_guard<std::mutex> lock(downMtx_);

@@ -25,16 +25,24 @@ Player::Player(Vector2 pos, Vector2 size,Vector2 ImageSize, int speed,int id, st
 	chipSize_ = mapMng_->GetChipSize();
 	input_ = std::make_unique<keyState>();
 	input_->Setting(0, DX_INPUT_PAD1);
+
 	auto mode = lpNetWork.GetMode();
+	idScreen_ = MakeScreen(size.x, size.y + 20, true);
+	SetDrawScreen(idScreen_);
+	auto drawID = id_ / UNIT_ID_BASE + 1;
 	if (mode == NetWorkMode::OFFLINE)
-	{
-		if (id_ / UNIT_ID_BASE == 0)
+	{	
+		if (id_ == 0)
 		{
-			Update_ = std::bind(&Player::UpdateDef, this,std::placeholders::_1);
+			DrawFormatString(14, 1, 0, "%d", drawID);
+			DrawFormatString(13, 0, 0xff2222, "%d", drawID);
+			Update_ = std::bind(&Player::UpdateDef, this, std::placeholders::_1);
 			FuncInit();
 		}
 		else
 		{
+			DrawFormatString(14, 1, 0, "%d", drawID);
+			DrawFormatString(13, 0, 0xffffff, "%d", drawID);
 			Update_ = std::bind(&Player::UpdateAuto, this, std::placeholders::_1);
 		}
 	}
@@ -42,11 +50,15 @@ Player::Player(Vector2 pos, Vector2 size,Vector2 ImageSize, int speed,int id, st
 	{
 		if (id_ == lpNetWork.GetID())
 		{
+			DrawFormatString(14, 1, 0, "%d", drawID);
+			DrawFormatString(13, 0, 0xff2222, "%d", drawID);
 			Update_ = std::bind(&Player::UpdateDef, this, std::placeholders::_1);
 			FuncInit();
 		}
 		else
 		{	
+			DrawFormatString(14, 1, 0, "%d", drawID);
+			DrawFormatString(13, 0, 0xffffff, "%d", drawID);
 			Update_ = std::bind(&Player::UpdataNet, this, std::placeholders::_1);
 		}
 	}
@@ -136,6 +148,8 @@ bool Player::UpdateAuto(const Time& now)
 		dir_ = DIR::DETH;
 		state_ = AnimState::DETH;
 		activ_ = false;
+		auto game = dynamic_cast<GameScene&>(scene_);
+		game.SetDethPlayerID(id_);
 	}
 	return true;
 }
@@ -196,8 +210,9 @@ bool Player::UpdateDef(const Time& now)
 		dir_ = DIR::DETH;
 		state_ = AnimState::DETH;
 		activ_ = false;
+		auto game = dynamic_cast<GameScene&>(scene_);
+		game.SetDethPlayerID(id_);
 	}
-	_dbgDrawBox(pos_.x, pos_.y, pos_.x + size_.x, pos_.y + size_.y, 0xff0000, true);
 	return true;
 }
 
@@ -288,6 +303,8 @@ bool Player::UpdataNet(const Time& now)
 		dir_ = DIR::DETH;
 		state_ = AnimState::DETH;
 		activ_ = false;
+		auto game = dynamic_cast<GameScene&>(scene_);
+		game.SetDethPlayerID(id_);
 	}
 	return true;
 }
@@ -352,6 +369,7 @@ void Player::Draw(void)
 		}
 		return;
 	}
+	DrawGraph(pos_.x, pos_.y - offSetY_ - 20, idScreen_, true);
 	DrawGraph(pos_.x, pos_.y - offSetY_, lpImageMng.GetID("player")[anim + state + dir], true);
 }
 

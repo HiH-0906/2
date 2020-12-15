@@ -160,6 +160,7 @@
     <ClCompile Include="Input\keyState.cpp" />
     <ClCompile Include="Obj\Obj.cpp" />
     <ClCompile Include="Obj\Player.cpp" />
+    <ClCompile Include="Scene\ResultScene.cpp" />
     <ClCompile Include="Scene\CheckeredBlock.cpp" />
     <ClCompile Include="Scene\CrossOver.cpp" />
     <ClCompile Include="Scene\GameScene.cpp" />
@@ -185,6 +186,7 @@
     <ClInclude Include="map\FlameGenerator.h" />
     <ClInclude Include="common\NumPad.h" />
     <ClInclude Include="common\Rect.h" />
+    <ClInclude Include="Scene\ResultScene.h" />
     <ClInclude Include="State\DIR.h" />
     <ClInclude Include="Obj\Bomb.h" />
     <ClInclude Include="common\details\Vector2.h" />

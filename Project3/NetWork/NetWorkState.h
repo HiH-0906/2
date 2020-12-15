@@ -44,6 +44,7 @@ enum class MES_TYPE :unsigned char
 	POS,
 	SET_BOMB,
 	DETH,
+	RESULT,
 	LOST,
 	MAX
 };
@@ -102,6 +103,7 @@ public:
 		return NetWorkMode::OFFLINE;
 	}
 
+	virtual void SetResultData(const int& plID);
 	void SetCountDownRoomTime(std::chrono::system_clock::time_point time);
 	void SetCountDownGameTime(std::chrono::system_clock::time_point time);
 	void SetPlayerID(int id, unsigned int max);
@@ -129,6 +131,7 @@ protected:
 	bool gameStart_;
 	int playerID_;
 	int playerMax_;
+
 	std::mutex downMtx_;
 	std::mutex gameMtx_;
 };

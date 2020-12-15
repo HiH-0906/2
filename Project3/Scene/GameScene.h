@@ -34,6 +34,7 @@ public:
 
 	const GameState& GetGameState(void)const;
 
+	void SetDethPlayerID(const int& id);
 	shared_Obj GetPlayer(int id);
 	std::list<shared_Obj> GetObjList(void);
 	void SetBomb(Vector2 pos, int& id, int& oid,int length, bool send,std::chrono::system_clock::time_point start);
@@ -41,6 +42,7 @@ public:
 	void initFunc(void);
 private:
 	std::list<shared_Obj> objList_;			// ObjŠÇ—ƒŠƒXƒg
+	std::list<int> dethPlayerID_;
 	std::shared_ptr<Map> mapMng_;
 	std::map<GameState,std::function<void(void)>> cntDownFunc_;
 	GameState state_;

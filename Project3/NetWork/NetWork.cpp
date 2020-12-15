@@ -61,25 +61,31 @@ void NetWork::UpDate(void)
 					{
 						writePos = 0;
 					}
-					NetWorkRecv(handle->handle, &mes_, sizeof(MES_H));
 
-					if (mes_.length != 0)
+					do
 					{
-						revDataList_.resize(static_cast<size_t>(writePos + mes_.length));
-						NetWorkRecv(handle->handle, revDataList_.data() + writePos, static_cast<int>(mes_.length * sizeof(revDataList_[0])));
-						SendMesAll(mes_.type, revDataList_, handle->handle);
-					}
+						NetWorkRecv(handle->handle, &mes_, sizeof(MES_H));
+						if (mes_.length != 0)
+						{
+							revDataList_.resize(static_cast<size_t>(writePos + mes_.length));
+							NetWorkRecv(handle->handle, revDataList_.data() + writePos, static_cast<int>(mes_.length * sizeof(revDataList_[0])));
+							SendMesAll(mes_.type, revDataList_, handle->handle);
+						}
 
-					if (mes_.next == 1)
-					{
-						TRACE("後続のデータがあります\n");
-						writePos = revDataList_.size();
-						continue;
-					}
+						if (mes_.next == 1)
+						{
+							TRACE("後続のデータがあります\n");
+							writePos = revDataList_.size();
+						}
+					} while (mes_.next);
 					if (static_cast<unsigned int>(mes_.type) >= static_cast<unsigned int>(MES_TYPE::NON) &&
 						static_cast<unsigned int>(mes_.type) <= static_cast<unsigned int>(MES_TYPE::MAX))
 					{
 						const auto type = static_cast<unsigned int>(mes_.type) - static_cast<unsigned int>(MES_TYPE::NON);
+						if (mes_.type == MES_TYPE::RESULT)
+						{
+							auto aaaa = 0;
+						}
 						if (checkData_[mes_.type] == revDataList_.size())
 						{
 							revFunc_[type](handle);
@@ -202,6 +208,37 @@ NetWorkMode NetWork::GetMode(void)
 		return NetWorkMode::OFFLINE;
 	}
 	return state_->GetMode();
+}
+
+void NetWork::SendResult(const std::list<int>& data)
+{
+	resultData_ = data;
+
+	for (int tmp = 0; resultData_.size() < 5; tmp++)
+	{
+		resultData_.emplace_back(-1);
+	}
+	if (!state_)
+	{
+		SetResult(resultData_);
+		return;
+	}
+	if (state_->GetMode() == NetWorkMode::HOST)
+	{
+		roundEnd_ = true;
+		SetResult(resultData_);
+
+		sendData send[5];
+
+		int i = 0; 
+		for (auto result : resultData_)
+		{
+			send[i].idata = result;
+			i++;
+		}
+
+		SendMesAll(MES_TYPE::RESULT, MesDataList{ send[0],send[1],send[2],send[3],send[4] });
+	}
 }
 
 void NetWork::SendMesAll(MES_TYPE type, MesDataList data)
@@ -425,6 +462,18 @@ const int NetWork::GetMax(void) const
 	return state_->GetMax();
 }
 
+const std::list<int>& NetWork::GetResult(void)
+{
+	std::lock_guard<std::mutex> lock(resultMtx_);
+	return resultData_;
+}
+
+void NetWork::SetResult(const std::list<int>& resultData)
+{
+	std::lock_guard<std::mutex> lock(resultMtx_);
+	resultData_ = resultData;
+}
+
 
 void NetWork::SaveTmx(void)
 {
@@ -536,6 +585,14 @@ bool NetWork::GetStartGame(void)
 {
 	std::lock_guard<std::mutex> lock(stMtx_);
 	return startGame_;
+}
+
+bool NetWork::GetRoundEnd(void)
+{
+	{
+		std::lock_guard<std::mutex> lock(roundMtx_);
+		return roundEnd_;
+	}
 }
 
 
@@ -775,6 +832,29 @@ void NetWork::RevDethData(HandleList::iterator& itr)
 	}
 }
 
+void NetWork::RevResultData(HandleList::iterator& itr)
+{
+	{
+		std::lock_guard<std::mutex> lock(resultMtx_);
+		if (revDataList_.size() != 5)
+		{
+			TRACE("ResultDataのSizeエラー：%d", revDataList_.size());
+			return;
+		}
+		int cnt = 0;
+		for (auto data : revDataList_)
+		{
+			resultData_.push_back(data.idata);
+			cnt++;
+		}
+	}
+	{
+		std::lock_guard<std::mutex> lock(roundMtx_);
+		roundEnd_ = true;
+	}
+	TRACE("ResultDataの受信");
+}
+
 void NetWork::RevLostData(HandleList::iterator& itr)
 {
 	auto tmpID = (revDataList_[0].uidata) / UNIT_ID_BASE;
@@ -796,6 +876,7 @@ NetWork::NetWork()
 	startGame_ = false;
 	revState_ = false;
 	revID_ = false;
+	roundEnd_ = false;
 	cntRev_ = 0;
 	revFunc_[0] = nullptr;
 	revFunc_[1] = (std::bind(&NetWork::RevCountDownRoom, this, std::placeholders::_1));
@@ -808,7 +889,8 @@ NetWork::NetWork()
 	revFunc_[8] = (std::bind(&NetWork::RevPosData, this, std::placeholders::_1));
 	revFunc_[9] = (std::bind(&NetWork::RevSetBombData, this, std::placeholders::_1));
 	revFunc_[10] = (std::bind(&NetWork::RevDethData, this, std::placeholders::_1));
-	revFunc_[11] = (std::bind(&NetWork::RevLostData, this, std::placeholders::_1));
+	revFunc_[11] = (std::bind(&NetWork::RevResultData, this, std::placeholders::_1));
+	revFunc_[12] = (std::bind(&NetWork::RevLostData, this, std::placeholders::_1));
 
 	mes_ = {};
 	revDataList_.reserve(180);
@@ -848,6 +930,7 @@ NetWork::NetWork()
 	checkData_.try_emplace(MES_TYPE::STANBY_HOST, 0);
 	checkData_.try_emplace(MES_TYPE::TMX_DATA, 179);
 	checkData_.try_emplace(MES_TYPE::TMX_SIZE, 1);
+	checkData_.try_emplace(MES_TYPE::RESULT, 5);
 }
 
 NetWork::~NetWork()

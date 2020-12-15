@@ -41,6 +41,7 @@ public:
 private:
 	void FuncInit(void);
 	int length_;
+	int idScreen_;
 	sendData data[4];
 	std::map<DIR, Vector2> speedVec_;
 	Vector2 chipSize_;

@@ -57,6 +57,7 @@ public:
 	bool ConnectHost(IPDATA hostIP);					// 指定されたIPアドレスのホストへ接続しに行く
 	NetWorkMode GetMode(void);
 
+	void SendResult(const std::list<int>& data);
 	void SendMesAll(MES_TYPE type, MesDataList data);
 	void SendMesAll(MES_TYPE type, MesDataList data,int noSendHandle);
 	void SendMes(MES_TYPE type, MesDataList data);
@@ -73,8 +74,12 @@ public:
 	const int GetID(void)const;
 	const int GetMax(void)const;
 
+	const std::list<int>& GetResult(void);
+	void SetResult(const std::list<int>& resultData);
+
 	bool GetRevStanby(void);
 	bool GetStartGame(void);
+	bool GetRoundEnd(void);
 
 	void SaveTmx(void);
 
@@ -86,6 +91,7 @@ private:
 	bool startGame_;
 	bool playNow_;
 	bool revID_;
+	bool roundEnd_;
 	MesDataList revDataList_;
 	MES_H mes_;
 	int revSize_;
@@ -125,6 +131,7 @@ private:
 	void RevPosData(HandleList::iterator& itr);
 	void RevSetBombData(HandleList::iterator& itr);
 	void RevDethData(HandleList::iterator& itr);
+	void RevResultData(HandleList::iterator& itr);
 	void RevLostData(HandleList::iterator& itr);
 
 	std::chrono::system_clock::time_point strat_;
@@ -135,10 +142,14 @@ private:
 	std::mutex revMtx_;
 	std::mutex handleMtx_;
 	std::mutex nowMtx_;
+	std::mutex roundMtx_;
+	std::mutex resultMtx_;
 	// 各オブジェが持つ受信データ格納先への参照
 	ObjRevMap objRevMap_;
 
 	std::map<MES_TYPE, int> checkData_;
+
+	std::list<int> resultData_;
 
 	NetWork();
 	~NetWork();

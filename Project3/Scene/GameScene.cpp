@@ -4,7 +4,7 @@
 #include "GameScene.h"
 #include "CrossOver.h"
 #include "CheckeredBlock.h"
-#include "LoginScene.h"
+#include "ResultScene.h"
 #include "SceneMng.h"
 #include "../Obj/Player.h"
 #include "../Obj/Bomb.h"
@@ -14,6 +14,12 @@
 
 uniqueBase GameScene::Update(uniqueBase own, const Time& now)
 {
+	auto check = std::count_if(objList_.begin(), objList_.end(), [](shared_Obj objA) {return objA->Alive(); });
+	if (lpNetWork.GetRoundEnd() || check <= 1)
+	{
+		lpNetWork.SendResult(dethPlayerID_);
+		return std::make_unique<CheckeredBlock>(std::move(own), std::make_unique<ResultScene>());
+	}
 	objList_.sort([](shared_Obj objA, shared_Obj objB)
 	{
 		return objA->CheckMesList() > objB->CheckMesList();
@@ -139,6 +145,11 @@ GameScene::~GameScene()
 const GameState& GameScene::GetGameState(void) const
 {
 	return state_;
+}
+
+void GameScene::SetDethPlayerID(const int& id)
+{
+	dethPlayerID_.emplace_front(id);
 }
 
 shared_Obj GameScene::GetPlayer(int id)

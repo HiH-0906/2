@@ -19,9 +19,9 @@ NumPad::NumPad(const Vector2& pos, BaseScene& scene) :rect_(pos, { 99,196 }), sc
 	numPadStr_.emplace_back(std::pair<std::string, int>{ "1", 1});
 	numPadStr_.emplace_back(std::pair<std::string, int>{ "2", 2});
 	numPadStr_.emplace_back(std::pair<std::string, int>{ "3", 3});
-	numPadStr_.emplace_back(std::pair<std::string, int>{ "12", 12});
+	numPadStr_.emplace_back(std::pair<std::string, int>{ "C", 11});
 	numPadStr_.emplace_back(std::pair<std::string, int>{ "0", 0});
-	numPadStr_.emplace_back(std::pair<std::string, int>{ "11", 11});
+	numPadStr_.emplace_back(std::pair<std::string, int>{ ".", 10});
 	init();
 }
 
@@ -61,7 +61,7 @@ void NumPad::Draw(void)
 
 	Vector2 drawPos = { 0,rect_.size.h - 49 };
 
-	DrawGraph(drawPos.x, drawPos.y, lpImageMng.GetID("Num")[12], true);
+	DrawGraph(drawPos.x, drawPos.y, lpImageMng.GetID("Num")[11], true);
 	drawPos.x += 33;
 	DrawGraph(drawPos.x, drawPos.y, lpImageMng.GetID("Num")[0], true);
 	drawPos.x += 33;
@@ -85,8 +85,12 @@ void NumPad::Draw(void)
 
 	SetDrawScreen(drawNumScreen_);
 	ClsDrawScreen();
-
-	//for(auto)
+	Vector2 numPos = { 0,0 };
+	for (auto num : inputNum_)
+	{
+		DrawGraph(numPos.x, numPos.y, lpImageMng.GetID("Num")[num], true);
+		numPos.x += 33;
+	}
 
 	scene_.AddDrawQue(DrawQue{ {100,100}, {rect_.size.w * 15,rect_.size.h},1.0,0,drawNumScreen_,0 });
 }
@@ -100,5 +104,5 @@ void NumPad::init(void)
 {
 	inputStr_.clear();
 	inputStr_ = "";
-	inputNum_.clear;
+	inputNum_.clear();
 }

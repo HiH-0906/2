@@ -18,8 +18,8 @@
 
 namespace
 {
-	bool old = false;
-	bool now = false;
+	bool trgold = false;
+	bool trgnow = false;
 }
 
 // 現状とりあえず出ぶち込まれている感満載
@@ -56,6 +56,8 @@ void LoginScene::Init(void)
 
 uniqueBase LoginScene::Update(uniqueBase own, const Time& now)
 {
+	trgold = trgnow;
+	trgnow = (GetMouseInput() & MOUSE_INPUT_LEFT);
 	if (!(this->*func_[state_])())
 	{
 		return std::move(std::make_unique<CheckeredBlock>(std::move(own), std::make_unique<GameScene>()));
@@ -173,10 +175,15 @@ bool LoginScene::HostIPInput(void)
 {
 	state_ = UPDATE_STATE::HOST_IP;
 	std::string ip;
-	std::cout << "ホストのIPアドレス(IPv4)を入力してください" << std::endl;
-	std::cout << "IPアドレス(IPv4)は<.>で区切ってください" << std::endl;
-	std::cin >> ip;
 
+	int x, y;
+	GetMousePoint(&x, &y);
+	Vector2 tst(x, y);
+	if (!numPad_->UpDate(tst, ((!trgold) && trgnow)))
+	{
+		return true;
+	}
+	ip = numPad_->GetInputStr();
 	std::replace(ip.begin(), ip.end(), '.', ' ');
 	std::istringstream ipstr(ip);
 
@@ -193,6 +200,7 @@ bool LoginScene::HostIPInput(void)
 	if (!lpNetWork.ConnectHost(ipData_))
 	{
 		std::cout << "ホストに接続できませんでした。もう一度入力してください。" << std::endl;
+		numPad_->init();
 		return true;
 	}
 	
@@ -225,7 +233,7 @@ bool LoginScene::SetNetWork(void)
 	bool flag = true;
 	for (const auto& btn : btn_)
 	{
-		flag &= btn->Update(tst, (GetMouseInput() & MOUSE_INPUT_LEFT));
+		flag &= btn->Update(tst, trgnow);
 	}
 	return flag;
 }
@@ -245,13 +253,13 @@ bool LoginScene::StartInit(void)
 			if (ip.d1 != 0)
 			{
 				ChengeIPDATAToIntVector(ip.d1, ipInt);
-				IPDraw(ipInt, pos, true);
+				IPDraw(ipInt, pos,1.0, true);
 				ChengeIPDATAToIntVector(ip.d2, ipInt);
-				IPDraw(ipInt, pos, true);
+				IPDraw(ipInt, pos, 1.0, true);
 				ChengeIPDATAToIntVector(ip.d3, ipInt);
-				IPDraw(ipInt, pos, true);
+				IPDraw(ipInt, pos, 1.0, true);
 				ChengeIPDATAToIntVector(ip.d4, ipInt);
-				IPDraw(ipInt, pos, false);
+				IPDraw(ipInt, pos, 1.0, true);
 			}
 		}
 		if (lpNetWork.GetActive() == ACTIVE_STATE::INIT)
@@ -300,17 +308,24 @@ bool LoginScene::StartInit(void)
 // ゲスト専用 前回入力したホストに接続するか新たに入力するかの選択
 bool LoginScene::SelectHost(void)
 {
+	std::vector<int> ipInt;
+	Vector2 pos(150, 0);
+	if (ipData_.d1 != 0)
+	{
+		ChengeIPDATAToIntVector(ipData_.d1, ipInt);
+		IPDraw(ipInt, pos, 1.0, true);
+		ChengeIPDATAToIntVector(ipData_.d2, ipInt);
+		IPDraw(ipInt, pos, 1.0, true);
+		ChengeIPDATAToIntVector(ipData_.d3, ipInt);
+		IPDraw(ipInt, pos, 1.0, true);
+		ChengeIPDATAToIntVector(ipData_.d4, ipInt);
+		IPDraw(ipInt, pos, 1.0, false);
+	}
 	int select = 0;
-	/*std::cout << "前回接続したホストに接続しますか？" << std::endl;
-	std::cout << "1：前回接続したホストに接続する" << std::endl;
-	std::cout << "2：新たにIPを入力する" << std::endl;*/
-	/*std::cin >> select;*/
 	int x, y;
-	old = now;
-	now = (GetMouseInput() & MOUSE_INPUT_LEFT);
 	GetMousePoint(&x, &y);
 	Vector2 tst(x, y);
-	if (!numPad_->UpDate(tst, ((!old) && now)))
+	if (!numPad_->UpDate(tst, ((!trgold) && trgnow)))
 	{
 		return true;
 	}
@@ -357,8 +372,22 @@ bool LoginScene::ReadFile(void)
 	{
 		return false;
 	}
+	std::vector<int> ipInt;
+	Vector2 pos(150, 150);
 
 	file.read((char*)&ipData_, sizeof(ipData_));
+
+	if (ipData_.d1 != 0)
+	{
+		ChengeIPDATAToIntVector(ipData_.d1, ipInt);
+		IPDraw(ipInt, pos, 1.0, true);
+		ChengeIPDATAToIntVector(ipData_.d2, ipInt);
+		IPDraw(ipInt, pos, 1.0, true);
+		ChengeIPDATAToIntVector(ipData_.d3, ipInt);
+		IPDraw(ipInt, pos, 1.0, true);
+		ChengeIPDATAToIntVector(ipData_.d4, ipInt);
+		IPDraw(ipInt, pos, 1.0, false);
+	}
 	TRACE("読み込まれたIPアドレスは%d.%d.%d.%dです\n", ipData_.d1, ipData_.d2, ipData_.d3, ipData_.d4);
 	file.close();
 	return true;
@@ -414,17 +443,17 @@ void LoginScene::ChengeIPDATAToIntVector(const unsigned char& ch,std::vector<int
 	}
 }
 
-void LoginScene::IPDraw(const std::vector<int>& ipInt, Vector2& pos, bool comma)
+void LoginScene::IPDraw(const std::vector<int>& ipInt, Vector2& pos, const double& rate, bool comma)
 {
 	Vector2 size = { 33,49 };
 	for (const auto& num : ipInt)
 	{
-		DrawQue_.emplace_back(DrawQue{ pos ,size,1.0,0.0,lpImageMng.GetID("Num")[num],1 });
+		DrawQue_.emplace_back(DrawQue{ pos ,size,rate,0.0,lpImageMng.GetID("Num")[num],1 });
 		pos.x += size.x;
 	}
 	if (comma)
 	{
-		DrawQue_.emplace_back(DrawQue{ pos ,size,1.0,0.0,lpImageMng.GetID("Num")[10],1 });
+		DrawQue_.emplace_back(DrawQue{ pos ,size,rate,0.0,lpImageMng.GetID("Num")[10],1 });
 		pos.x += size.x;
 	}
 }
