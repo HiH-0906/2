@@ -170,7 +170,7 @@ bool Player::UpdateDef(const Time& now)
 		for (auto& tmp : list)
 		{
 			const auto& pos = tmp->GetPos();
-			_dbgDrawFormatString(pos.x, pos.y, 0xff0000, "%d", i);
+			//_dbgDrawFormatString(pos.x, pos.y, 0xff0000, "%d", i);
 			i++;
 		}
 	}

@@ -57,7 +57,7 @@ public:
 	bool ConnectHost(IPDATA hostIP);					// 指定されたIPアドレスのホストへ接続しに行く
 	NetWorkMode GetMode(void);
 
-	void SendResult(const std::list<int>& data);
+	void SendResult(std::list<int>& data);
 	void SendMesAll(MES_TYPE type, MesDataList data);
 	void SendMesAll(MES_TYPE type, MesDataList data,int noSendHandle);
 	void SendMes(MES_TYPE type, MesDataList data);
@@ -95,7 +95,6 @@ private:
 	MesDataList revDataList_;
 	MES_H mes_;
 	int revSize_;
-	int cntRev_;
 	int revStanby_;
 	HandleList handleList_;
 
@@ -144,6 +143,8 @@ private:
 	std::mutex nowMtx_;
 	std::mutex roundMtx_;
 	std::mutex resultMtx_;
+	std::mutex revIDMtx_;
+	std::mutex objRevMtx_;
 	// 各オブジェが持つ受信データ格納先への参照
 	ObjRevMap objRevMap_;
 

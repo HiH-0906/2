@@ -14,12 +14,15 @@
 
 uniqueBase GameScene::Update(uniqueBase own, const Time& now)
 {
+	
 	auto check = std::count_if(objList_.begin(), objList_.end(), [](shared_Obj objA) {return objA->Alive(); });
-	if (lpNetWork.GetRoundEnd() || check <= 1)
+
+	if (lpNetWork.GetRoundEnd() && check <= 1)
 	{
 		lpNetWork.SendResult(dethPlayerID_);
 		return std::make_unique<CheckeredBlock>(std::move(own), std::make_unique<ResultScene>());
 	}
+
 	objList_.sort([](shared_Obj objA, shared_Obj objB)
 	{
 		return objA->CheckMesList() > objB->CheckMesList();
@@ -35,10 +38,9 @@ uniqueBase GameScene::Update(uniqueBase own, const Time& now)
 	}
 	auto delItr = std::remove_if(objList_.begin(), objList_.end(), [](shared_Obj& obj) {return !obj->Alive() && obj->GetTag() != OBJ_TAG::PLAYER; });
 	objList_.erase(delItr, objList_.end());
-	mapMng_->Update(now);
 	DrawOwnScene();
 	DrawFps(now);
-
+	mapMng_->Update(now);
 
 	return own;
 }
@@ -149,7 +151,7 @@ const GameState& GameScene::GetGameState(void) const
 
 void GameScene::SetDethPlayerID(const int& id)
 {
-	dethPlayerID_.emplace_front(id);
+	dethPlayerID_.push_front(id);
 }
 
 shared_Obj GameScene::GetPlayer(int id)

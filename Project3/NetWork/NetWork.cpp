@@ -49,8 +49,11 @@ void NetWork::UpDate(void)
 					sendData data;
 					data = { handle->id };
 					SendMesAll(MES_TYPE::LOST, MesDataList{ data }, handle->handle);
-					std::lock_guard<std::mutex> lock2(objRevMap_[(handle->id) / UNIT_ID_BASE].first);
-					objRevMap_[(handle->id) / UNIT_ID_BASE].second.emplace_back(MES_H{ MES_TYPE::LOST,0,0,0 }, MesDataList{ data });
+					{
+						std::lock_guard<std::mutex> lock(objRevMtx_);
+						std::lock_guard<std::mutex> lock2(objRevMap_[(handle->id) / UNIT_ID_BASE].first);
+						objRevMap_[(handle->id) / UNIT_ID_BASE].second.emplace_back(MES_H{ MES_TYPE::LOST,0,0,0 }, MesDataList{ data });
+					}
 					// 殺す処理とリストから消す処理
 					handleList_.erase(handle);
 					break;
@@ -111,7 +114,10 @@ void NetWork::RunUpdate(void)
 
 void NetWork::SetObjRevData(int id, std::mutex& mtx, std::vector<RevDataP>& mes)
 {
-	objRevMap_.emplace_back(std::pair<std::mutex&, std::vector<RevDataP>&>{ mtx, mes });
+	{
+		std::lock_guard<std::mutex> lock(objRevMtx_);
+		objRevMap_.emplace_back(std::pair<std::mutex&, std::vector<RevDataP>&>{ mtx, mes });
+	}
 }
 
 void NetWork::SetPlayNow(bool flag)
@@ -135,13 +141,16 @@ bool NetWork::SetNetWorkMode(NetWorkMode mode)
 	{
 	case NetWorkMode::OFFLINE:
 		state_ = std::make_unique<NetWorkState>();
+		roundEnd_ = true;
 		break;
 	case NetWorkMode::HOST:
 		state_ = std::make_unique<HostState>();
+		roundEnd_ = true;
 		RunUpdate();
 		break;
 	case NetWorkMode::GEST:
 		state_ = std::make_unique<GestState>();
+		roundEnd_ = false;
 		RunUpdate();
 		break;
 	case NetWorkMode::MAX:
@@ -210,28 +219,25 @@ NetWorkMode NetWork::GetMode(void)
 	return state_->GetMode();
 }
 
-void NetWork::SendResult(const std::list<int>& data)
+void NetWork::SendResult(std::list<int>& data)
 {
-	resultData_ = data;
-
-	for (int tmp = 0; resultData_.size() < 5; tmp++)
+	for (int tmp = 0; data.size() < 5; tmp++)
 	{
-		resultData_.emplace_back(-1);
+		data.emplace_back(-1);
 	}
+	SetResult(data);
 	if (!state_)
 	{
-		SetResult(resultData_);
 		return;
 	}
 	if (state_->GetMode() == NetWorkMode::HOST)
 	{
 		roundEnd_ = true;
-		SetResult(resultData_);
 
-		sendData send[5];
+		sendData send[5] = {};
 
 		int i = 0; 
-		for (auto result : resultData_)
+		for (auto result : data)
 		{
 			send[i].idata = result;
 			i++;
@@ -550,7 +556,7 @@ void NetWork::SaveTmx(void)
 }
 
 void NetWork::EndOfNetWork(void)
-{
+{	
 	for (const auto& handdle: state_->GetNetHandle())
 	{
 		CloseNetWork(handdle.handle);
@@ -559,6 +565,14 @@ void NetWork::EndOfNetWork(void)
 	{
 		std::lock_guard <std::mutex> lock(stMtx_);
 		startGame_ = false;
+	}
+	{
+		std::lock_guard<std::mutex> lock(revIDMtx_);
+		revID_ = false;
+	}
+	{
+		std::lock_guard<std::mutex>lock(roundMtx_);
+		roundEnd_ = false;
 	}
 	{
 		std::lock_guard< std::mutex> lock(revMtx_);
@@ -572,7 +586,14 @@ void NetWork::EndOfNetWork(void)
 		std::lock_guard<std::mutex> lock(handleMtx_);
 		handleList_.clear();
 	}
-	objRevMap_.clear();
+	{
+		std::lock_guard<std::mutex> lock(resultMtx_);
+		resultData_.clear();
+	}
+	{
+		std::lock_guard<std::mutex> lock(objRevMtx_);
+		objRevMap_.clear();
+	}
 }
 
 bool NetWork::GetRevStanby(void)
@@ -659,7 +680,10 @@ void NetWork::RevID(HandleList::iterator& itr)
 	}
 	TRACE("PlayerID：%d	PlayerMax：%d\n", revDataList_[0].idata, revDataList_[1].idata);
 	state_->SetPlayerID(revDataList_[0].idata, revDataList_[1].idata);
-	revID_ = true;
+	{
+		std::lock_guard<std::mutex> lock(revIDMtx_);
+		revID_ = true;
+	}
 }
 
 void NetWork::RevStanbyHost(HandleList::iterator& itr)
@@ -761,19 +785,22 @@ void NetWork::RevPosData(HandleList::iterator& itr)
 		}
 	}
 	auto tmpID = (revDataList_[0].uidata) / UNIT_ID_BASE;
-	if (tmpID < objRevMap_.size() && tmpID >= 0)
 	{
-		if ((revDataList_[0].uidata) != itr->id && state_->GetMode() == NetWorkMode::HOST)
+		std::lock_guard<std::mutex> lock(objRevMtx_);
+		if (tmpID < objRevMap_.size() && tmpID >= 0)
 		{
-			TRACE("他人のIDのPosMes ID：%d\n", (revDataList_[0].uidata));
-			return;
+			if ((revDataList_[0].uidata) != itr->id && state_->GetMode() == NetWorkMode::HOST)
+			{
+				TRACE("他人のIDのPosMes ID：%d\n", (revDataList_[0].uidata));
+				return;
+			}
+			std::lock_guard<std::mutex> lock2(objRevMap_[tmpID].first);
+			objRevMap_[tmpID].second.emplace_back(mes_, revDataList_);
 		}
-		std::lock_guard<std::mutex> lock2(objRevMap_[tmpID].first);
-		objRevMap_[tmpID].second.emplace_back(mes_, revDataList_);
-	}
-	else
-	{
-		TRACE("PosRev時ID異常 ID：%d\n", tmpID);
+		else
+		{
+			TRACE("PosRev時ID異常 ID：%d\n", tmpID);
+		}
 	}
 }
 
@@ -788,20 +815,23 @@ void NetWork::RevSetBombData(HandleList::iterator& itr)
 		}
 	}
 	auto tmpID = (revDataList_[0].uidata) / UNIT_ID_BASE;
-	if (tmpID < objRevMap_.size() && tmpID >= 0)
 	{
-		if ((revDataList_[0].uidata) != itr->id && state_->GetMode() == NetWorkMode::HOST)
+		std::lock_guard<std::mutex> lock(objRevMtx_);
+		if (tmpID < objRevMap_.size() && tmpID >= 0)
 		{
-			TRACE("他人のIDのBombMes ID：%d\n", (revDataList_[0].uidata));
-			return;
+			if ((revDataList_[0].uidata) != itr->id && state_->GetMode() == NetWorkMode::HOST)
+			{
+				TRACE("他人のIDのBombMes ID：%d\n", (revDataList_[0].uidata));
+				return;
+			}
+			std::lock_guard<std::mutex> lock2(objRevMap_[tmpID].first);
+			objRevMap_[tmpID].second.emplace_back(mes_, revDataList_);
+			TRACE("BombRev ID：%d\n", tmpID);
 		}
-		std::lock_guard<std::mutex> lock2(objRevMap_[tmpID].first);
-		objRevMap_[tmpID].second.emplace_back(mes_, revDataList_);
-		TRACE("BombRev ID：%d\n", tmpID);
-	}
-	else
-	{
-		TRACE("BombRev時ID異常 ID：%d\n", tmpID);
+		else
+		{
+			TRACE("BombRev時ID異常 ID：%d\n", tmpID);
+		}
 	}
 }
 
@@ -816,19 +846,22 @@ void NetWork::RevDethData(HandleList::iterator& itr)
 		}
 	}
 	auto tmpID = (revDataList_[0].uidata) / UNIT_ID_BASE;
-	if (tmpID < objRevMap_.size() && tmpID >= 0)
 	{
-		if ((revDataList_[0].uidata) != itr->id && state_->GetMode() == NetWorkMode::HOST)
+		std::lock_guard<std::mutex> lock(objRevMtx_);
+		if (tmpID < objRevMap_.size() && tmpID >= 0)
 		{
-			TRACE("他人のIDのdethMes ID：%d\n", (revDataList_[0].uidata));
-			return;
+			if ((revDataList_[0].uidata) != itr->id && state_->GetMode() == NetWorkMode::HOST)
+			{
+				TRACE("他人のIDのdethMes ID：%d\n", (revDataList_[0].uidata));
+				return;
+			}
+			std::lock_guard<std::mutex> lock2(objRevMap_[tmpID].first);
+			objRevMap_[tmpID].second.emplace_back(mes_, revDataList_);
 		}
-		std::lock_guard<std::mutex> lock2(objRevMap_[tmpID].first);
-		objRevMap_[tmpID].second.emplace_back(mes_, revDataList_);
-	}
-	else
-	{
-		TRACE("DethRev時ID異常 ID：%d\n", tmpID);
+		else
+		{
+			TRACE("DethRev時ID異常 ID：%d\n", tmpID);
+		}
 	}
 }
 
@@ -838,7 +871,7 @@ void NetWork::RevResultData(HandleList::iterator& itr)
 		std::lock_guard<std::mutex> lock(resultMtx_);
 		if (revDataList_.size() != 5)
 		{
-			TRACE("ResultDataのSizeエラー：%d", revDataList_.size());
+			TRACE("ResultDataのSizeエラー：%zd", revDataList_.size());
 			return;
 		}
 		int cnt = 0;
@@ -858,26 +891,27 @@ void NetWork::RevResultData(HandleList::iterator& itr)
 void NetWork::RevLostData(HandleList::iterator& itr)
 {
 	auto tmpID = (revDataList_[0].uidata) / UNIT_ID_BASE;
-	if (tmpID < objRevMap_.size() && tmpID >= 0)
 	{
-		std::lock_guard<std::mutex> lock2(objRevMap_[tmpID].first);
-		objRevMap_[tmpID].second.emplace_back(mes_, revDataList_);
-	}
-	else
-	{
-		TRACE("LostRev時ID異常\n");
+		std::lock_guard<std::mutex> lock(objRevMtx_);
+		if (tmpID < objRevMap_.size() && tmpID >= 0)
+		{
+			std::lock_guard<std::mutex> lock2(objRevMap_[tmpID].first);
+			objRevMap_[tmpID].second.emplace_back(mes_, revDataList_);
+		}
+		else
+		{
+			TRACE("LostRev時ID異常\n");
+		}
 	}
 }
 
 NetWork::NetWork()
 {
-	revStanby_ = 0;
 	state_ = nullptr;
 	startGame_ = false;
 	revState_ = false;
 	revID_ = false;
 	roundEnd_ = false;
-	cntRev_ = 0;
 	revFunc_[0] = nullptr;
 	revFunc_[1] = (std::bind(&NetWork::RevCountDownRoom, this, std::placeholders::_1));
 	revFunc_[2] = (std::bind(&NetWork::RevID, this, std::placeholders::_1));
