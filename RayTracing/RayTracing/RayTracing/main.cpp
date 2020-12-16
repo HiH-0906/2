@@ -4,6 +4,15 @@
 const int screen_width = 640;
 const int screen_height = 480;
 
+namespace
+{
+	int image;
+	Vector3 Light = Vector3{ 1,-1,-1 };
+	float albedo[3] = { 0.5f , 0.5f, 1.0f };
+	// 視線と平面の交点
+	Plane plane(Vector3(0, 1, 0), 100);
+}
+
 // 反射ベクトルを返す
 // in：	入射ベクトル
 // normal：法線ベクトル
@@ -63,7 +72,22 @@ Color Clamp(const Color& in, const float min = 0.0f, const float max = 1.0f)
 	return Color(Clamp(in.x, min, max), Clamp(in.y, min, max), Clamp(in.z, min, max));
 }
 
-
+Color GetCheckerdColorFromPosition(const Position3& pos)
+{
+	Color col1(255, 255, 255);
+	Color col2(0, 0, 0);
+	auto checker = (static_cast<int>(pos.x / 30) + static_cast<int>(pos.z / 30)) % 2 == 0;
+	checker = pos.x < 0 ? !checker : checker;
+	checker = pos.z < 0 ? !checker : checker;
+	if (checker)
+	{
+		return col1;
+	}
+	else
+	{
+		return col2;
+	}
+}
 
 UINT32 GetUINT32ColorFromVectorColor(const Color col)
 {
@@ -73,9 +97,7 @@ UINT32 GetUINT32ColorFromVectorColor(const Color col)
 ///レイトレーシング
 ///@param eye 視点座標
 ///@param sphere 球オブジェクト(そのうち複数にする)
-void RayTracing(const Position3& eye,const Sphere& sphere,int& image) {
-	Vector3 Light = Vector3{ 1,-1,-1 };
-	float albedo[3] = { 0.5f , 0.5f, 1.0f };
+void RayTracing(const Position3& eye,const Sphere& sphere) {
 
 	for (int y = 0; y < screen_height; ++y) {//スクリーン縦方向
 		for (int x = 0; x < screen_width; ++x) {//スクリーン横方向
@@ -100,31 +122,58 @@ void RayTracing(const Position3& eye,const Sphere& sphere,int& image) {
 
 				specular = Clamp(specular);
 				specular = pow(specular, 10);
-
 				float deiffuse[3];
-				for (int i = 0; i < 3; i++)
+
+				// 反射を考える
+				// 反射ベクトルを作る
+				auto Rray = ReflectVector(ray, N);
+				// 反射ベクトルが地面と当たるかを考える
+				auto dot = Dot(Rray, plane.N);
+				// まずははんしゃさきが地面なら色を変える
+				if (dot < 0.0f)
 				{
-					deiffuse[i] = (deiffuseB * albedo[i]) + specular;
-					deiffuse[i] = Clamp(deiffuse[i]);
+					// 交点P=eye+ray*t
+					// t=w/u (wは平面からの距離　　uは一回当たり平面に近づく大きさ)
+					// w=eye・N u=-ray・N
+					// t=w/uにしたいけどdがあるので
+					// t=(w+d)/u
+					// あとはここからPを求めればよい
+					// まずｔを求める。多分tは４万くらい
+					auto w = Dot(P, plane.N);
+					auto u = Dot(-Rray, plane.N);
+					auto tmp = (w + plane.d) / u;
+					P = P + Rray * tmp;
+
+					for (int i = 0; i < 3; i++)
+					{
+						deiffuse[i] = (deiffuseB * albedo[i]) + specular;
+						deiffuse[i] = Clamp(deiffuse[i]);
+					}
+					//※塗りつぶしはDrawPixelという関数を使う。
+					Color color(255 * deiffuse[0], 255 * deiffuse[1], 255 * deiffuse[2]);
+					auto spharCol = GetUINT32ColorFromVectorColor(color);
+
+					Color col = GetCheckerdColorFromPosition(P);
+					float reflectivity = 0.5f;
+					auto tmpCol = GetUINT32ColorFromVectorColor(col);
+
+					//tmpCol = spharCol * (1.0f - reflectivity) + tmpCol * reflectivity;
+
+					DrawPixel(x, y, tmpCol);
 				}
+				else
+				{
+					for (int i = 0; i < 3; i++)
+					{
+						deiffuse[i] = (deiffuseB * albedo[i]) + specular;
+						deiffuse[i] = Clamp(deiffuse[i]);
+					}
+					//※塗りつぶしはDrawPixelという関数を使う。
+					Color color(255 * deiffuse[0], 255 * deiffuse[1], 255 * deiffuse[2]);
 
-				//※塗りつぶしはDrawPixelという関数を使う。
-				int color = 0xff * deiffuse[0];
-				color = color << 8;
-				color += 0xff * deiffuse[1];
-				color = color << 8;
-				color += 0xff * deiffuse[2];
-				
-				auto R = ReflectVector(L, N);
-
-				/*Color difColor(255, 128, 128);
-				Color specColor(255, 255, 255);
-
-				difColor *= deiffuseB;
-				specColor *= specular;
-				difColor *= deiffuseB;
-				color = GetUINT32ColorFromVectorColor(Clamp(difColor + specColor, 0.0f, 255.0f));*/
-				DrawPixel(x, y, color);
+					auto R = ReflectVector(L, N);
+					DrawPixel(x, y, GetUINT32ColorFromVectorColor(color));
+				}
 			}
 			// 球体に当たらなかった
 			else
@@ -133,12 +182,9 @@ void RayTracing(const Position3& eye,const Sphere& sphere,int& image) {
 				// 仮に平面の法線を(0,1,0)
 				// 平面に当たる条件は視線と法線ベクトルが90度以上
 
-				// 視線と平面の交点
-				Plane plane(Vector3(0, 1, 0), 100);
 				auto dot = Dot(ray, plane.N);
 				if (dot < 0.0f)	// 地面に当たってる
 				{
-					int r, g, b, a;
 					// 交点P=eye+ray*t
 					// t=w/u (wは平面からの距離　　uは一回当たり平面に近づく大きさ)
 					// w=eye・N u=-ray・N
@@ -152,23 +198,9 @@ void RayTracing(const Position3& eye,const Sphere& sphere,int& image) {
 					auto P = eye + ray * tmp;
 
 
-					Color col(255, 255, 255);
-					col *= Clamp(tmp / 3000.0f);
+					Color col = GetCheckerdColorFromPosition(P);
 
-					GetPixelSoftImage(image, abs(((int)(P.x) % 120)), abs((int)(P.z) % 120), &r, &g, &b, &a);
-
-				
-					auto checker = (static_cast<int>(P.x / 120) + static_cast<int>(P.z / 120)) % 2 == 0;
-					checker = P.x < 0 ? !checker : checker;
-					checker = P.z < 0 ? !checker : checker;
-					if (checker)
-					{
-						DrawPixel(x, y, /*0xffffff*/GetColor(r,g,b));
-					}
-					else
-					{
-						DrawPixel(x, y, /*0x000000*/GetColor(r, g, b));
-					}
+					DrawPixel(x, y, GetUINT32ColorFromVectorColor(col));
 				}
 				else
 				{
@@ -187,13 +219,37 @@ int WINAPI WinMain(HINSTANCE , HINSTANCE,LPSTR,int ) {
 	SetGraphMode(screen_width, screen_height, 32);
 	SetMainWindowText(_T("簡易版のレイトレでっせ"));
 	DxLib_Init();
-	int image = LoadSoftImage(L"image/image.png");
+	image = LoadSoftImage(L"image/test.png");
 	auto eye = Vector3(0, 0, 300);
-	auto sphere = Sphere(100, Position3(0, 0, -100));
+	auto sphere = Sphere(100, Position3(0, 50, -100));
 	while (!ProcessMessage() && !CheckHitKey(KEY_INPUT_ESCAPE))
 	{
 		ClsDrawScreen();
-		RayTracing(eye, sphere, image);
+		if (CheckHitKey(KEY_INPUT_UP))
+		{
+			sphere.pos.y+=5;
+		}
+		if (CheckHitKey(KEY_INPUT_DOWN))
+		{
+			sphere.pos.y-=5;
+		}
+		if (CheckHitKey(KEY_INPUT_LEFT))
+		{
+			sphere.pos.x-=5;
+		}
+		if (CheckHitKey(KEY_INPUT_RIGHT))
+		{
+			sphere.pos.x+=5;
+		}
+		if (CheckHitKey(KEY_INPUT_Z))
+		{
+			sphere.pos.z += 5;
+		}
+		if (CheckHitKey(KEY_INPUT_X))
+		{
+			sphere.pos.z -= 5;
+		}
+		RayTracing(eye, sphere);
 		ScreenFlip();
 	}
 	DxLib_End();
