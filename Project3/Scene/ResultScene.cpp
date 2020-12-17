@@ -16,8 +16,14 @@ ResultScene::~ResultScene()
 
 uniqueBase ResultScene::Update(uniqueBase own, const Time& now)
 {
+	if (lpNetWork.GetRevResult())
+	{
+		data_ = lpNetWork.GetResult();
+		lpNetWork.EndOfNetWork();
+	}
 	if (CheckHitKey(KEY_INPUT_SPACE))
 	{
+		lpNetWork.EndOfNetWork();
 		return std::make_unique<CheckeredBlock>(std::move(own), std::make_unique<LoginScene>());
 	}
 	DrawOwnScene();
@@ -52,5 +58,4 @@ void ResultScene::Init(void)
 {
 	drawScreen_ = MakeScreen(lpSceneMng.GetScreenSize().x, lpSceneMng.GetScreenSize().y, true);
 	data_ = lpNetWork.GetResult();
-	lpNetWork.EndOfNetWork();
 }

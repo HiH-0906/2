@@ -4,6 +4,7 @@
 #include "../RapidXml/rapidxml_utils.hpp"
 #include "../common/ImageMng.h"
 #include "../NetWork/NetWork.h"
+#include "../_debug/_DebugConOut.h"
 
 
 Loader::TmxLoader::TmxLoader()
@@ -38,20 +39,20 @@ bool Loader::TmxLoader::TmxLoad(std::string filename)
 	// バージョン対応しているか確認
 	if (version_.count(orign_node_->first_attribute("tiledversion")->value()) == 0)
 	{
-		std::cout << "非対応TiledVersionのTMXです。" << std::endl;
-		std::cout << "対応バージョンは" << std::endl;
+		TRACE("非対応TiledVersionのTMXです。" );
+		TRACE("対応バージョンは");
 		for (auto ver:version_)
 		{
-			std::cout << "[" << ver.first << "]" << std::endl;
+			TRACE("[%d]", ver.first);
 		}
-		std::cout << "です" << std::endl;
+		TRACE("です");
 		return false;
 	}
 #ifdef _DEBUG
 	for (rapidxml::xml_node<>* layer = orign_node_->first_node("layer"); layer != nullptr; layer = layer->next_sibling())
 	{
-		std::cout << layer->first_attribute("name")->value() << std::endl;
-		std::cout << layer->first_node("data")->first_node()->value() << std::endl;
+		TRACE(layer->first_attribute("name")->value());
+		TRACE(layer->first_node("data")->first_node()->value());
 	}
 #endif // _DEBUG
 
@@ -92,13 +93,13 @@ bool Loader::TmxLoader::TsxLoad(std::string filename)
 	// Tmxで確認してるけど一応確認
 	if (version_.count(orign_node_->first_attribute("tiledversion")->value()) == 0)
 	{
-		std::cout << "非対応TiledVersionのTSMです。" << std::endl;
-		std::cout << "対応バージョンは" << std::endl;
+		TRACE("非対応TiledVersionのTSMです。");
+		TRACE("対応バージョンは");
 		for (auto ver : version_)
 		{
-			std::cout << "[" << ver.first << "]" << std::endl;
+			TRACE("[%d]", ver.first);
 		}
-		std::cout << "です" << std::endl;
+		TRACE("です");
 		return false;
 	}
 

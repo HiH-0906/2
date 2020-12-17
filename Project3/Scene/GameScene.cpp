@@ -10,6 +10,7 @@
 #include "../Obj/Bomb.h"
 #include "../NetWork/NetWork.h"
 #include "../common/ImageMng.h"
+#include "../_debug/_DebugConOut.h"
 #include "../_debug/_DebugDispOut.h"
 
 uniqueBase GameScene::Update(uniqueBase own, const Time& now)
@@ -17,9 +18,19 @@ uniqueBase GameScene::Update(uniqueBase own, const Time& now)
 	
 	auto check = std::count_if(objList_.begin(), objList_.end(), [](shared_Obj objA) {return objA->Alive(); });
 
-	if (lpNetWork.GetRoundEnd() && check <= 1)
+	if (mapMng_->GetFlameEnd() && check <= 1)
 	{
+		for (const auto& obj : objList_)
+		{
+			if (obj->Alive())
+			{
+				dethPlayerID_.push_front(obj->GetID());
+				break;
+			}
+		}
+		
 		lpNetWork.SendResult(dethPlayerID_);
+		lpNetWork.SetPlayNow(false);
 		return std::make_unique<CheckeredBlock>(std::move(own), std::make_unique<ResultScene>());
 	}
 
@@ -135,7 +146,7 @@ void GameScene::Init(void)
 
 GameScene::GameScene()
 {
-	std::cout << "ゲームシーン" << std::endl;
+	TRACE("ゲームシーン");
 	Init();
 }
 

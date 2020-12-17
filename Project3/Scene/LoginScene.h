@@ -15,7 +15,7 @@
 enum class UPDATE_STATE
 {
 	SET_NET,				// 共用 ホストかゲストか
-	SELECT_INIT,
+	HOST_INPUT_INIT,
 	SELECT_HOST,			// ゲスト専用 前回接続者につなぐかどうか 
 	READ_HOST,				// ゲスト専用 前回接続者につなぐ
 	HOST_IP,				// ゲスト専用 IP入力待機
@@ -42,10 +42,9 @@ private:
 	std::map<UPDATE_STATE, TitleFuncT> func_;
 	// ステートパターンにぶち込まれる予定関数
 	bool HostIPInput(void);						// IPアドレスの入力
-	bool SelectInit(void);
+	bool HostInputInit(void);
 	bool SetNetWork(void);						// ホスト、ゲスト、オフラインの選択
 	bool StartInit(void);						// 初期化
-	bool SelectHost(void);						// IPアドレスを入力するか読み込むか
 	bool ReadHost(void);						// IPアドレス読み込み
 
 	// ファイル関連

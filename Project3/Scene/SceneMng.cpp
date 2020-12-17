@@ -14,7 +14,6 @@ void SceneMng::Run()
 {
 	_dbgSetup(screenX, screenY, 255);
 	activeScene_ = std::make_unique<LoginScene>();
-	activeScene_->Init();
 	befora_= std::chrono::system_clock::now();
 	while (!ProcessMessage() && !CheckHitKey(KEY_INPUT_ESCAPE))
 	{

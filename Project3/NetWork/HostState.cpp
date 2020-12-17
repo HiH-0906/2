@@ -11,7 +11,7 @@ HostState::HostState()
 	active_ = ACTIVE_STATE::WAIT;
 	startTime_ = {};
 	playerMax_ = 0;
-	std::cout << "接続待機" << std::endl;
+	TRACE("接続待機");
 }
 
 HostState::~HostState()
@@ -38,7 +38,7 @@ bool HostState::CheckNetState(void)
 		data[1].idata = time.idata[1];
 		lpNetWork.SendMes(MES_TYPE::COUNT_DOWN_ROOM, MesDataList{ data[0],data[1] }, handle);
 		playerMax_++;
-		std::cout << "ゲストの接続" << std::endl;
+		TRACE("ゲストの接続");
 	}
 	if (lost != -1)
 	{
@@ -76,7 +76,6 @@ bool HostState::CheckNetState(void)
 					data[0].idata += 5;
 				}
 				active_ = ACTIVE_STATE::INIT;
-
 			}
 			
 		}

@@ -79,7 +79,7 @@ public:
 
 	bool GetRevStanby(void);
 	bool GetStartGame(void);
-	bool GetRoundEnd(void);
+	bool GetRevResult(void);
 
 	void SaveTmx(void);
 
@@ -90,8 +90,8 @@ private:
 	bool revState_;
 	bool startGame_;
 	bool playNow_;
+	bool revResult_;
 	bool revID_;
-	bool roundEnd_;
 	MesDataList revDataList_;
 	MES_H mes_;
 	int revSize_;
@@ -141,7 +141,6 @@ private:
 	std::mutex revMtx_;
 	std::mutex handleMtx_;
 	std::mutex nowMtx_;
-	std::mutex roundMtx_;
 	std::mutex resultMtx_;
 	std::mutex revIDMtx_;
 	std::mutex objRevMtx_;

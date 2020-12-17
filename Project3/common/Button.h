@@ -14,6 +14,7 @@ enum class BTN_TYPE
 	HOST,
 	GUEST,
 	OFFLINE,
+	LAST_HOST
 };
 
 enum class BTN_STATE

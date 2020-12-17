@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <list>
 #include "Vector2.h"
 #include "Rect.h"
 
@@ -17,7 +18,7 @@ public:
 	void init(void);
 private:
 	std::string inputStr_;
-	std::vector<int> inputNum_;
+	std::list<int> inputNum_;
 	std::vector<std::pair<std::string,int>> numPadStr_;
 	Vector2 currentPos_;
 	Rect rect_;

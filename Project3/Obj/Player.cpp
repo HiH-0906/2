@@ -148,8 +148,7 @@ bool Player::UpdateAuto(const Time& now)
 		dir_ = DIR::DETH;
 		state_ = AnimState::DETH;
 		activ_ = false;
-		auto game = dynamic_cast<GameScene&>(scene_);
-		game.SetDethPlayerID(id_);
+		dynamic_cast<GameScene&>(scene_).SetDethPlayerID(id_);
 	}
 	return true;
 }
@@ -210,8 +209,7 @@ bool Player::UpdateDef(const Time& now)
 		dir_ = DIR::DETH;
 		state_ = AnimState::DETH;
 		activ_ = false;
-		auto game = dynamic_cast<GameScene&>(scene_);
-		game.SetDethPlayerID(id_);
+		dynamic_cast<GameScene&>(scene_).SetDethPlayerID(id_);
 	}
 	return true;
 }
@@ -298,13 +296,18 @@ bool Player::UpdataNet(const Time& now)
 	 }
 	animCnt_++;
 	state_ = AnimState::WALK;
-	if (isPickMesList(MES_TYPE::DETH) || isPickMesList(MES_TYPE::LOST))
+	if (isPickMesList(MES_TYPE::DETH))
 	{
 		dir_ = DIR::DETH;
 		state_ = AnimState::DETH;
 		activ_ = false;
-		auto game = dynamic_cast<GameScene&>(scene_);
-		game.SetDethPlayerID(id_);
+		dynamic_cast<GameScene&>(scene_).SetDethPlayerID(id_);
+	}
+	if (isPickMesList(MES_TYPE::LOST))
+	{
+		dir_ = DIR::DETH;
+		state_ = AnimState::DETH;
+		activ_ = false;
 	}
 	return true;
 }

@@ -34,6 +34,7 @@ public:
 	bool CheckBreakWall(const Vector2& chip);
 	bool CheckHitFlame(const Vector2& pos);
 	bool CheckCircleFlame(const Vector2 pos);
+	bool GetFlameEnd(void);
 	Vector2 ChengeChip(const Vector2& pos);				// 渡された座標をチップに
 	void SetFlameData(const Vector2& chip, FlameData data);
 	const Vector2& GetChipSize(void)const;
@@ -53,6 +54,7 @@ private:
 	std::vector<FlameData> flameData_;						// 爆風マップデータ
 	std::list<shared_gene> geneList_;
 	Time oldTime_;
+	bool flameEnd_;
 	mapInfo info_;
 };
 

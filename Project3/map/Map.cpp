@@ -10,6 +10,7 @@
 
 Map::Map()
 {
+	flameEnd_ = false;
 }
 
 Map::~Map()
@@ -143,6 +144,11 @@ bool Map::CheckCircleFlame(const Vector2 pos)
 	return true;
 }
 
+bool Map::GetFlameEnd(void)
+{
+	return flameEnd_;
+}
+
 Vector2 Map::ChengeChip(const Vector2& pos)
 {
 	Vector2 chip = { pos.x / info_.chipSize.x,pos.y / info_.chipSize.y };
@@ -172,6 +178,7 @@ const std::vector<FlameData>& Map::GetFlameData(void) const
 
 void Map::DrawFlame(void)
 {
+	int cnt = 0;
 	for (size_t y = 0; y < info_.mapSize.y; y++)
 	{
 		for (size_t x = 0; x < info_.mapSize.x; x++)
@@ -235,17 +242,32 @@ void Map::DrawFlame(void)
 				}
 				DrawRotaGraph(x * info_.chipSize.x + (info_.chipSize.x / 2), y * info_.chipSize.y + (info_.chipSize.y / 2), 1.0, angle, lpImageMng.GetID("fire")[frame + offset], true);
 			}
+			else
+			{
+				cnt++;
+			}
 		}
 	}
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 200);
+	if (cnt == flameData_.size())
+	{
+		flameEnd_ = true;
+	}
+	else
+	{
+		flameEnd_ = false;
+	}
 }
 
 void Map::ResrtOfMap(void)
 {
+	flameEnd_ = false;
 	mapData_.clear();
 	drawLayer_.clear();
 	mapKey_.clear();
 	flameData_.clear();
+	geneList_.clear();
+	flameEnd_ = false;
 	info_ = {};
 }
 

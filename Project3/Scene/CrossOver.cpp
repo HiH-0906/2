@@ -2,6 +2,7 @@
 #include <DxLib.h>
 #include "CrossOver.h"
 #include "SceneMng.h"
+#include "../_debug/_DebugConOut.h"
 
 CrossOver::CrossOver(uniqueBase old, uniqueBase next)
 {
@@ -10,7 +11,7 @@ CrossOver::CrossOver(uniqueBase old, uniqueBase next)
 	nextScene_ = std::move(next);
 	auto size = lpSceneMng.GetScreenSize();
 	drawScreen_ = MakeScreen(size.x, size.y, true);
-	std::cout << "クロスオーバー" << std::endl;
+	TRACE("クロスオーバー" );
 }
 
 CrossOver::~CrossOver()

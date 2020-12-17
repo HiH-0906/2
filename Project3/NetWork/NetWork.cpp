@@ -141,16 +141,13 @@ bool NetWork::SetNetWorkMode(NetWorkMode mode)
 	{
 	case NetWorkMode::OFFLINE:
 		state_ = std::make_unique<NetWorkState>();
-		roundEnd_ = true;
 		break;
 	case NetWorkMode::HOST:
 		state_ = std::make_unique<HostState>();
-		roundEnd_ = true;
 		RunUpdate();
 		break;
 	case NetWorkMode::GEST:
 		state_ = std::make_unique<GestState>();
-		roundEnd_ = false;
 		RunUpdate();
 		break;
 	case NetWorkMode::MAX:
@@ -230,10 +227,12 @@ void NetWork::SendResult(std::list<int>& data)
 	{
 		return;
 	}
+	if (state_->GetMode() == NetWorkMode::GEST)
+	{
+		return;
+	}
 	if (state_->GetMode() == NetWorkMode::HOST)
 	{
-		roundEnd_ = true;
-
 		sendData send[5] = {};
 
 		int i = 0; 
@@ -412,7 +411,7 @@ bool NetWork::SendTmxData(std::string filename)
 	// 横縦レイヤーリザーブ
 	SendMesAll(MES_TYPE::TMX_DATA, std::move(sendMes));
 
-	std::cout << id << std::endl;
+	TRACE("%d\n",id);
 	return true;
 }
 
@@ -447,7 +446,7 @@ const std::chrono::system_clock::time_point NetWork::GetCountDownGameTime(void) 
 
 const int NetWork::GetStanbyPlayerNum(void) const
 {
-	return std::count_if(handleList_.begin(), handleList_.end(), [](HANDLE_DATA handle) {return handle.state == 1; });
+	return static_cast<int>(std::count_if(handleList_.begin(), handleList_.end(), [](HANDLE_DATA handle) {return handle.state == 1; }));
 }
 
 const int NetWork::GetID(void) const
@@ -477,7 +476,10 @@ const std::list<int>& NetWork::GetResult(void)
 void NetWork::SetResult(const std::list<int>& resultData)
 {
 	std::lock_guard<std::mutex> lock(resultMtx_);
-	resultData_ = resultData;
+	if (!revResult_)
+	{
+		resultData_ = resultData;
+	}
 }
 
 
@@ -522,20 +524,20 @@ void NetWork::SaveTmx(void)
 						TRACE("送られてきたTMXの値が%dだったので0に補正\n", num);
 						num = 0;
 					}
-					std::cout << num;
+					TRACE("%d", num);
 					file << num;
 					cnt++;
 					if (cnt % CSV_WIDTH != 0)
 					{
 						file << ",";
-						std::cout << ",";
+						TRACE(",");
 					}
 					else
 					{
 						if (cnt % CSV_SIZE == 0)
 						{
 							file << std::endl;
-							std::cout << std::endl;
+							TRACE("\n");
 							if (writTmxTmp())
 							{
 								return;
@@ -544,8 +546,7 @@ void NetWork::SaveTmx(void)
 						else
 						{
 							file << ",";
-							std::cout << ",";
-							std::cout << std::endl;
+							TRACE(",\n");
 							file << std::endl;
 						}
 					}
@@ -557,9 +558,12 @@ void NetWork::SaveTmx(void)
 
 void NetWork::EndOfNetWork(void)
 {	
-	for (const auto& handdle: state_->GetNetHandle())
+	if (state_)
 	{
-		CloseNetWork(handdle.handle);
+		for (const auto& handdle : state_->GetNetHandle())
+		{
+			CloseNetWork(handdle.handle);
+		}
 	}
 	state_ = nullptr;
 	{
@@ -569,10 +573,6 @@ void NetWork::EndOfNetWork(void)
 	{
 		std::lock_guard<std::mutex> lock(revIDMtx_);
 		revID_ = false;
-	}
-	{
-		std::lock_guard<std::mutex>lock(roundMtx_);
-		roundEnd_ = false;
 	}
 	{
 		std::lock_guard< std::mutex> lock(revMtx_);
@@ -588,6 +588,7 @@ void NetWork::EndOfNetWork(void)
 	}
 	{
 		std::lock_guard<std::mutex> lock(resultMtx_);
+		revResult_ = false;
 		resultData_.clear();
 	}
 	{
@@ -608,12 +609,9 @@ bool NetWork::GetStartGame(void)
 	return startGame_;
 }
 
-bool NetWork::GetRoundEnd(void)
+bool NetWork::GetRevResult(void)
 {
-	{
-		std::lock_guard<std::mutex> lock(roundMtx_);
-		return roundEnd_;
-	}
+	return revResult_;
 }
 
 
@@ -698,11 +696,10 @@ void NetWork::RevStanbyHost(HandleList::iterator& itr)
 	}
 	if (mes_.length != 0)
 	{
-		std::cout << "スタンバイにデータ部があります" << std::endl;
+		TRACE("スタンバイにデータ部があります");
 	}
 	revState_ = true;
-	std::cout << "スタンバイMES受信" << std::endl;
-	std::cout << "受信時間" << std::chrono::duration_cast<std::chrono::milliseconds>(end_ - strat_).count() << std::endl;
+	TRACE("スタンバイMES受信");
 }
 
 void NetWork::RevCountDownGame(HandleList::iterator& itr)
@@ -740,7 +737,7 @@ void NetWork::RevStanbyGuest(HandleList::iterator& itr)
 	}
 	if (mes_.length != 0)
 	{
-		std::cout << "ゲームスタートにデータ部があります" << std::endl;
+		TRACE("ゲームスタートにデータ部があります");
 	}
 	itr->state = 1;
 }
@@ -880,10 +877,7 @@ void NetWork::RevResultData(HandleList::iterator& itr)
 			resultData_.push_back(data.idata);
 			cnt++;
 		}
-	}
-	{
-		std::lock_guard<std::mutex> lock(roundMtx_);
-		roundEnd_ = true;
+		revResult_ = true;
 	}
 	TRACE("ResultDataの受信");
 }
@@ -910,8 +904,8 @@ NetWork::NetWork()
 	state_ = nullptr;
 	startGame_ = false;
 	revState_ = false;
+	revResult_ = false;
 	revID_ = false;
-	roundEnd_ = false;
 	revFunc_[0] = nullptr;
 	revFunc_[1] = (std::bind(&NetWork::RevCountDownRoom, this, std::placeholders::_1));
 	revFunc_[2] = (std::bind(&NetWork::RevID, this, std::placeholders::_1));

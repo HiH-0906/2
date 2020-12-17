@@ -19,7 +19,7 @@ bool GestState::ConnectHost(IPDATA hostIP)
 	{
 		netHandleList_.push_back({ handle, 0 });
 		active_ = ACTIVE_STATE::INIT;
-		std::cout << "‰Šú‰»‚µ‚½‚¢" << std::endl;
+		TRACE("‰Šú‰»‚µ‚½‚¢");
 		return true;
 	}
 	return false;

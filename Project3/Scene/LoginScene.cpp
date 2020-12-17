@@ -105,10 +105,6 @@ void LoginScene::DrawOwnScene(void)
 			}
 			DrawFormatString(300, 500, 0xffffff, "開始まであと：%d秒", cnt / 1000);
 		}
-		else
-		{
-			DrawFormatString(300, 500, 0xffffff, "待機中");
-		}
 	}
 	DrawQue_.clear();
 }
@@ -118,9 +114,8 @@ void LoginScene::FuncInit(void)
 	func_.try_emplace(UPDATE_STATE::SET_NET, &LoginScene::SetNetWork);
 	func_.try_emplace(UPDATE_STATE::HOST_IP, &LoginScene::HostIPInput);
 	func_.try_emplace(UPDATE_STATE::START_INIT, &LoginScene::StartInit);
-	func_.try_emplace(UPDATE_STATE::SELECT_HOST, &LoginScene::SelectHost);
 	func_.try_emplace(UPDATE_STATE::READ_HOST, &LoginScene::ReadHost);
-	func_.try_emplace(UPDATE_STATE::SELECT_INIT, &LoginScene::SelectInit);
+	func_.try_emplace(UPDATE_STATE::HOST_INPUT_INIT, &LoginScene::HostInputInit);
 }
 
 void LoginScene::ButtonInit(void)
@@ -138,7 +133,7 @@ void LoginScene::ButtonInit(void)
 		std::make_unique<Button>(Rect{ 268,200,264,90 },
 			[&]() {
 					lpNetWork.SetNetWorkMode(NetWorkMode::GEST);
-					state_ = UPDATE_STATE::SELECT_INIT;
+					state_ = UPDATE_STATE::HOST_INPUT_INIT;
 					return true;
 				},
 			BTN_TYPE::GUEST, *this)
@@ -151,12 +146,22 @@ void LoginScene::ButtonInit(void)
 				},
 			BTN_TYPE::OFFLINE, *this)
 	);
+	if (ReadFile())
+	{
+		btn_.emplace_back(
+			std::make_unique<Button>(Rect{ 268,400,264,90 },
+				[&]() {
+			lpNetWork.SetNetWorkMode(NetWorkMode::GEST);
+			state_ = UPDATE_STATE::READ_HOST;
+			return true;
+		},
+				BTN_TYPE::LAST_HOST, *this)
+			);
+	}
 }
 
 void LoginScene::ImageInit(void)
 {
-	lpImageMng.GetID("IPBG", "Image/IPBG.png");
-
 	lpImageMng.GetID("HBtn", "Image/btn/Hbtn.png");
 	lpImageMng.GetID("HBtnR", "Image/btn/Hbtn_ride.png");
 	lpImageMng.GetID("HBtnD", "Image/btn/Hbtn_push.png");
@@ -168,6 +173,10 @@ void LoginScene::ImageInit(void)
 	lpImageMng.GetID("OBtn", "Image/btn/Obtn.png");
 	lpImageMng.GetID("OBtnR", "Image/btn/Obtn_ride.png");
 	lpImageMng.GetID("OBtnD", "Image/btn/Obtn_push.png");
+
+	lpImageMng.GetID("LBtn", "Image/btn/btn.png");
+	lpImageMng.GetID("LBtnR", "Image/btn/btn_ride.png");
+	lpImageMng.GetID("LBtnD", "Image/btn/btn_push.png");
 }
 
 // ゲスト専用 ホストのIPアドレス入力させる関数 入力されたホストのIPアドレスで接続できない場合再入力
@@ -199,7 +208,7 @@ bool LoginScene::HostIPInput(void)
 
 	if (!lpNetWork.ConnectHost(ipData_))
 	{
-		std::cout << "ホストに接続できませんでした。もう一度入力してください。" << std::endl;
+		TRACE("ホストに接続できませんでした。もう一度入力してください。");
 		numPad_->init();
 		return true;
 	}
@@ -210,17 +219,11 @@ bool LoginScene::HostIPInput(void)
 	return true;
 }
 
-bool LoginScene::SelectInit(void)
+bool LoginScene::HostInputInit(void)
 {
 	btn_.clear();
-	numPad_ = std::make_unique<NumPad>(Vector2{ 400, 400 },*this);
-	if (!ReadFile())
-	{
-		std::cout << "ファイルを読み込めませんでした。入力へ移行します。" << std::endl;
-		state_ = UPDATE_STATE::HOST_IP;
-		return true;
-	}
-	state_ = UPDATE_STATE::SELECT_HOST;
+	numPad_ = std::make_unique<NumPad>(Vector2{ 350, 400 }, *this);
+	state_ = UPDATE_STATE::HOST_IP;
 	return true;
 }
 
@@ -235,6 +238,19 @@ bool LoginScene::SetNetWork(void)
 	{
 		flag &= btn->Update(tst, trgnow);
 	}
+	Vector2 pos(180, 500);
+	std::vector<int> ipInt;
+	if (ipData_.d1 != 0)
+	{
+		ChengeIPDATAToIntVector(ipData_.d1, ipInt);
+		IPDraw(ipInt, pos, 0.5, true);
+		ChengeIPDATAToIntVector(ipData_.d2, ipInt);
+		IPDraw(ipInt, pos, 0.5, true);
+		ChengeIPDATAToIntVector(ipData_.d3, ipInt);
+		IPDraw(ipInt, pos, 0.5, true);
+		ChengeIPDATAToIntVector(ipData_.d4, ipInt);
+		IPDraw(ipInt, pos, 0.5, false);
+	}
 	return flag;
 }
 
@@ -246,7 +262,6 @@ bool LoginScene::StartInit(void)
 	{
 		std::vector<int> ipInt;
 		Vector2 pos(150, 150);
-		DrawQue_.emplace_back(DrawQue{ pos ,{500,45}, 1.0,0,lpImageMng.GetID("IPBG")[0],0 });
 		auto ipVec = lpNetWork.GetIP();
 		for (auto& ip : ipVec)
 		{
@@ -259,8 +274,10 @@ bool LoginScene::StartInit(void)
 				ChengeIPDATAToIntVector(ip.d3, ipInt);
 				IPDraw(ipInt, pos, 1.0, true);
 				ChengeIPDATAToIntVector(ip.d4, ipInt);
-				IPDraw(ipInt, pos, 1.0, true);
+				IPDraw(ipInt, pos, 1.0, false);
 			}
+			pos.x = 150;
+			pos.y += 60;
 		}
 		if (lpNetWork.GetActive() == ACTIVE_STATE::INIT)
 		{
@@ -286,7 +303,7 @@ bool LoginScene::StartInit(void)
 		}
 		if (lpNetWork.GetActive() == ACTIVE_STATE::STANBY && lpNetWork.GetStanbyPlayerNum() != 0)
 		{
-			std::cout << "開始" << std::endl;
+			TRACE("開始");
 			lpNetWork.SetStartGame(true);
 			return false;
 		}
@@ -298,52 +315,9 @@ bool LoginScene::StartInit(void)
 		{
 			MesDataList data;
 			lpNetWork.SendMes(MES_TYPE::STANBY_GUEST, data);
-			std::cout << "開始" << std::endl;
+			TRACE("開始" );
 			return false;
 		}
-	}
-	return true;
-}
-
-// ゲスト専用 前回入力したホストに接続するか新たに入力するかの選択
-bool LoginScene::SelectHost(void)
-{
-	std::vector<int> ipInt;
-	Vector2 pos(150, 0);
-	if (ipData_.d1 != 0)
-	{
-		ChengeIPDATAToIntVector(ipData_.d1, ipInt);
-		IPDraw(ipInt, pos, 1.0, true);
-		ChengeIPDATAToIntVector(ipData_.d2, ipInt);
-		IPDraw(ipInt, pos, 1.0, true);
-		ChengeIPDATAToIntVector(ipData_.d3, ipInt);
-		IPDraw(ipInt, pos, 1.0, true);
-		ChengeIPDATAToIntVector(ipData_.d4, ipInt);
-		IPDraw(ipInt, pos, 1.0, false);
-	}
-	int select = 0;
-	int x, y;
-	GetMousePoint(&x, &y);
-	Vector2 tst(x, y);
-	if (!numPad_->UpDate(tst, ((!trgold) && trgnow)))
-	{
-		return true;
-	}
-	auto str = numPad_->GetInputStr();
-	select = atoi(str.c_str());
-	if (select == 1)
-	{
-		state_ = UPDATE_STATE::READ_HOST;
-	}
-	else if (select == 2)
-	{
-		state_ = UPDATE_STATE::HOST_IP;
-		numPad_->init();
-	}
-	else
-	{
-		std::cout << "1または2を入力してください" << std::endl;
-		numPad_->init();
 	}
 	return true;
 }
@@ -353,13 +327,13 @@ bool LoginScene::ReadHost(void)
 {
 	if (lpNetWork.ConnectHost(ipData_))
 	{
-		std::cout << "接続完了。" << std::endl;
+		TRACE("接続完了。");
 		state_ = UPDATE_STATE::START_INIT;
 	}
 	else
 	{
-		std::cout << "前回ホストへ接続できませんでした。入力へ移行します。" << std::endl;
-		state_ = UPDATE_STATE::HOST_IP;
+		TRACE("前回ホストへ接続できませんでした。入力へ移行します。");
+		state_ = UPDATE_STATE::HOST_INPUT_INIT;
 	}
 	return true;
 }
@@ -372,22 +346,8 @@ bool LoginScene::ReadFile(void)
 	{
 		return false;
 	}
-	std::vector<int> ipInt;
-	Vector2 pos(150, 150);
 
 	file.read((char*)&ipData_, sizeof(ipData_));
-
-	if (ipData_.d1 != 0)
-	{
-		ChengeIPDATAToIntVector(ipData_.d1, ipInt);
-		IPDraw(ipInt, pos, 1.0, true);
-		ChengeIPDATAToIntVector(ipData_.d2, ipInt);
-		IPDraw(ipInt, pos, 1.0, true);
-		ChengeIPDATAToIntVector(ipData_.d3, ipInt);
-		IPDraw(ipInt, pos, 1.0, true);
-		ChengeIPDATAToIntVector(ipData_.d4, ipInt);
-		IPDraw(ipInt, pos, 1.0, false);
-	}
 	TRACE("読み込まれたIPアドレスは%d.%d.%d.%dです\n", ipData_.d1, ipData_.d2, ipData_.d3, ipData_.d4);
 	file.close();
 	return true;

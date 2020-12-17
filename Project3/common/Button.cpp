@@ -66,4 +66,9 @@ void Button::StrInit(void)
 	iniTmp.try_emplace(BTN_STATE::PUSH, "OBtnD");
 	strmap_.try_emplace(BTN_TYPE::OFFLINE, iniTmp);
 	iniTmp.clear();
+	iniTmp.try_emplace(BTN_STATE::NON, "LBtn");
+	iniTmp.try_emplace(BTN_STATE::RIDE, "LBtnR");
+	iniTmp.try_emplace(BTN_STATE::PUSH, "LBtnD");
+	strmap_.try_emplace(BTN_TYPE::LAST_HOST, iniTmp);
+	iniTmp.clear();
 }
