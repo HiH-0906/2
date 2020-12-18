@@ -227,10 +227,6 @@ void NetWork::SendResult(std::list<int>& data)
 	{
 		return;
 	}
-	if (state_->GetMode() == NetWorkMode::GEST)
-	{
-		return;
-	}
 	if (state_->GetMode() == NetWorkMode::HOST)
 	{
 		sendData send[5] = {};
@@ -752,8 +748,14 @@ void NetWork::RevTmxSize(HandleList::iterator& itr)
 			return;
 		}
 	}
+	if (revDataList_[0].cdata[2] != 4)
+	{
+		TRACE("TmxSizeRayerデータ異常：%d\n", revDataList_[0].cdata[2]);
+		return;
+	}
 	revSize_ = (revDataList_[0].cdata[0] * revDataList_[0].cdata[1] * revDataList_[0].cdata[2]) / 8;
 	TRACE("TMXのデータｻｲｽﾞは%dです。\n", revSize_);
+	checkData_[MES_TYPE::TMX_DATA] = revSize_;
 	strat_ = std::chrono::system_clock::now();
 }
 
@@ -818,16 +820,16 @@ void NetWork::RevSetBombData(HandleList::iterator& itr)
 		{
 			if ((revDataList_[0].uidata) != itr->id && state_->GetMode() == NetWorkMode::HOST)
 			{
-				TRACE("他人のIDのBombMes ID：%d\n", (revDataList_[0].uidata));
+				TRACE("他人のIDのBombMes ID：%d\n", (tmpID));
 				return;
 			}
 			std::lock_guard<std::mutex> lock2(objRevMap_[tmpID].first);
 			objRevMap_[tmpID].second.emplace_back(mes_, revDataList_);
-			TRACE("BombRev ID：%d\n", tmpID);
+			TRACE("BombRev ID：%d\n", revDataList_[0].uidata);
 		}
 		else
 		{
-			TRACE("BombRev時ID異常 ID：%d\n", tmpID);
+			TRACE("BombRev時ID異常 ID：%d\n", revDataList_[0].uidata);
 		}
 	}
 }
@@ -866,20 +868,24 @@ void NetWork::RevResultData(HandleList::iterator& itr)
 {
 	{
 		std::lock_guard<std::mutex> lock(resultMtx_);
-		if (revDataList_.size() != 5)
-		{
-			TRACE("ResultDataのSizeエラー：%zd", revDataList_.size());
-			return;
-		}
 		int cnt = 0;
 		for (auto data : revDataList_)
 		{
+			if (data.idata % UNIT_ID_BASE != 0 && data.idata != -1)
+			{
+				TRACE("ResultMesデータ異常：%d\n", data.idata);
+				cnt++;
+				continue;
+			}
 			resultData_.push_back(data.idata);
-			cnt++;
+		}
+		for (int i = 0; i < cnt; i++)
+		{
+			resultData_.emplace_back(-1);
 		}
 		revResult_ = true;
 	}
-	TRACE("ResultDataの受信");
+	TRACE("ResultDataの受信\n");
 }
 
 void NetWork::RevLostData(HandleList::iterator& itr)
@@ -906,6 +912,7 @@ NetWork::NetWork()
 	revState_ = false;
 	revResult_ = false;
 	revID_ = false;
+	// 高速化の代償 わかりずらくなった
 	revFunc_[0] = nullptr;
 	revFunc_[1] = (std::bind(&NetWork::RevCountDownRoom, this, std::placeholders::_1));
 	revFunc_[2] = (std::bind(&NetWork::RevID, this, std::placeholders::_1));
@@ -921,12 +928,15 @@ NetWork::NetWork()
 	revFunc_[12] = (std::bind(&NetWork::RevLostData, this, std::placeholders::_1));
 
 	mes_ = {};
-	revDataList_.reserve(180);
+	// 高速化のためのメモリ再配置防止用 最大179個データが飛んでくるはずなので余裕をもって200
+	revDataList_.reserve(200);
+
 	std::ifstream inistr("ini/setting.txt");
  	std::string str;
 	if (!inistr)
 	{
 		TRACE("Init用ファイルが読み込めません");
+		// 値はこんなもんかなって
 		oneSendLength_ = 500;
 		return;
 	}
@@ -945,6 +955,8 @@ NetWork::NetWork()
 	} while (!inistr.eof());
 	oneSendLength_ /= sizeof(sendData);
 
+	// このデータサイズで送られてくるはず
+	// なおTMX_DATAのみ受信したTMX_SIZEにより変わる
 	checkData_.try_emplace(MES_TYPE::NON, 0);
 	checkData_.try_emplace(MES_TYPE::COUNT_DOWN_GAME, 2);
 	checkData_.try_emplace(MES_TYPE::COUNT_DOWN_ROOM, 2);
@@ -965,6 +977,7 @@ NetWork::~NetWork()
 {
 	if (update_.joinable())
 	{
+		// 終了待機
 		update_.join();
 	}
 }

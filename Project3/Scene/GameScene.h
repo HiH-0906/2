@@ -4,6 +4,7 @@
 #include <functional>
 #include <list>
 #include "BaseScene.h"
+#include "../NetWork/NetWork.h"
 #include "../map/Map.h"
 
 
@@ -42,6 +43,7 @@ public:
 	void initFunc(void);
 private:
 	std::list<shared_Obj> objList_;			// ObjŠÇ—ƒŠƒXƒg
+	std::map<NetWorkMode,std::function<bool(void)>> CheckGameEnd_;
 	std::list<int> dethPlayerID_;
 	std::shared_ptr<Map> mapMng_;
 	std::map<GameState,std::function<void(void)>> cntDownFunc_;

@@ -15,6 +15,7 @@ Map::Map()
 
 Map::~Map()
 {
+	mapData_.clear();
 }
 
 bool Map::Update(const Time& now)
@@ -44,7 +45,7 @@ bool Map::Update(const Time& now)
 bool Map::LoadMap(std::string str)
 {
 	// mapDataì«Ç›çûÇ›
-	Loader::TmxLoader* loadr = new Loader::TmxLoader(str.c_str());
+	std::unique_ptr<Loader::TmxLoader> loadr = std::make_unique<Loader::TmxLoader>(str.c_str());
 
 	info_ = loadr->GetMapInfo();
 	int id = 0;
@@ -83,7 +84,6 @@ bool Map::LoadMap(std::string str)
 		}
 	}
 	flameData_.resize(static_cast<size_t>(info_.mapSize.x) * info_.mapSize.y);
-	delete loadr;
 	return true;
 }
 
@@ -210,12 +210,12 @@ void Map::DrawFlame(void)
 						{
 							offset = 2;
 						}
-							
+
 					}
 					if (data.length_.fLength.down)
 					{
 						angle = RightAngle;
-						if(CheckCircleFlame(Vector2(x , y + 1)) || data.length_.fLength.down == 1)
+						if (CheckCircleFlame(Vector2(x, y + 1)) || data.length_.fLength.down == 1)
 						{
 							offset = 2;
 						}
@@ -257,18 +257,6 @@ void Map::DrawFlame(void)
 	{
 		flameEnd_ = false;
 	}
-}
-
-void Map::ResrtOfMap(void)
-{
-	flameEnd_ = false;
-	mapData_.clear();
-	drawLayer_.clear();
-	mapKey_.clear();
-	flameData_.clear();
-	geneList_.clear();
-	flameEnd_ = false;
-	info_ = {};
 }
 
 void Map::GeneratoFlame(const Vector2& pos, int length,Time now)

@@ -19,7 +19,7 @@ void SceneMng::Run()
 	{
 		now_ = std::chrono::system_clock::now();
 		_dbgStartDraw();
-		auto daluta = std::chrono::duration_cast<std::chrono::milliseconds>(now_ - befora_).count();
+		/*auto daluta = std::chrono::duration_cast<std::chrono::milliseconds>(now_ - befora_).count();*/
 
 		activeScene_ = (*activeScene_).Update(std::move(activeScene_), now_);
 		Draw();

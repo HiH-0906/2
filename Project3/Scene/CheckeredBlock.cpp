@@ -12,12 +12,12 @@ CheckeredBlock::CheckeredBlock(uniqueBase old, uniqueBase next)
 	oldImage_ = MakeScreen(screensize.x, screensize.y, true);
 	SetDrawScreen(oldImage_);
 	oldScene_->Draw();
-	MakeBlockImage(oldImage_,false,oldBlockList_);
+	MakeBlockImage(oldImage_,oldBlockList_);
 	nextImage_ = MakeScreen(screensize.x, screensize.y, true);
 	SetDrawScreen(nextImage_);
 	nextScene_->Draw();
 	drawScreen_ = MakeScreen(screensize.x, screensize.y, true);
-	MakeBlockImage(nextImage_,true,nextBlockList_);
+	MakeBlockImage(nextImage_,nextBlockList_);
 	DrawOwnScene();
 }
 
@@ -71,7 +71,7 @@ void CheckeredBlock::DrawOwnScene(void)
 	}
 }
 
-void CheckeredBlock::MakeBlockImage(const int& image, bool next,std::vector<int>& list)
+void CheckeredBlock::MakeBlockImage(const int& image,std::vector<int>& list)
 {
 	auto size = lpSceneMng.GetScreenSize() / divCnt_;
 	Vector2 pos = {};

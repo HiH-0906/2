@@ -43,7 +43,7 @@ bool Loader::TmxLoader::TmxLoad(std::string filename)
 		TRACE("対応バージョンは");
 		for (auto ver:version_)
 		{
-			TRACE("[%d]", ver.first);
+			TRACE(ver.first.c_str());
 		}
 		TRACE("です");
 		return false;
@@ -97,7 +97,7 @@ bool Loader::TmxLoader::TsxLoad(std::string filename)
 		TRACE("対応バージョンは");
 		for (auto ver : version_)
 		{
-			TRACE("[%d]", ver.first);
+			TRACE(ver.first.c_str());
 		}
 		TRACE("です");
 		return false;

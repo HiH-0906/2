@@ -41,7 +41,6 @@ public:
 	const Vector2& GetMapSize(void)const;
 	const std::vector<FlameData>& GetFlameData(void)const;
 	void DrawFlame(void);
-	void ResrtOfMap(void);
 	/// <summary>
 	/// ˆø”‚ÌÀ•WˆÊ’u‚É‰Š‚ğ¶¬‚·‚éGenerator‚ğİ’u
 	/// </summary>

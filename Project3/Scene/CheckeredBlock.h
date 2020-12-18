@@ -20,7 +20,7 @@ public:
     void Init(void)override;
     void DrawOwnScene(void)override;
 private:
-    void MakeBlockImage(const int& image,bool next, std::vector<int>& list);
+    void MakeBlockImage(const int& image, std::vector<int>& list);
 
     int cnt_;
     int nextImage_;

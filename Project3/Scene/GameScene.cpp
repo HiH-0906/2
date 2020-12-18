@@ -16,22 +16,34 @@
 uniqueBase GameScene::Update(uniqueBase own, const Time& now)
 {
 	
-	auto check = std::count_if(objList_.begin(), objList_.end(), [](shared_Obj objA) {return objA->Alive(); });
+	int check = INT_MAX;
+	if (lpNetWork.GetMode() != NetWorkMode::OFFLINE)
+	{
+		check = std::count_if(objList_.begin(), objList_.end(), [](shared_Obj objA) {return objA->Alive(); });
+	}
+	else
+	{
+		if (!objList_.front()->Alive())
+		{
+			check = 1;
+		}
+		else
+		{
+			check = std::count_if(objList_.begin(), objList_.end(), [](shared_Obj objA) {return objA->Alive(); });
+		}
+	}
 
 	if (mapMng_->GetFlameEnd() && check <= 1)
 	{
-		for (const auto& obj : objList_)
-		{
-			if (obj->Alive())
-			{
-				dethPlayerID_.push_front(obj->GetID());
-				break;
-			}
-		}
-		
-		lpNetWork.SendResult(dethPlayerID_);
 		lpNetWork.SetPlayNow(false);
-		return std::make_unique<CheckeredBlock>(std::move(own), std::make_unique<ResultScene>());
+		if (CheckGameEnd_[lpNetWork.GetMode()]())
+		{
+			return std::make_unique<CheckeredBlock>(std::move(own), std::make_unique<ResultScene>());
+		}
+		else
+		{
+			return std::move(own);
+		}
 	}
 
 	objList_.sort([](shared_Obj objA, shared_Obj objB)
@@ -146,7 +158,7 @@ void GameScene::Init(void)
 
 GameScene::GameScene()
 {
-	TRACE("ゲームシーン");
+	TRACE("ゲームシーン\n");
 	Init();
 }
 
@@ -233,5 +245,59 @@ void GameScene::initFunc(void)
 	cntDownFunc_.try_emplace(GameState::PLAY, [&]()
 	{
 
+
+	});
+
+	CheckGameEnd_.try_emplace(NetWorkMode::NON, [&]()
+	{
+		// ここに入ってくるのは切断時なのでとりあえず表示用のデータ作成
+		// 今までの奴は破棄 全部ハイフン
+		dethPlayerID_.clear();
+		for (int i = 0; i < 5; i++)
+		{
+			dethPlayerID_.push_back(-1);
+		}
+		lpNetWork.SendResult(dethPlayerID_);
+		return true;
+	});
+	CheckGameEnd_.try_emplace(NetWorkMode::GEST, [&]()
+	{
+		if (lpNetWork.GetResult().size() == 0)
+		{
+			TRACE("MESマダー\n");
+			return false;
+		}
+		return true;
+	});
+	CheckGameEnd_.try_emplace(NetWorkMode::HOST, [&]()
+	{
+		for (const auto& obj : objList_)
+		{
+			if (obj->Alive())
+			{
+				dethPlayerID_.push_front(obj->GetID());
+				break;
+			}
+		}
+		lpNetWork.SendResult(dethPlayerID_);
+		return true;
+	});
+	CheckGameEnd_.try_emplace(NetWorkMode::OFFLINE, [&]()
+	{
+		// 自分がAUTOより先に死んだ場合用の生きてるやつ追加 IDが一番大きいやつが1位になる模様
+		for (const auto& obj : objList_)
+		{
+			if (obj->Alive())
+			{
+				dethPlayerID_.push_front(obj->GetID());
+			}
+		}
+		lpNetWork.SendResult(dethPlayerID_);
+		return true;
+	});
+
+	CheckGameEnd_.try_emplace(NetWorkMode::MAX, [&]()
+	{
+		return true;
 	});
 }

@@ -116,10 +116,12 @@ private:
 	// ネットワーク関係本体
 	std::unique_ptr<NetWorkState> state_;
 
-	// レシーブ部メンバ関数ポインタ
+	// レシーブ部メンバ関数ポインタ 高速化する際arrayにしたが追加がめんどくさい
 	using RevFunc = std::function<void(HandleList::iterator& itr)>;
 	std::array<RevFunc, REV_FUNC_SIZE > revFunc_;
 
+	// レシーブ部メンバ関数
+	// 各関数には担当するMES_TYPEに対するガードを入れる
 	void RevCountDownRoom(HandleList::iterator& itr);
 	void RevID(HandleList::iterator& itr);
 	void RevStanbyHost(HandleList::iterator& itr);
@@ -133,10 +135,13 @@ private:
 	void RevResultData(HandleList::iterator& itr);
 	void RevLostData(HandleList::iterator& itr);
 
+	// 受信時間計測用 Debugでしか表示してないのでいらないかもしれない
 	std::chrono::system_clock::time_point strat_;
 	std::chrono::system_clock::time_point end_;
 
+	// 高速化のためのthread 直接これに対して構築するのではなくRunUpdateを呼ぶ
 	std::thread update_;
+	// mutex類 いい感じの管理方法募集中
 	std::mutex stMtx_;
 	std::mutex revMtx_;
 	std::mutex handleMtx_;
@@ -144,11 +149,14 @@ private:
 	std::mutex resultMtx_;
 	std::mutex revIDMtx_;
 	std::mutex objRevMtx_;
+
 	// 各オブジェが持つ受信データ格納先への参照
 	ObjRevMap objRevMap_;
 
+	// 飛んできたdataに対してそのMES_TYPEで想定されているサイズ分dataが存在しているかの確認用
 	std::map<MES_TYPE, int> checkData_;
 
+	// result表示用データ格納先
 	std::list<int> resultData_;
 
 	NetWork();

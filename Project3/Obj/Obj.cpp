@@ -85,7 +85,7 @@ RevDataP Obj::PickUpMes(MES_TYPE type)
 		cnt++;
 	}
 	
-	return PickMes;
+	return std::move(PickMes);
 }
 
 bool Obj::CheckHitWall(DIR dir)

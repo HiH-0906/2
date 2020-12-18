@@ -62,7 +62,6 @@ Player::Player(Vector2 pos, Vector2 size,Vector2 ImageSize, int speed,int id, st
 			Update_ = std::bind(&Player::UpdataNet, this, std::placeholders::_1);
 		}
 	}
-	revList_.reserve(100);
 
 	speedVec_.try_emplace(DIR::DOWN, Vector2{ 0,speed });
 	speedVec_.try_emplace(DIR::UP, Vector2{ 0,-speed });
@@ -216,6 +215,20 @@ bool Player::UpdateDef(const Time& now)
 
 bool Player::UpdataNet(const Time& now)
 {
+	auto CheckObjPos = [](const Vector2& objPos, const Vector2& mesPos)
+	{
+		for (int x = -1; x < 2; x++)
+		{
+			for (int y = -1; y < 2; y++)
+			{
+				if (Vector2{ objPos.x + x,objPos.y + y } == mesPos)
+				{
+					return true;
+				}
+			}
+		}
+		return false;
+	};
 	if (!activ_)
 	{
 		animCnt_++;
@@ -225,6 +238,7 @@ bool Player::UpdataNet(const Time& now)
 	 while (isPickMesList(MES_TYPE::POS))
 	 {
 		 auto mes = PickUpMes(MES_TYPE::POS);
+		 test = true;
 		 auto& data = mes.second;
 		 if (data[3].uidata >= 0 && data[3].uidata < static_cast<unsigned int>(DIR::MAX))
 		 {
@@ -237,31 +251,20 @@ bool Player::UpdataNet(const Time& now)
 		 auto pos = Vector2{ static_cast<int>(data[1].uidata),static_cast<int>(data[2].uidata) };
 		 if (pos >= Vector2(0, 0) && pos < lpSceneMng.GetScreenSize())
 		 {
+			 if (!CheckObjPos(mapMng_->ChengeChip(pos_), mapMng_->ChengeChip(pos)))
+			 {
+				 TRACE("Playerの移動時異常検知	ID：%d\n", id_);
+				 break;
+			 }
 			 pos_ = pos;
 		 }
 		 else
 		 {
 			 TRACE("画面外pos(%d,%d) ID:%d", pos.x, pos.y, id_);
 		 }
-		 
-		 test = true;
 	 }
 	 while (isPickMesList(MES_TYPE::SET_BOMB))
 	 {
-		 auto checkBombPos = [](const Vector2&player, const Vector2& bomb)
-		 {
-			 for (int x = -1; x < 2; x++)
-			 {
-				 for (int y = -1; y < 2; y++)
-				 {
-					 if (Vector2{ player.x + x,player.y + y } == bomb)
-					 {
-						 return true;
-					 }
-				 }
-			 }
-			 return false;
-		 };
 		 auto mes = PickUpMes(MES_TYPE::SET_BOMB);
 		 auto pos = Vector2{ mes.second[2].idata,mes.second[3].idata };
 		 unionTimeData time = { std::chrono::system_clock::now() };
@@ -280,7 +283,7 @@ bool Player::UpdataNet(const Time& now)
 			 TRACE("ボムのlength異常：%d\n", mes.second[4].idata);
 			 break;
 		 }
-		 if (!checkBombPos(mapMng_->ChengeChip(pos_), mapMng_->ChengeChip(pos)))
+		 if (!CheckObjPos(mapMng_->ChengeChip(pos_), mapMng_->ChengeChip(pos)))
 		 {
 			 TRACE("ボムがプレイヤーの周り以外から生成されようとしている	ID：%d\n", id_);
 			 //break;
