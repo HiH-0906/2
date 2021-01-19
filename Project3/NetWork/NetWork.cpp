@@ -34,6 +34,7 @@ void NetWork::UpDate(void)
 	handleList_ = state_->GetNetHandle();
 	while (!ProcessMessage() && handleList_.size())
 	{
+		
 		auto tmp = GetLostNetWork();
 		{
 			std::lock_guard<std::mutex> lock(handleMtx_);
@@ -65,30 +66,49 @@ void NetWork::UpDate(void)
 						writePos = 0;
 					}
 
+					int sendID = 0;
+
 					do
 					{
 						NetWorkRecv(handle->handle, &mes_, sizeof(MES_H));
+						if (static_cast<unsigned int>(mes_.type) < static_cast<unsigned int>(MES_TYPE::NON) ||
+							static_cast<unsigned int>(mes_.type) > static_cast<unsigned int>(MES_TYPE::MAX))
+						{
+							TRACE("送られてきたMESのTYPE異常\n");
+							continue;
+						}
 						if (mes_.length != 0)
 						{
 							revDataList_.resize(static_cast<size_t>(writePos + mes_.length));
 							NetWorkRecv(handle->handle, revDataList_.data() + writePos, static_cast<int>(mes_.length * sizeof(revDataList_[0])));
 							SendMesAll(mes_.type, revDataList_, handle->handle);
 						}
-
+						if (mes_.sendID != sendID)
+						{
+							TRACE("送られてきたMESのSendID異常\n");
+							continue;
+						}
+						if (oldType_ != mes_.type)
+						{
+							TRACE("後続のMES_TYPEが違います\n");
+							TRACE("OLD:%d\n",oldType_);
+							TRACE("NEW:%d\n",mes_.type);
+							writePos = 0;
+							oldType_ = {};
+							continue;
+						}
 						if (mes_.next == 1)
 						{
 							TRACE("後続のデータがあります\n");
+							oldType_ = mes_.type;
 							writePos = revDataList_.size();
+							sendID++;
 						}
 					} while (mes_.next);
-					if (static_cast<unsigned int>(mes_.type) >= static_cast<unsigned int>(MES_TYPE::NON) &&
-						static_cast<unsigned int>(mes_.type) <= static_cast<unsigned int>(MES_TYPE::MAX))
+					if (static_cast<unsigned int>(mes_.type) > static_cast<unsigned int>(MES_TYPE::NON) &&
+						static_cast<unsigned int>(mes_.type) < static_cast<unsigned int>(MES_TYPE::MAX))
 					{
 						const auto type = static_cast<unsigned int>(mes_.type) - static_cast<unsigned int>(MES_TYPE::NON);
-						if (mes_.type == MES_TYPE::RESULT)
-						{
-							auto aaaa = 0;
-						}
 						if (checkData_[mes_.type] == revDataList_.size())
 						{
 							revFunc_[type](handle);
@@ -96,6 +116,7 @@ void NetWork::UpDate(void)
 						revDataList_.resize(0);
 						mes_ = {};
 					}
+					oldType_ = MES_TYPE::MAX;
 				}
 			}
 		}
@@ -591,6 +612,7 @@ void NetWork::EndOfNetWork(void)
 		std::lock_guard<std::mutex> lock(objRevMtx_);
 		objRevMap_.clear();
 	}
+	oldType_ = MES_TYPE::MAX;
 }
 
 bool NetWork::GetRevStanby(void)
@@ -610,6 +632,11 @@ bool NetWork::GetRevResult(void)
 	return revResult_;
 }
 
+
+void NetWork::RevNonMes(HandleList::iterator& itr)
+{
+	TRACE("NON_MES受信\n");
+}
 
 void NetWork::RevCountDownRoom(HandleList::iterator& itr)
 {
@@ -708,9 +735,14 @@ void NetWork::RevCountDownGame(HandleList::iterator& itr)
 			return;
 		}
 	}
-	if ((!revState_ && !startGame_))
+	if ((!revState_))
 	{
-		TRACE("タイミング違いのCountDownGameデータ受信\n");
+		TRACE("スタンバイMES前CountDownGameデータ受信\n");
+		return;
+	}
+	if (revState_ && startGame_)
+	{
+		TRACE("2度目CountDownGameデータ受信\n");
 		return;
 	}
 	TRACE("CountDownGameデータ受信\n");
@@ -866,6 +898,11 @@ void NetWork::RevDethData(HandleList::iterator& itr)
 
 void NetWork::RevResultData(HandleList::iterator& itr)
 {
+	if (revResult_)
+	{
+		TRACE("2度目のResultData\n");
+		return;
+	}
 	{
 		std::lock_guard<std::mutex> lock(resultMtx_);
 		int cnt = 0;
@@ -911,9 +948,10 @@ NetWork::NetWork()
 	startGame_ = false;
 	revState_ = false;
 	revResult_ = false;
+	oldType_ = MES_TYPE::MAX;
 	revID_ = false;
 	// 高速化の代償 わかりずらくなった
-	revFunc_[0] = nullptr;
+	revFunc_[0] = (std::bind(&NetWork::RevNonMes, this, std::placeholders::_1));
 	revFunc_[1] = (std::bind(&NetWork::RevCountDownRoom, this, std::placeholders::_1));
 	revFunc_[2] = (std::bind(&NetWork::RevID, this, std::placeholders::_1));
 	revFunc_[3] = (std::bind(&NetWork::RevStanbyHost, this, std::placeholders::_1));
@@ -957,7 +995,7 @@ NetWork::NetWork()
 
 	// このデータサイズで送られてくるはず
 	// なおTMX_DATAのみ受信したTMX_SIZEにより変わる
-	checkData_.try_emplace(MES_TYPE::NON, 0);
+	checkData_.try_emplace(MES_TYPE::NON, -1);
 	checkData_.try_emplace(MES_TYPE::COUNT_DOWN_GAME, 2);
 	checkData_.try_emplace(MES_TYPE::COUNT_DOWN_ROOM, 2);
 	checkData_.try_emplace(MES_TYPE::DETH, 1);

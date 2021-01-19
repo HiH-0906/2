@@ -240,28 +240,30 @@ bool Player::UpdataNet(const Time& now)
 		 auto mes = PickUpMes(MES_TYPE::POS);
 		 test = true;
 		 auto& data = mes.second;
-		 if (data[3].uidata >= 0 && data[3].uidata < static_cast<unsigned int>(DIR::MAX))
-		 {
-			 dir_ = static_cast<DIR>(data[3].uidata);
-		 }
-		 else
-		 {
-			 TRACE("DIR異常	ID：%d\n", id_);
-		 }
+		
 		 auto pos = Vector2{ static_cast<int>(data[1].uidata),static_cast<int>(data[2].uidata) };
-		 if (pos >= Vector2(0, 0) && pos < lpSceneMng.GetScreenSize())
+		 const auto& chip = mapMng_->GetChipSize();
+		 if (pos >= chip && pos < (lpSceneMng.GetScreenSize() - chip))
 		 {
 			 if (!CheckObjPos(mapMng_->ChengeChip(pos_), mapMng_->ChengeChip(pos)))
 			 {
 				 TRACE("Playerの移動時異常検知	ID：%d\n", id_);
-				 break;
+				 // breakすれば瞬間移動対策になる なお先生のBombの都合でいったんOff
+				 //break;
 			 }
-			 pos_ = pos;
 		 }
 		 else
 		 {
-			 TRACE("画面外pos(%d,%d) ID:%d", pos.x, pos.y, id_);
+			 TRACE("画面外pos(%d,%d) ID:%d\n", pos.x, pos.y, id_);
+			 break;
 		 }
+		 if (data[3].uidata < 0 && data[3].uidata > static_cast<unsigned int>(DIR::MAX))
+		 {
+			 TRACE("DIR異常	ID：%d\n", id_);
+			 break;
+		 }
+		 pos_ = pos;
+		 dir_ = static_cast<DIR>(data[3].uidata);
 	 }
 	 while (isPickMesList(MES_TYPE::SET_BOMB))
 	 {

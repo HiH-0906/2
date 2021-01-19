@@ -122,6 +122,7 @@ private:
 
 	// レシーブ部メンバ関数
 	// 各関数には担当するMES_TYPEに対するガードを入れる
+	void RevNonMes(HandleList::iterator& itr);
 	void RevCountDownRoom(HandleList::iterator& itr);
 	void RevID(HandleList::iterator& itr);
 	void RevStanbyHost(HandleList::iterator& itr);
@@ -158,6 +159,8 @@ private:
 
 	// result表示用データ格納先
 	std::list<int> resultData_;
+
+	MES_TYPE oldType_;
 
 	NetWork();
 	~NetWork();

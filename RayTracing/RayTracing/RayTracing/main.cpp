@@ -76,7 +76,7 @@ Color GetCheckerdColorFromPosition(const Position3& pos)
 {
 	Color col1(255, 255, 255);
 	Color col2(0, 0, 0);
-	auto checker = (static_cast<int>(pos.x / 30) + static_cast<int>(pos.z / 30)) % 2 == 0;
+	auto checker = (static_cast<int>(pos.x / 50) + static_cast<int>(pos.z / 50)) % 2 == 0;
 	checker = pos.x < 0 ? !checker : checker;
 	checker = pos.z < 0 ? !checker : checker;
 	if (checker)
@@ -123,6 +123,13 @@ void RayTracing(const Position3& eye,const Sphere& sphere) {
 				specular = Clamp(specular);
 				specular = pow(specular, 10);
 				float deiffuse[3];
+				for (int i = 0; i < 3; i++)
+				{
+					deiffuse[i] = (deiffuseB * albedo[i]) + specular;
+					deiffuse[i] = Clamp(deiffuse[i]);
+				}
+				//※塗りつぶしはDrawPixelという関数を使う。
+				Color color(255 * deiffuse[0], 255 * deiffuse[1], 255 * deiffuse[2]);
 
 				// 反射を考える
 				// 反射ベクトルを作る
@@ -144,34 +151,20 @@ void RayTracing(const Position3& eye,const Sphere& sphere) {
 					auto tmp = (w + plane.d) / u;
 					P = P + Rray * tmp;
 
-					for (int i = 0; i < 3; i++)
-					{
-						deiffuse[i] = (deiffuseB * albedo[i]) + specular;
-						deiffuse[i] = Clamp(deiffuse[i]);
-					}
+					
 					//※塗りつぶしはDrawPixelという関数を使う。
-					Color color(255 * deiffuse[0], 255 * deiffuse[1], 255 * deiffuse[2]);
-					auto spharCol = GetUINT32ColorFromVectorColor(color);
 
 					Color col = GetCheckerdColorFromPosition(P);
-					float reflectivity = 0.5f;
-					auto tmpCol = GetUINT32ColorFromVectorColor(col);
+					float reflectivity = 0.2f;	// 反射率
+					auto tmpCol = (col * reflectivity);
 
-					//tmpCol = spharCol * (1.0f - reflectivity) + tmpCol * reflectivity;
+					
+					UINT32 lastCol = GetUINT32ColorFromVectorColor(color * (1.0f - reflectivity) + tmpCol);
 
-					DrawPixel(x, y, tmpCol);
+					DrawPixel(x, y, lastCol);
 				}
 				else
 				{
-					for (int i = 0; i < 3; i++)
-					{
-						deiffuse[i] = (deiffuseB * albedo[i]) + specular;
-						deiffuse[i] = Clamp(deiffuse[i]);
-					}
-					//※塗りつぶしはDrawPixelという関数を使う。
-					Color color(255 * deiffuse[0], 255 * deiffuse[1], 255 * deiffuse[2]);
-
-					auto R = ReflectVector(L, N);
 					DrawPixel(x, y, GetUINT32ColorFromVectorColor(color));
 				}
 			}
@@ -197,8 +190,14 @@ void RayTracing(const Position3& eye,const Sphere& sphere) {
 					auto tmp = (w + plane.d) / u;
 					auto P = eye + ray * tmp;
 
-
 					Color col = GetCheckerdColorFromPosition(P);
+
+					// 影つける
+					if (IsHitRayAndObject(P, -Light.Normalized(), sphere, t))
+					{
+						// 暗くする
+						col *= 0.5f;
+					}
 
 					DrawPixel(x, y, GetUINT32ColorFromVectorColor(col));
 				}
