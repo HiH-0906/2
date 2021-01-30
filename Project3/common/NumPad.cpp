@@ -53,6 +53,7 @@ bool NumPad::UpDate(const Vector2& pos, bool flag)
 			{
 				if (inputNum_.size()!= 0)
 				{
+					inputStr_.pop_back();
 					inputNum_.pop_back();
 				}
 			}

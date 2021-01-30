@@ -175,7 +175,3 @@ Vector3::operator-=(const Vector3& v) {
 	y -= v.y;
 	z -= v.z;
 }
-
-Plane::Plane(const Vector3& n, const float& offset) :N(n), d(offset){
-	N.Normalize();
-}

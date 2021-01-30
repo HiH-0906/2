@@ -69,7 +69,7 @@ struct Vector3 {
 	void operator*=(float scale);
 	Vector3 operator*(float scale)const;
 	Vector3 operator*(const Vector3 vec)const;
-	Vector3 operator-() {
+	Vector3 operator-() const {
 		return Vector3(-x, -y,-z);
 	}
 };
@@ -97,21 +97,6 @@ struct Circle {
 	Circle(float r, Position2& p) :radius(r), pos(p) {}
 };
 
-
-///球を表す構造体
-struct Sphere {
-	float radius;//半径
-	Position3 pos; //中心座標
-	Sphere() :radius(0), pos(0, 0,0) {}
-	Sphere(float r, Position3& p) :radius(r), pos(p) {}
-};
-
-// 平面を表す構造体
-struct Plane{
-	Vector3 N;	// 法線ベクトル 正規化済み
-	float d;	// 原点からのオフセット(ただし-方向になる)
-	Plane(const Vector3& n, const float& offset = 0.0);
-};
 
 ///矩形を表す構造体
 struct Rect {

@@ -1,6 +1,7 @@
 #include<dxlib.h>
 #include <cmath>
 #include"Geometry.h"
+#include "Primitive.h"
 const int screen_width = 640;
 const int screen_height = 480;
 
@@ -26,7 +27,6 @@ Vector3 ReflectVector(const Vector3& in, const Vector3& normal)
 	// 結果のRを返す関数を作る
 	return in - (normal * 2 * (Dot(normal, in)));
 }
-
 
 //ヒントになると思って、色々と関数を用意しておりますが
 //別にこの関数を使わなければいけないわけでも、これに沿わなければいけないわけでも
@@ -104,16 +104,17 @@ void RayTracing(const Position3& eye,const Sphere& sphere) {
 			//①視点とスクリーン座標から視線ベクトルを作る
 			auto ray = Position3(x - screen_width / 2, screen_height / 2 - y, 0) - eye;
 			//②正規化しとく
-			ray.Normalize();
+			Ray tmp(eye, ray.Normalized());
 			//③IsHitRayAndObject関数がTrueだったら白く塗りつぶす
 			float t;
-			if (IsHitRayAndObject(eye, ray, sphere, t))
+			Vector3 N;
+			if (sphere.IsHit(tmp,t,N))
 			{
-				// 交点を求める
+				//// 交点を求める
 				auto P = eye + ray * t;
-				// 交点が分かったので法線ベクトルを求める
-				auto N = P - sphere.pos;
-				N.Normalize();
+				//// 交点が分かったので法線ベクトルを求める
+				//auto N = P - sphere.pos;
+				//N.Normalize();
 				auto L = Light.Normalized();
 				auto deiffuseB = Dot(N, -L);
 				

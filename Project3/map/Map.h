@@ -17,6 +17,16 @@ enum class MapLayer
 	CHAR,												// キャラクター初期位置 多分表示はしない
 };
 
+// Mapと同じ数字に
+enum class ITEM_TYPE
+{
+	NON,
+	BLAST = 8,
+	ADDBOMB = 9,
+	REMOTE = 10,
+	SPEEDUP = 11,
+};
+
 using shared_gene = std::shared_ptr<FlameGenerator>;
 
 
@@ -35,6 +45,7 @@ public:
 	bool CheckHitFlame(const Vector2& pos);
 	bool CheckCircleFlame(const Vector2 pos);
 	bool GetFlameEnd(void);
+	const ITEM_TYPE CheckHitItem(const Vector2& pos);	// 自分の位置にアイテムがいるか
 	Vector2 ChengeChip(const Vector2& pos);				// 渡された座標をチップに
 	void SetFlameData(const Vector2& chip, FlameData data);
 	const Vector2& GetChipSize(void)const;

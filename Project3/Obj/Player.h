@@ -17,6 +17,7 @@ enum class AnimState
 };
 
 
+enum class ITEM_TYPE;
 class Map;
 
 #define UNIT_ID_BASE 5
@@ -38,6 +39,7 @@ public:
 	void StockBomb(int id);
 	int UseBomb(void);
 	static int fallCnt_;
+	void ItemFuncInit(void);
 private:
 	void FuncInit(void);
 	int length_;
@@ -50,5 +52,7 @@ private:
 	std::unique_ptr<Input> input_;
 	std::list<int> bombList_;
 	std::list<moveFunc> moveFunc_;
+	std::map<ITEM_TYPE, std::function<void()>> itemFunc_;
+	int maxBomb_;
 };
 

@@ -16,6 +16,7 @@ int Player::fallCnt_ = 0;
 
 Player::Player(Vector2 pos, Vector2 size,Vector2 ImageSize, int speed,int id, std::shared_ptr<Map> mapMng, BaseScene& scene): Obj(pos,size,id,speed,mapMng,scene)
 {
+	maxBomb_ = 0;
 	lpImageMng.GetID("player", "Image/bomberman.png", { ImageSize.x,ImageSize.y }, { 5,4 });
 	dir_ = DIR::DOWN;
 	state_ = AnimState::IDEL;
@@ -70,9 +71,11 @@ Player::Player(Vector2 pos, Vector2 size,Vector2 ImageSize, int speed,int id, st
 
 	for (int bomb = 1; bomb <= 4; bomb++)
 	{
+		maxBomb_++;
 		StockBomb(id_ + bomb);
 	}
 	lpNetWork.SetObjRevData(id_, mtx_, revList_);
+	ItemFuncInit();
 }
 
 Player::~Player()
@@ -149,6 +152,7 @@ bool Player::UpdateAuto(const Time& now)
 		activ_ = false;
 		dynamic_cast<GameScene&>(scene_).SetDethPlayerID(id_);
 	}
+	itemFunc_[mapMng_->CheckHitItem(chip)]();
 	return true;
 }
 
@@ -168,7 +172,6 @@ bool Player::UpdateDef(const Time& now)
 		for (auto& tmp : list)
 		{
 			const auto& pos = tmp->GetPos();
-			//_dbgDrawFormatString(pos.x, pos.y, 0xff0000, "%d", i);
 			i++;
 		}
 	}
@@ -210,6 +213,7 @@ bool Player::UpdateDef(const Time& now)
 		activ_ = false;
 		dynamic_cast<GameScene&>(scene_).SetDethPlayerID(id_);
 	}
+	itemFunc_[mapMng_->CheckHitItem(chip)]();
 	return true;
 }
 
@@ -314,6 +318,8 @@ bool Player::UpdataNet(const Time& now)
 		state_ = AnimState::DETH;
 		activ_ = false;
 	}
+	const auto& chip = mapMng_->ChengeChip(pos_);
+	itemFunc_[mapMng_->CheckHitItem(chip)]();
 	return true;
 }
 
@@ -395,6 +401,39 @@ int Player::UseBomb(void)
 		bombList_.erase(bombList_.begin());
 	}
 	return id;
+}
+
+void Player::ItemFuncInit(void)
+{
+	itemFunc_.try_emplace(ITEM_TYPE::NON, []() {});
+	itemFunc_.try_emplace(ITEM_TYPE::BLAST, 
+		[&]() {
+		if (length_ < 6)
+		{
+			length_++;
+		}
+	});
+
+	itemFunc_.try_emplace(ITEM_TYPE::ADDBOMB, 
+		[&]() {
+		if (maxBomb_ < 6)
+		{
+			maxBomb_++;
+			StockBomb(id_ + maxBomb_);
+		}
+	});
+	itemFunc_.try_emplace(ITEM_TYPE::SPEEDUP,
+		[&]() {	
+		for (auto& speed : speedVec_)
+		{
+			if (speed.second.x < 8 && speed.second.y < 8)
+			{
+				speed.second *= 2;
+			}
+		}
+	});
+	itemFunc_.try_emplace(ITEM_TYPE::REMOTE, []() {/*ボムは各個人で管理しているので爆破不能*/});
+	
 }
 
 void Player::FuncInit(void)

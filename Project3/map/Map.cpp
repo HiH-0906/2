@@ -38,6 +38,7 @@ bool Map::Update(const Time& now)
 	}
 
 	ReDrawMap(MapLayer::WALL);
+	ReDrawMap(MapLayer::ITEM);
 	oldTime_ = now;
 	return true;
 }
@@ -147,6 +148,17 @@ bool Map::CheckCircleFlame(const Vector2 pos)
 bool Map::GetFlameEnd(void)
 {
 	return flameEnd_;
+}
+
+const ITEM_TYPE Map::CheckHitItem(const Vector2& pos)
+{
+	auto data = mapData_[mapKey_[MapLayer::ITEM]][pos.x + static_cast<size_t>(pos.y) * static_cast<size_t>(info_.mapSize.x)];
+	if (data == -1)
+	{
+		return ITEM_TYPE::NON;
+	}
+	mapData_[mapKey_[MapLayer::ITEM]][pos.x + static_cast<size_t>(pos.y) * static_cast<size_t>(info_.mapSize.x)] = -1;
+	return static_cast<ITEM_TYPE>(data);
 }
 
 Vector2 Map::ChengeChip(const Vector2& pos)
