@@ -1,17 +1,20 @@
 #include<dxlib.h>
 #include <cmath>
+#include <vector>
+#include <utility>
+#include <functional>
 #include"Geometry.h"
 #include "Primitive.h"
+
 const int screen_width = 640;
 const int screen_height = 480;
+
+using Primitive_t = std::vector<Primitive*>;
 
 namespace
 {
 	int image;
 	Vector3 Light = Vector3{ 1,-1,-1 };
-	float albedo[3] = { 0.5f , 0.5f, 1.0f };
-	// 視線と平面の交点
-	Plane plane(Vector3(0, 1, 0), 100);
 }
 
 // 反射ベクトルを返す
@@ -28,38 +31,6 @@ Vector3 ReflectVector(const Vector3& in, const Vector3& normal)
 	return in - (normal * 2 * (Dot(normal, in)));
 }
 
-//ヒントになると思って、色々と関数を用意しておりますが
-//別にこの関数を使わなければいけないわけでも、これに沿わなければいけないわけでも
-//ありません。レイトレーシングができていれば構いません。
-
-///レイ(光線)と球体の当たり判定
-///@oaram eye 視点
-///@param ray (視点からスクリーンピクセルへのベクトル)
-///@param sphere 球
-///@hint レイは正規化しといたほうが使いやすいだろう
-///@param t 視点から交点までの距離
-bool IsHitRayAndObject(const Position3& eye,const Vector3& ray,const Sphere& sp,float& t) {
-	//レイが正規化済みである前提で…
-	//
-	//視点から球体中心へのベクトルを作ります
-	//
-	auto c = sp.pos - eye;
-	//中心から視線への内積をとります＝＞射影長（ベクトル長として利用）
-	auto d = Dot(c, ray);
-	//視線ベクトルとベクトル長をかけて、中心からの垂線下した点を求めます
-	auto r = ray * d;
-	r = c - r;
-	if (r.Magnitude() <= sp.radius)
-	{
-		// tを求めたい
-		// wを求める。玉の半径とベクトルVの大きさから求まる
-		// 円までの中心から視線ベクトルに落とした射影の長さからwを引けばtになります
-		auto w = sqrt(sp.radius * sp.radius - Dot(r,r));
-		t = d - w;
-		return true;
-	}
-	return false;
-}
 
 float Clamp(float in, const float min = 0.0f, const float max = 1.0f) {
 	return max(min(in, max), min);
@@ -72,142 +43,120 @@ Color Clamp(const Color& in, const float min = 0.0f, const float max = 1.0f)
 	return Color(Clamp(in.x, min, max), Clamp(in.y, min, max), Clamp(in.z, min, max));
 }
 
-Color GetCheckerdColorFromPosition(const Position3& pos)
+Vector3 GetCheckerdColorFromPosition(const Position3& pos,const Material& mat)
 {
-	Color col1(255, 255, 255);
-	Color col2(0, 0, 0);
-	auto checker = (static_cast<int>(pos.x / 50) + static_cast<int>(pos.z / 50)) % 2 == 0;
+	if (mat.pattern != Pattern::checker)
+	{
+		return mat.baceCol;
+	}
+	auto checker = (static_cast<int>(pos.x / mat.patternBlockSize) + static_cast<int>(pos.z / mat.patternBlockSize)) % 2 == 0;
 	checker = pos.x < 0 ? !checker : checker;
 	checker = pos.z < 0 ? !checker : checker;
 	if (checker)
 	{
-		return col1;
+		return mat.baceCol;
 	}
 	else
 	{
-		return col2;
+		return mat.subCol;
 	}
+}
+
+Vector3 Max(const Vector3& av, const Vector3& bv)
+{
+	return Vector3{ max(av.x,bv.x),max(av.y,bv.y) ,max(av.z,bv.z) };
 }
 
 UINT32 GetUINT32ColorFromVectorColor(const Color col)
 {
-	return GetColor(col.x, col.y, col.z);
+	return GetColor(static_cast<unsigned int>(col.x), static_cast<unsigned int>(col.y), static_cast<unsigned int>(col.z));
+}
+
+bool Trace(const Ray& ray, const Primitive_t& primitives, Vector3& refCol,int limit = 5, Primitive* self = nullptr, bool isShadow = false)
+{
+	std::pair<float, std::function<Vector3(void)>> depthAndColorFunc = std::make_pair(FLT_MAX, []()->Vector3 {return Black; });
+	bool onceHit = false;
+	for (auto& prim : primitives)
+	{
+		if (prim == self)
+		{
+			continue;
+		}
+		if (limit < 0)
+		{
+			return false;
+		}
+		float t = 0.0f;
+		Vector3 norm;
+		Vector3 intersection;
+		if (prim->IsHit(ray,t,norm, intersection))
+		{
+			if (isShadow)
+			{
+				return true;
+			}
+			if (t < depthAndColorFunc.first)
+			{
+				depthAndColorFunc.first = t;
+				depthAndColorFunc.second = [ray, t, norm, intersection, &primitives, &prim, limit]()
+				{
+					Vector3 refCol;
+					auto& mtr = prim->matrial;
+					float diff = Clamp(Dot(norm, -Light));
+					auto half = -(Light + ray.vec).Normalized();
+					float spec = pow(Clamp(Dot(half, norm)), mtr.specularity);
+					auto baseCol = GetCheckerdColorFromPosition(intersection, mtr);
+					refCol = (Clamp((baseCol * diff + (mtr.specCol * spec))) * 255);
+					if (mtr.reflectivity > 0.0f)
+					{
+						Ray rray(intersection, ReflectVector(ray.vec, norm));
+						Vector3 reflectColor;
+						if (Trace(rray, primitives, reflectColor, limit - 1, prim))
+						{
+							refCol = (refCol * (1.0f - mtr.reflectivity)) + (reflectColor * mtr.reflectivity);
+						}
+					}
+					Vector3 dummyCol;
+					Ray shadowRay = Ray(intersection, -Light.Normalized());
+					if (Trace(shadowRay, primitives, dummyCol, 0, prim, true))
+					{
+						refCol *= 0.5f;
+					}
+					return refCol;
+				};
+			}
+			onceHit = true;
+		}
+	}
+	if (onceHit)
+	{
+		refCol = depthAndColorFunc.second();
+	}
+	return onceHit;
 }
 
 ///レイトレーシング
 ///@param eye 視点座標
 ///@param sphere 球オブジェクト(そのうち複数にする)
-void RayTracing(const Position3& eye,const Sphere& sphere) {
+void RayTracing(const Position3& eye,const Primitive_t& primitives) {
 
 	for (int y = 0; y < screen_height; ++y) {//スクリーン縦方向
 		for (int x = 0; x < screen_width; ++x) {//スクリーン横方向
 			//①視点とスクリーン座標から視線ベクトルを作る
 			auto ray = Position3(x - screen_width / 2, screen_height / 2 - y, 0) - eye;
 			//②正規化しとく
-			Ray tmp(eye, ray.Normalized());
-			//③IsHitRayAndObject関数がTrueだったら白く塗りつぶす
-			float t;
-			Vector3 N;
-			if (sphere.IsHit(tmp,t,N))
+			Ray tmpRay(eye, ray.Normalized());
+			Vector3 color = {};
+			if (Trace(tmpRay, primitives, color))
 			{
-				//// 交点を求める
-				auto P = eye + ray * t;
-				//// 交点が分かったので法線ベクトルを求める
-				//auto N = P - sphere.pos;
-				//N.Normalize();
-				auto L = Light.Normalized();
-				auto deiffuseB = Dot(N, -L);
-				
-				// ライトの反射ベクトルと視線の逆ベクトルの内積を取りpowでn乗する。オーバーフローしないように気を付ける
-				auto specular = Dot(ReflectVector(L, N), -ray);
-
-				specular = Clamp(specular);
-				specular = pow(specular, 10);
-				float deiffuse[3];
-				for (int i = 0; i < 3; i++)
-				{
-					deiffuse[i] = (deiffuseB * albedo[i]) + specular;
-					deiffuse[i] = Clamp(deiffuse[i]);
-				}
-				//※塗りつぶしはDrawPixelという関数を使う。
-				Color color(255 * deiffuse[0], 255 * deiffuse[1], 255 * deiffuse[2]);
-
-				// 反射を考える
-				// 反射ベクトルを作る
-				auto Rray = ReflectVector(ray, N);
-				// 反射ベクトルが地面と当たるかを考える
-				auto dot = Dot(Rray, plane.N);
-				// まずははんしゃさきが地面なら色を変える
-				if (dot < 0.0f)
-				{
-					// 交点P=eye+ray*t
-					// t=w/u (wは平面からの距離　　uは一回当たり平面に近づく大きさ)
-					// w=eye・N u=-ray・N
-					// t=w/uにしたいけどdがあるので
-					// t=(w+d)/u
-					// あとはここからPを求めればよい
-					// まずｔを求める。多分tは４万くらい
-					auto w = Dot(P, plane.N);
-					auto u = Dot(-Rray, plane.N);
-					auto tmp = (w + plane.d) / u;
-					P = P + Rray * tmp;
-
-					
-					//※塗りつぶしはDrawPixelという関数を使う。
-
-					Color col = GetCheckerdColorFromPosition(P);
-					float reflectivity = 0.2f;	// 反射率
-					auto tmpCol = (col * reflectivity);
-
-					
-					UINT32 lastCol = GetUINT32ColorFromVectorColor(color * (1.0f - reflectivity) + tmpCol);
-
-					DrawPixel(x, y, lastCol);
-				}
-				else
-				{
-					DrawPixel(x, y, GetUINT32ColorFromVectorColor(color));
-				}
+				UINT32 intCol = GetUINT32ColorFromVectorColor(color);
+				DrawPixel(x, y, intCol);
 			}
-			// 球体に当たらなかった
 			else
 			{
-				// 平面に当たる条件
-				// 仮に平面の法線を(0,1,0)
-				// 平面に当たる条件は視線と法線ベクトルが90度以上
-
-				auto dot = Dot(ray, plane.N);
-				if (dot < 0.0f)	// 地面に当たってる
+				if ((x / 40 + y / 40) % 2 == 0)
 				{
-					// 交点P=eye+ray*t
-					// t=w/u (wは平面からの距離　　uは一回当たり平面に近づく大きさ)
-					// w=eye・N u=-ray・N
-					// t=w/uにしたいけどdがあるので
-					// t=(w+d)/u
-					// あとはここからPを求めればよい
-					// まずｔを求める。多分tは４万くらい
-					auto w = Dot(eye, plane.N);
-					auto u = Dot(-ray, plane.N);
-					auto tmp = (w + plane.d) / u;
-					auto P = eye + ray * tmp;
-
-					Color col = GetCheckerdColorFromPosition(P);
-
-					// 影つける
-					if (IsHitRayAndObject(P, -Light.Normalized(), sphere, t))
-					{
-						// 暗くする
-						col *= 0.5f;
-					}
-
-					DrawPixel(x, y, GetUINT32ColorFromVectorColor(col));
-				}
-				else
-				{
-					if ((x / 40 + y / 40) % 2 == 0)
-					{
-						DrawPixel(x, y, 0x007700);
-					}
+					DrawPixel(x, y, 0x007700);
 				}
 			}
 		}
@@ -217,39 +166,57 @@ void RayTracing(const Position3& eye,const Sphere& sphere) {
 int WINAPI WinMain(HINSTANCE , HINSTANCE,LPSTR,int ) {
 	ChangeWindowMode(true);
 	SetGraphMode(screen_width, screen_height, 32);
-	SetMainWindowText(_T("簡易版のレイトレでっせ"));
+	SetMainWindowText(_T("1916035_橋本大輝"));
 	DxLib_Init();
-	image = LoadSoftImage(L"image/test.png");
 	auto eye = Vector3(0, 0, 300);
-	auto sphere = Sphere(100, Position3(0, 50, -100));
+	// 球体
+	auto sphere = Sphere(100.0f, Position3(0, 50, -100));
+	sphere.matrial.baceCol = { 0.5f,0.5f,1.0f };
+	sphere.matrial.reflectivity = 0.5f;
+	auto sphere2 = Sphere(100.0f, Position3(250, 50, -100));
+	sphere2.matrial.baceCol = { 1.0f,0.5f,0.5f };
+	sphere2.matrial.reflectivity = 0.8f;
+	auto sphere3 = Sphere(100.0f, Position3(-250, 50, -100));
+	sphere3.matrial.baceCol = { 0.5f,1.0f,0.5f };
+	sphere3.matrial.reflectivity = 0.2f;
+	// 平面
+	Plane plane(Vector3(0, 1, 0), 100);
+	plane.matrial.pattern = Pattern::checker;
+	plane.matrial.specCol;
+	Primitive_t primitives_;
+	primitives_.push_back(&sphere);
+	primitives_.push_back(&sphere2);
+	primitives_.push_back(&sphere3);
+	primitives_.push_back(&plane);
+	int speed = 10;
 	while (!ProcessMessage() && !CheckHitKey(KEY_INPUT_ESCAPE))
 	{
 		ClsDrawScreen();
 		if (CheckHitKey(KEY_INPUT_UP))
 		{
-			sphere.pos.y+=5;
+			sphere.pos.y+= speed;
 		}
 		if (CheckHitKey(KEY_INPUT_DOWN))
 		{
-			sphere.pos.y-=5;
+			sphere.pos.y-= speed;
 		}
 		if (CheckHitKey(KEY_INPUT_LEFT))
 		{
-			sphere.pos.x-=5;
+			sphere.pos.x-= speed;
 		}
 		if (CheckHitKey(KEY_INPUT_RIGHT))
 		{
-			sphere.pos.x+=5;
+			sphere.pos.x+= speed;
 		}
 		if (CheckHitKey(KEY_INPUT_Z))
 		{
-			sphere.pos.z += 5;
+			sphere.pos.z += speed;
 		}
 		if (CheckHitKey(KEY_INPUT_X))
 		{
-			sphere.pos.z -= 5;
+			sphere.pos.z -= speed;
 		}
-		RayTracing(eye, sphere);
+		RayTracing(eye, primitives_);
 		ScreenFlip();
 	}
 	DxLib_End();

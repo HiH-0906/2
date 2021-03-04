@@ -82,6 +82,7 @@ void NetWork::UpDate(void)
 							revDataList_.resize(static_cast<size_t>(writePos + mes_.length));
 							NetWorkRecv(handle->handle, revDataList_.data() + writePos, static_cast<int>(mes_.length * sizeof(revDataList_[0])));
 							SendMesAll(mes_.type, revDataList_, handle->handle);
+							continue;
 						}
 						if (mes_.sendID != sendID)
 						{

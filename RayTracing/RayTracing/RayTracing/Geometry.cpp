@@ -116,6 +116,7 @@ Vector3 operator-(const Vector3& va, const Vector3 vb) {
 	return Vector3(va.x - vb.x, va.y - vb.y,va.z-vb.z);
 }
 
+
 float
 Vector3::Magnitude()const {
 	return sqrt(x * x + y * y + z * z);

@@ -83,7 +83,7 @@ float Dot(const Vector3& va, const Vector3& vb);
 Vector3 Cross(const Vector3& va, const Vector3& vb);
 
 ///“àÏ‰‰Zq
-float operator*(const Vector3& va, const Vector3& vb);
+//float operator*(const Vector3& va, const Vector3& vb);
 
 ///ŠOÏ‰‰Zq
 Vector3 operator%(const Vector3& va, const Vector3& vb);

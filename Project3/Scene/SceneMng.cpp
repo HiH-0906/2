@@ -46,6 +46,7 @@ bool SceneMng::SysInit(void)
 	ChangeWindowMode(true);
 	SetWindowText("1916035_‹´–{‘å‹P");
 	SetGraphMode(screenX, screenY, 16);
+	SetDoubleStartValidFlag(true);
 	if (DxLib_Init() == -1)
 	{
 		return false;
